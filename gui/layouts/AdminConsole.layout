@@ -1,0 +1,1367 @@
+FrameWidgetClass rootFrame {
+ visible 1
+ ignorepointer 1
+ keepsafezone 0
+ position 0.05 0.05
+ size 0.8 0.8
+ hexactpos 0
+ hexactsize 0
+ vexactsize 0
+ {
+  PanelWidgetClass TitlePanel {
+   color 0 0 0 0.651
+   size 0.5 0.1
+   style editor_selection
+   {
+    ButtonWidgetClass btnGeneral {
+     position 0.03 9
+     size 0.3 69
+     vexactpos 1
+     vexactsize 1
+     scaled 1
+     style Editor
+     text "SETTINGS"
+    }
+    ButtonWidgetClass btnZones {
+     position 0.35 9
+     size 0.3 69
+     vexactpos 1
+     vexactsize 1
+     style Editor
+     text "ZONES"
+    }
+    ButtonWidgetClass btnLawbreakers {
+     position 0.67 9
+     size 0.3 69
+     vexactpos 1
+     vexactsize 1
+     style Editor
+     text "LAWBREAKERS"
+    }
+   }
+  }
+  PanelWidgetClass SettingsRootPanel {
+   visible 1
+   color 0 0 0 0.5882
+   size 0.5 0.9
+   valign bottom_ref
+   style DayZDefaultPanel
+   {
+    ScrollWidgetClass list {
+     clipchildren 1
+     color 0.6235 0.1569 0.1569 1
+     position 0.01 0.01
+     size 0.98 0.85
+     style blank
+     "Scrollbar V" 1
+     {
+      PanelWidgetClass generalSettingsPanel {
+       color 0 0 0 0.6549
+       position 0 1
+       size 1 440
+       vexactpos 1
+       vexactsize 1
+       style blank
+       {
+        TextWidgetClass GeneralTitle {
+         position 0 0
+         size 1 30
+         vexactpos 1
+         vexactsize 1
+         text "== GENERAL =="
+         "text halign" center
+         "text valign" center
+        }
+        PanelWidgetClass modePanel {
+         color 0 0 0 0.6549
+         position 0 40
+         size 1 30
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass modeTitle {
+           position 0 0
+           size 0.5 1
+           text "Mode"
+          }
+          XComboBoxWidgetClass modeValue {
+           position 0.5 0
+           size 0.5 1
+           style Default
+           items "PvP zones; PvE zones; PvE; PvP;"
+          }
+         }
+        }
+        PanelWidgetClass freqPanel {
+         color 0 0 0 0.651
+         position 0 75
+         size 1 30
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass freqTitle {
+           position 0 0
+           size 0.75 1
+           text "Update frequency"
+          }
+          EditBoxWidgetClass freqValue {
+           position 0.75 0
+           size 0.25 0.9
+           style DefaultBorder
+           text "1000"
+          }
+         }
+        }
+        PanelWidgetClass showNotifsPanel {
+         color 0 0 0 0.651
+         position 0 110
+         size 1 30
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass showNotifsTitle {
+           size 0.94 1
+           text "Show notifications"
+          }
+          CheckBoxWidgetClass showNotifsValue {
+           position 0.94 0
+           size 0.05 1
+           style Default
+          }
+         }
+        }
+        PanelWidgetClass showUIPanel {
+         color 0 0 0 0.651
+         position 0 145
+         size 1 30
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass showUITitle {
+           size 0.94 1
+           text "Use GUI notifications"
+          }
+          CheckBoxWidgetClass showUIValue {
+           position 0.94 0
+           size 0.05 1
+           style Default
+          }
+         }
+        }
+        PanelWidgetClass showNameInNotifsPanel {
+         color 0 0 0 0.651
+         position 0 180
+         size 1 30
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass showNameInNotifsTitle {
+           size 0.94 1
+           text "Show zone name in notifications"
+           "text valign" center
+          }
+          CheckBoxWidgetClass showNameInNotifsValue {
+           position 0.94 0
+           size 0.05 1
+           style Default
+          }
+         }
+        }
+        PanelWidgetClass exitDelayPanel {
+         color 0 0 0 0.651
+         position 0 215
+         size 1 30
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass exitDelayTitle {
+           size 0.75 1
+           text "Delay before leaving a zone (in seconds)"
+           "text valign" center
+          }
+          EditBoxWidgetClass exitDelayValue {
+           position 0.75 0
+           size 0.25 1
+           style DefaultBorder
+          }
+         }
+        }
+        PanelWidgetClass customMsgEnterPanel {
+         visible 1
+         color 0 0 0 0.651
+         position 0 250
+         size 1 60
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass customMsgEnterTitle {
+           size 1 0.5
+           text "Custom text for enter zone mesage"
+           "text valign" center
+          }
+          EditBoxWidgetClass customMsgEnterValue {
+           position 0 0.5
+           size 1 0.5
+           style DefaultBorder
+          }
+         }
+        }
+        PanelWidgetClass customMsgExitPanel {
+         visible 1
+         color 0 0 0 0.651
+         position 0 315
+         size 1 60
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass customMsgExitTitle {
+           size 1 0.5
+           text "Custom text for exit zone message"
+           "text valign" center
+          }
+          EditBoxWidgetClass customMsgExitValue {
+           position 0 0.5
+           size 1 0.5
+           style DefaultBorder
+          }
+         }
+        }
+        PanelWidgetClass customMsgExitCountdownPanel {
+         visible 1
+         color 0 0 0 0.651
+         position 0 380
+         size 1 60
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass customMsgExitCountdownTitle {
+           size 1 0.5
+           text "Custom text for exit countdown message"
+           "text valign" center
+          }
+          EditBoxWidgetClass customMsgExitCountdownValue {
+           position 0 0.5
+           size 1 0.5
+           style DefaultBorder
+          }
+         }
+        }
+       }
+      }
+      PanelWidgetClass damageSettingsPanel {
+       color 0 0 0 0.651
+       position 0 460
+       size 1 305
+       vexactpos 1
+       vexactsize 1
+       style blank
+       {
+        TextWidgetClass DamageTitle {
+         position 0 1
+         size 1 30
+         vexactpos 1
+         vexactsize 1
+         text "== DAMAGE =="
+         "text halign" center
+         "text valign" center
+        }
+        PanelWidgetClass healTargetPanel {
+         color 0 0 0 0.651
+         position 0 40
+         size 1 30
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass healTargetTitle {
+           position 0 0
+           size 0.94 1
+           text "Restore target health"
+           "text valign" center
+          }
+          CheckBoxWidgetClass healTargetValue {
+           position 0.94 0
+           size 0.05 1
+           vexactpos 0
+           vexactsize 0
+           scaled 1
+           style Default
+          }
+         }
+        }
+        PanelWidgetClass healCargoPanel {
+         color 0 0 0 0.651
+         position 0 75
+         size 1 30
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass healCargoTitle {
+           size 0.94 1
+           text "Protect clothing and cargo"
+           "text valign" center
+          }
+          CheckBoxWidgetClass healCargoValue {
+           position 0.94 0
+           size 0.05 1
+           style Default
+          }
+         }
+        }
+        PanelWidgetClass allowDmgBeyondZonePanel {
+         color 0 0 0 0.651
+         position 0 110
+         size 1 30
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass allowDmgBeyondZoneTitle {
+           size 0.94 1
+           text "Allow damage between PvP and PvE"
+           "text valign" center
+          }
+          CheckBoxWidgetClass allowDmgBeyondZoneValue {
+           position 0.94 0
+           size 0.05 1
+           style Default
+          }
+         }
+        }
+        PanelWidgetClass reflectDmgPanel {
+         color 0 0 0 0.651
+         position 0 145
+         size 1 166
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass reflectDmgTitle {
+           position 0 0
+           size 1 1
+           vexactpos 0
+           vexactsize 0
+           scaled 1
+           text "Reflect damage back to the attacker"
+           "exact text" 0
+           text_proportion 0.2
+           "size to text h" 0
+           "size to text v" 0
+          }
+          TextWidgetClass reflectDmgWeaponsTitle {
+           position 0.5 0.15
+           size 0.44 0.18
+           text "weapon damage"
+           "text valign" center
+          }
+          CheckBoxWidgetClass reflectDmgWeaponsValue {
+           position 0.94 0.15
+           size 0.05 0.18
+           style Default
+          }
+          TextWidgetClass reflectDmgExplosivesTitle {
+           position 0.5 0.35
+           size 0.44 0.18
+           text "explosion damage"
+           "text valign" center
+          }
+          CheckBoxWidgetClass reflectDmgExplosivesValue {
+           position 0.94 0.35
+           size 0.05 0.18
+           style Default
+          }
+          TextWidgetClass reflectDmgVehiclesTitle {
+           position 0.5 0.55
+           size 0.44 0.18
+           text "vehicles damage"
+           "text valign" center
+          }
+          CheckBoxWidgetClass reflectDmgVehiclesValue {
+           position 0.94 0.55
+           size 0.05 0.18
+           style Default
+          }
+          TextWidgetClass reflectDmgFistsTitle {
+           position 0.5 0.75
+           size 0.44 0.18
+           text "fist fight damage"
+           "text valign" center
+          }
+          CheckBoxWidgetClass reflectDmgFistsValue {
+           position 0.94 0.75
+           size 0.05 0.18
+           style Default
+          }
+         }
+        }
+       }
+      }
+      PanelWidgetClass lawSettingsPanel {
+       clipchildren 0
+       color 0 0 0 0.651
+       position 0 790
+       size 1 340
+       vexactpos 1
+       vexactsize 1
+       style blank
+       {
+        TextWidgetClass LBTitle {
+         position 0 1
+         size 1 30
+         vexactpos 1
+         vexactsize 1
+         text "== LAW SYSTEM =="
+         "text halign" center
+         "text valign" center
+        }
+        PanelWidgetClass lbKillTypesPanel {
+         clipchildren 0
+         color 0 0 0 0.651
+         position 0 30
+         size 1 165
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass lbKillTypesTitle {
+           position 0 0
+           size 1 150
+           vexactpos 1
+           vexactsize 1
+           text "Declare a lawbreaker"
+           text_proportion 0.2
+          }
+          TextWidgetClass lbKillTypeWeaponsTitle {
+           position 0.5 0.2
+           size 0.44 0.18
+           text "on weaponary kill"
+           "text valign" center
+          }
+          CheckBoxWidgetClass lbKillTypeWeaponsValue {
+           position 0.94 0.2
+           size 0.05 0.18
+           style Default
+          }
+          TextWidgetClass lbKillTypeExplosivesTitle {
+           position 0.5 0.4
+           size 0.44 0.18
+           text "on explosives kill"
+           "text valign" center
+          }
+          CheckBoxWidgetClass lbKillTypeExplosivesValue {
+           position 0.94 0.4
+           size 0.05 0.18
+           style Default
+          }
+          TextWidgetClass lbKillTypeVehiclesTitle {
+           position 0.5 0.6
+           size 0.44 0.18
+           text "on vehicle kill"
+           "text valign" center
+          }
+          CheckBoxWidgetClass lbKillTypeVehiclesValue {
+           position 0.94 0.6
+           size 0.05 0.18
+           style Default
+          }
+          TextWidgetClass lbKillTypeFistsTitle {
+           position 0.5 0.8
+           size 0.44 0.18
+           text "on fist fight kill"
+           "text valign" center
+          }
+          CheckBoxWidgetClass lbKillTypeFistsValue {
+           position 0.94 0.8
+           size 0.05 0.18
+           style Default
+          }
+         }
+        }
+        PanelWidgetClass lbServerMessagePanel {
+         color 0 0 0 0.651
+         position 0 200
+         size 1 30
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass lbServerMessageTitle {
+           position 0 0
+           size 0.94 1
+           text "Show server wide message about lawbreaker"
+           "text valign" center
+          }
+          CheckBoxWidgetClass lbServerMessageValue {
+           position 0.94 0
+           size 0.05 1
+           style Default
+          }
+         }
+        }
+        PanelWidgetClass lbAttackAnywherePanel {
+         color 0 0 0 0.651
+         position 0 235
+         size 1 30
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass lbAttackAnywhereTitle {
+           position 0 0
+           size 0.94 1
+           text "Allow lawbreakers to attack anywhere"
+           "text valign" center
+          }
+          CheckBoxWidgetClass lbAttackAnywhereValue {
+           position 0.94 0
+           size 0.05 1
+           style Default
+          }
+         }
+        }
+        PanelWidgetClass lbPardonOnAnyDeathPanel {
+         color 0 0 0 0.651
+         position 0 270
+         size 1 30
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass lbPardonOnAnyDeathTitle {
+           position 0 0
+           size 0.94 1
+           text "Pardon a lawbreaker on each death from any source"
+           "text valign" center
+          }
+          CheckBoxWidgetClass lbPardonOnAnyDeathValue {
+           position 0.94 0
+           size 0.05 1
+           style Default
+          }
+         }
+        }
+        PanelWidgetClass lbAutoclearPanel {
+         color 0 0 0 0.651
+         position 0 305
+         size 1 30
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass lbAutoclearTitle {
+           position 0 0
+           size 0.94 1
+           text "Autoclear lawbreakers data"
+           "text valign" center
+          }
+          CheckBoxWidgetClass lbAutoclearValue {
+           position 0.94 0
+           size 0.05 1
+           style Default
+          }
+         }
+        }
+        PanelWidgetClass lbAutoclearPeriodPanel {
+         color 0 0 0 0.651
+         position 0 340
+         size 1 30
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass lbAutoclearPeriodTitle {
+           position 0 0
+           size 0.5 1
+           text "Keep a lawbreaker data for"
+           "text valign" center
+          }
+          EditBoxWidgetClass lbAutoclearPeriodValue {
+           position 0.5 0
+           size 0.15 1
+           style DefaultBorder
+          }
+          XComboBoxWidgetClass lbAutoclearPeriodMode {
+           position 0.65 0
+           size 0.34 1
+           items "minutes; hours; days;"
+          }
+         }
+        }
+        PanelWidgetClass customMsgLbServerWidePanel {
+         visible 1
+         color 0 0 0 0.651
+         position 0 375
+         size 1 60
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass customMsgLbServerWideTitle {
+           size 1 0.5
+           text "Custom text for the server wide message about lawful kill"
+           "text valign" center
+          }
+          EditBoxWidgetClass customMsgLbServerWideValue {
+           position 0 0.5
+           size 1 0.5
+           style DefaultBorder
+          }
+         }
+        }
+        PanelWidgetClass customMsgLbPersonalPanel {
+         visible 1
+         color 0 0 0 0.651
+         position 0 440
+         size 1 60
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass customMsgLbPersonalTitle {
+           size 1 0.5
+           text "Custom text for the personal message for the lawbreaker"
+           "text valign" center
+          }
+          EditBoxWidgetClass customMsgLbPersonalValue {
+           position 0 0.5
+           size 1 0.5
+           style DefaultBorder
+          }
+         }
+        }
+       }
+      }
+      PanelWidgetClass mapSettingsPanel {
+       color 0 0 0 0.651
+       position 0 1305
+       size 1 215
+       vexactpos 1
+       vexactsize 1
+       style blank
+       {
+        TextWidgetClass MapTitle {
+         position 0 1
+         size 1 30
+         vexactpos 1
+         vexactsize 1
+         text "== MAP =="
+         "text halign" center
+         "text valign" center
+        }
+        PanelWidgetClass mapShowLbMarkersPanel {
+         color 0 0 0 0.651
+         position 0 35
+         size 1 30
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass mapShowLbMarkersTitle {
+           position 0 0
+           size 0.94 1
+           text "Show lawbreakers on map"
+           "text valign" center
+          }
+          CheckBoxWidgetClass mapShowLbMarkersValue {
+           position 0.94 0
+           size 0.05 1
+           style Default
+          }
+         }
+        }
+        PanelWidgetClass mapLbMarkersUpdateFreqPanel {
+         color 0 0 0 0.651
+         position 0 70
+         size 1 30
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass mapLbMarkersUpdateFreqTitle {
+           position 0 0
+           size 0.78 1
+           text "Lawbreakers markers update frequency (in seconds)"
+           "text valign" center
+          }
+          EditBoxWidgetClass mapLbMarkersUpdateFreqValue {
+           position 0.78 0
+           size 0.21 1
+           style DefaultBorder
+          }
+         }
+        }
+        PanelWidgetClass mapLbMarkersUseApproximatePanel {
+         color 0 0 0 0.651
+         position 0 105
+         size 1 30
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass mapLbMarkersUseApproximateTitle {
+           position 0 0
+           size 0.94 1
+           text "Show lawbreaker's approximate location"
+           "text valign" center
+          }
+          CheckBoxWidgetClass mapLbMarkersUseApproximateValue {
+           position 0.94 0
+           size 0.05 1
+           style Default
+          }
+         }
+        }
+        PanelWidgetClass mapLbMarkersApproximateOffsetPanel {
+         color 0 0 0 0.651
+         position 0 140
+         size 1 30
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass mapLbMarkersApproximateOffsetTitle {
+           position 0 0
+           size 0.78 1
+           text "Approximate location max offset (meters)"
+           "text valign" center
+          }
+          EditBoxWidgetClass mapLbMarkersApproximateOffsetValue {
+           position 0.78 0
+           size 0.21 1
+           style DefaultBorder
+          }
+         }
+        }
+        PanelWidgetClass mapLbCanSeeTheirOwnMarkerPanel {
+         color 0 0 0 0.651
+         position 0 175
+         size 1 30
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass mapLbCanSeeTheirOwnMarkerTitle {
+           position 0 0
+           size 0.94 1
+           text "Lawbreakers can see their own markers"
+           "text valign" center
+          }
+          CheckBoxWidgetClass mapLbCanSeeTheirOwnMarkerValue {
+           position 0.94 0
+           size 0.05 1
+           style Default
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    ImageWidgetClass btnSettingsApplyBackground {
+     color 0.3137 0.5608 0.0706 1
+     position 0.02 0.02
+     size 0.3 0.1
+     halign right_ref
+     valign bottom_ref
+     {
+      ButtonWidgetClass btnSettingsApply {
+       color 0.0706 0.5608 0.1922 1
+       position 0 0
+       size 1 1
+       halign left_ref
+       valign bottom_ref
+       style ServerBrowserCollapse
+       text "Apply"
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass ZonesRootPanel {
+   visible 0
+   color 0 0 0 0.7843
+   size 0.5 0.9
+   valign bottom_ref
+   style editor_selection
+   {
+    PanelWidgetClass zonesListPanel {
+     color 0 0 0 0.651
+     position 0.01 0.01
+     size 0.98 0.98
+     style Outline
+     {
+      TextWidgetClass zonesListTitle {
+       position 0.01 10
+       size 0.97 35
+       vexactpos 1
+       vexactsize 1
+       style Normal
+       text "Zones:"
+       "text valign" center
+      }
+      TextListboxWidgetClass zonesList {
+       position 0.01 55
+       size 0.97 615
+       vexactpos 1
+       vexactsize 1
+       style Default
+       "title visible" 0
+       lines 25
+      }
+      ImageWidgetClass btnCreateZoneBackground {
+       color 0.2588 0.3647 0.6863 1
+       position 0.01 0.01
+       size 0.5 0.1
+       halign center_ref
+       valign bottom_ref
+       {
+        ButtonWidgetClass btnCreateNewZone {
+         inheritalpha 0
+         color 0.0706 0.1922 0.5608 1
+         position 0 0
+         size 1 1
+         halign center_ref
+         valign center_ref
+         style ServerBrowserCollapse
+         text "Create new zone"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass ZoneSettingsPanel {
+   visible 0
+   color 0 0 0 0.7843
+   position 0.51 0.11
+   size 0.48 0.88
+   style DayZDefaultPanel
+   {
+    PanelWidgetClass zoneNamePanel {
+     color 0 0 0 0.7059
+     position 0.02 20
+     size 0.96 80
+     vexactpos 1
+     vexactsize 1
+     style DayZDefaultPanel
+     {
+      TextWidgetClass zoneNameTitle {
+       position 0.01 0.02
+       size 0.3 0.45
+       style Normal
+       text "Name"
+       "text valign" center
+      }
+      EditBoxWidgetClass zoneNameValue {
+       position 0.01 0.5
+       size 0.98 0.4
+       vexactpos 0
+       vexactsize 0
+       style DefaultBorder
+       text "Gorka-Dubrovka crossing fcojcej joe oe jedj blahlah!."
+       "limit visible" 1
+       "exact text" 1
+      }
+     }
+    }
+    PanelWidgetClass zoneCoordsPanel {
+     color 0 0 0 0.651
+     position 0.02 110
+     size 0.96 70
+     vexactpos 1
+     vexactsize 1
+     style DayZDefaultPanel
+     {
+      TextWidgetClass zoneCoordsTitle {
+       position 0.01 1
+       size 0.48 40
+       vexactpos 1
+       vexactsize 1
+       text "Coordinates"
+       "text valign" center
+      }
+      TextWidgetClass zoneCoordXTitle {
+       position 0.5 1
+       size 0.05 40
+       vexactpos 1
+       vexactsize 1
+       text "X:"
+       "text halign" right
+       "text valign" center
+      }
+      EditBoxWidgetClass zoneCoordXValue {
+       position 0.55 0.05
+       size 0.2 0.44
+       style DefaultBorder
+      }
+      TextWidgetClass zoneCoordZTitle {
+       position 0.75 1
+       size 0.05 40
+       vexactpos 1
+       vexactsize 1
+       text "Z:"
+       "text halign" right
+       "text valign" center
+      }
+      EditBoxWidgetClass zoneCoordZValue {
+       position 0.8 0.05
+       size 0.19 0.44
+       style DefaultBorder
+      }
+      ButtonWidgetClass btnZoneSetCurrentPosition {
+       color 0.0706 0.5608 0.5608 1
+       position 0.5 0.08
+       size 0.49 0.38
+       valign bottom_ref
+       style Editor
+       text "My character's position"
+      }
+     }
+    }
+    PanelWidgetClass zoneRadiusPanel {
+     color 0 0 0 0.651
+     position 0.02 190
+     size 0.96 40
+     vexactpos 1
+     vexactsize 1
+     style DayZDefaultPanel
+     {
+      TextWidgetClass zoneRadiusTitle {
+       position 0.01 0
+       size 0.48 1
+       text "Radius (meters)"
+       "text valign" center
+      }
+      EditBoxWidgetClass zoneRadiusValue {
+       position 0.5 0.12
+       size 0.49 0.8
+       style DefaultBorder
+      }
+     }
+    }
+    PanelWidgetClass zoneShowBorderPanel {
+     color 0 0 0 0.651
+     position 0.02 240
+     size 0.96 40
+     vexactpos 1
+     vexactsize 1
+     style DayZDefaultPanel
+     {
+      TextWidgetClass zoneShowBorderTitle {
+       position 0.01 0
+       size 0.93 1
+       text "Show border on map"
+       "text valign" center
+      }
+      CheckBoxWidgetClass zoneShowBorderValue {
+       position 0.94 0
+       size 0.05 1
+      }
+     }
+    }
+    PanelWidgetClass zoneShowNamePanel {
+     color 0 0 0 0.651
+     position 0.02 295
+     size 0.96 40
+     vexactpos 1
+     vexactsize 1
+     style DayZDefaultPanel
+     {
+      TextWidgetClass zoneShowNameTitle {
+       position 0.01 0
+       size 0.93 1
+       text "Show name on map"
+       "text valign" center
+      }
+      CheckBoxWidgetClass zoneShowNameValue {
+       position 0.94 0
+       size 0.05 1
+      }
+     }
+    }
+    PanelWidgetClass zoneDaysPanel {
+     color 0 0 0 0.651
+     position 0.02 350
+     size 0.96 80
+     vexactpos 1
+     vexactsize 1
+     style DayZDefaultPanel
+     {
+      TextWidgetClass zoneDaysTitle {
+       position 0.01 0.01
+       size 0.98 0.45
+       style Normal
+       text "Active days (numbers, e.g., 6 7)"
+       "exact text" 0
+       "text valign" center
+      }
+      EditBoxWidgetClass zoneDaysValue {
+       position 0.01 0.5
+       size 0.98 0.39
+       style DefaultBorder
+      }
+     }
+    }
+    PanelWidgetClass zoneDaysModePanel {
+     color 0 0 0 0.651
+     position 0.02 440
+     size 0.96 40
+     vexactpos 1
+     vexactsize 1
+     style DayZDefaultPanel
+     {
+      TextWidgetClass zoneDaysModeTitle {
+       position 0.01 0
+       size 0.93 1
+       text "Week starts on Sunday"
+       "text valign" center
+      }
+      CheckBoxWidgetClass zoneDaysModeValue {
+       position 0.94 0
+       size 0.05 1
+       style Default
+      }
+     }
+    }
+    PanelWidgetClass zoneHoursPanel {
+     color 0 0 0 0.651
+     position 0.02 490
+     size 0.96 80
+     vexactpos 1
+     vexactsize 1
+     style DayZDefaultPanel
+     {
+      TextWidgetClass zoneHoursTitle {
+       position 0.01 0
+       size 0.98 0.48
+       text "Active hours (from 0 to 24)"
+       "text valign" center
+      }
+      TextWidgetClass zoneHourStartTitle {
+       position 0.01 0.5
+       size 0.25 0.48
+       text "Start hour:"
+      }
+      EditBoxWidgetClass zoneHourStartValue {
+       position 0.28 0.5
+       size 0.2 0.43
+       style DefaultBorder
+      }
+      TextWidgetClass zoneHourEndTitle {
+       position 0.5 0.5
+       size 0.25 0.46
+       text "End hour:"
+      }
+      EditBoxWidgetClass zoneHourEndValue {
+       position 0.79 0.5
+       size 0.2 0.44
+       style DefaultBorder
+      }
+     }
+    }
+    PanelWidgetClass serverTimePanel {
+     color 0 0 0 0.651
+     position 0.02 585
+     size 0.96 40
+     vexactpos 1
+     vexactsize 1
+     style blank
+     {
+      TextWidgetClass serverTimeTitle {
+       position 0.01 0
+       size 0.3 1
+       text "Server time:"
+       "text valign" center
+      }
+      TextWidgetClass serverTimeValue {
+       position 0.32 0
+       size 0.67 1
+       style Normal
+       "text halign" right
+       "text valign" center
+      }
+     }
+    }
+    ImageWidgetClass btnZoneApplyBackground {
+     color 0.3137 0.5608 0.0706 1
+     position 0.02 0.02
+     size 0.47 0.1
+     valign bottom_ref
+     {
+      ButtonWidgetClass btnZoneApply {
+       color 0.0706 0.5608 0.1922 1
+       position 0 0
+       size 1 1
+       halign left_ref
+       valign bottom_ref
+       style ServerBrowserCollapse
+       text "Save zone"
+      }
+     }
+    }
+    ImageWidgetClass btnZoneDeleteBackground {
+     color 0.6863 0.2588 0.2588 1
+     position 0.02 0.02
+     size 0.47 0.1
+     halign right_ref
+     valign bottom_ref
+     {
+      ButtonWidgetClass btnZoneDelete {
+       color 0.5608 0.0706 0.0706 1
+       position 0 0
+       size 1 1
+       halign right_ref
+       valign bottom_ref
+       style ServerBrowserCollapse
+       text "Delete zone"
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass LawbreakersRootPanel {
+   visible 0
+   color 0 0 0 0.7843
+   position 0 0.1
+   size 0.5 0.9
+   style DayZDefaultPanel
+   {
+    PanelWidgetClass lbListPanel {
+     position 0.01 0.02
+     size 0.98 0.96
+     {
+      TextWidgetClass lbPlayersListTitle {
+       position 0.01 0
+       size 0.98 40
+       vexactpos 1
+       vexactsize 1
+       text "Lawbreakers:"
+      }
+      TextListboxWidgetClass lbPlayersList {
+       position 0 50
+       size 1 695
+       vexactpos 1
+       vexactsize 1
+       style Default
+       "title visible" 0
+       lines 25
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass lbDataPanel {
+   visible 0
+   color 0 0 0 0.7843
+   position 0.51 0.11
+   size 0.48 0.89
+   style DayZDefaultPanel
+   {
+    PanelWidgetClass lbUIDPanel {
+     color 0 0 0 0.651
+     position 0.02 20
+     size 0.96 80
+     vexactpos 1
+     vexactsize 1
+     style DayZDefaultPanel
+     {
+      TextWidgetClass lbUIDTitle {
+       position 0.01 0
+       size 0.1 0.5
+       style Normal
+       text "UID:"
+       "text valign" center
+      }
+      RichTextWidgetClass lbUIDValue {
+       position 0.01 0.5
+       size 0.97152 0.45
+       style DayZNormal
+       text "9NMVz7hwPYfSIeA5I7qEYxbMKrJD6SrGQl2E1XY8cXw="
+       "text valign" center
+       wrap 1
+      }
+     }
+    }
+    PanelWidgetClass lbNamesPanel {
+     color 0 0 0 0.651
+     position 0.02 105
+     size 0.96 80
+     vexactpos 1
+     vexactsize 1
+     style DayZDefaultPanel
+     {
+      TextWidgetClass lbNamesTitle {
+       position 0.01 0
+       size 0.98 0.48
+       style Normal
+       text "3 recently used names:"
+       "text valign" center
+      }
+      RichTextWidgetClass lbNamesValue {
+       position 0.01 0.5
+       size 0.98 0.45
+       style DayZNormal
+       "text valign" center
+       wrap 1
+      }
+     }
+    }
+    PanelWidgetClass lbCountPanel {
+     color 0 0 0 0.651
+     position 0.02 240
+     size 0.48 40
+     vexactpos 1
+     vexactsize 1
+     style DayZDefaultPanel
+     {
+      TextWidgetClass lbCountTitle {
+       position 0.01 0
+       size 0.75 1
+       style Normal
+       text "Murder count:"
+       "text valign" center
+      }
+      TextWidgetClass lbCountValue {
+       position 0.76 0
+       size 0.23 1
+       style Normal
+       "text valign" center
+      }
+     }
+    }
+    PanelWidgetClass lbLatestMurderTimePanel {
+     color 0 0 0 0.651
+     position 0.02 190
+     size 0.96 40
+     vexactpos 1
+     vexactsize 1
+     style DayZDefaultPanel
+     {
+      TextWidgetClass lbLatestMurderTimeTitle {
+       position 0.01 0
+       size 0.49 1
+       style Normal
+       text "Latest murder time:"
+       "text valign" center
+      }
+      TextWidgetClass lbLatestMurderTimeValue {
+       position 0.5 0
+       size 0.49 1
+       style Normal
+       "text valign" center
+      }
+     }
+    }
+    PanelWidgetClass lbStatusPanel {
+     color 0 0 0 0.651
+     position 0.02 285
+     size 0.48 40
+     vexactpos 1
+     vexactsize 1
+     style DayZDefaultPanel
+     {
+      TextWidgetClass lbStatusTitle {
+       position 0.01 0
+       size 0.85 1
+       style Normal
+       text "Is currently outlaw:"
+       "text valign" center
+      }
+      CheckBoxWidgetClass lbStatusValue {
+       position 0.87 0
+       size 0.1 1
+      }
+     }
+    }
+    PlayerPreviewWidgetClass lbPreview {
+     visible 1
+     position 0.51 0.31
+     size 0.46 0.57
+    }
+    ImageWidgetClass btnLbApplyBackground {
+     color 0.3137 0.5608 0.0706 1
+     position 0.01 0.01
+     size 0.48 0.1
+     valign bottom_ref
+     {
+      ButtonWidgetClass btnLbApply {
+       color 0.0706 0.5608 0.1922 1
+       position 0 0
+       size 1 1
+       halign left_ref
+       valign bottom_ref
+       style ServerBrowserCollapse
+       text "Apply"
+      }
+     }
+    }
+    ImageWidgetClass btnLbDeleteBackground {
+     color 0.6863 0.2588 0.2588 1
+     position 0.01 0.01
+     size 0.48 0.1
+     halign right_ref
+     valign bottom_ref
+     {
+      ButtonWidgetClass btnLbDelete {
+       color 0.5608 0.0706 0.0706 1
+       position 0 0
+       size 1 1
+       halign right_ref
+       valign bottom_ref
+       style ServerBrowserCollapse
+       text "Delete"
+      }
+     }
+    }
+   }
+  }
+  FrameWidgetClass descriptionFrame {
+   visible 0
+   position 0.51 0.1
+   size 0.48 0
+   vexactsize 1
+   {
+    PanelWidgetClass descriptionPanel {
+     clipchildren 1
+     color 0 0 0 0.8667
+     position 0 0
+     size 1 1
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     style DayZDefaultPanel
+    }
+    RichTextWidgetClass descriptionTitle {
+     clipchildren 1
+     size 0.95 1
+     halign center_ref
+     valign center_ref
+     hexactpos 0
+     vexactpos 0
+     hexactsize 0
+     vexactsize 0
+     scaled 1
+     style DayZNormal
+     text "The description:"
+     "exact text" 1
+     "size to text h" 0
+     "size to text v" 0
+     "text valign" center
+     wrap 1
+    }
+   }
+  }
+ }
+}

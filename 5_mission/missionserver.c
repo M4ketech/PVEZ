@@ -1,0 +1,109 @@
+modded class MissionBase extends MissionBaseWorld {
+	void PVEZEvent(PVEZ_RPC type, Param params);
+}
+
+modded class MissionServer extends MissionBase {
+
+	/// This doesn't work on servers with long run times (4-5+ hours)
+	/*
+	override void OnInit() {
+		super.OnInit();
+
+		// Register map markers update function
+		if (g_Game.pvez_Config.MAP.Lawbreakers_Markers.Update_Frequency > 0)
+			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(this.PVEZ_UpdateLBMarkers, g_Game.pvez_Config.MAP.Lawbreakers_Markers.Update_Frequency * 1000, true);
+		// Register PVP zones update function
+		if (g_Game.pvez_Config.GENERAL.Update_Frequency > 0)
+			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(this.PVEZ_UpdatePlayersZoneStatus, g_Game.pvez_Config.GENERAL.Update_Frequency * 1000, true);
+	}
+	void ~MissionServer() {
+		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Remove(this.PVEZ_UpdateLBMarkers);
+		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Remove(this.PVEZ_UpdatePlayersZoneStatus);
+	}
+	*/
+
+	float PVEZ_ZonesUpdateTimer;
+	float PVEZ_LBMarkersUpdateTimer;
+	float PVEZ_OneMinuteTimer;
+	bool PVEZNeedUpdate;
+
+	void ~MissionServer() {
+		Print("[PVEZ] :: Printing lawbreakers roster to the json.");
+		g_Game.pvez_LawbreakersRoster.SaveToJson();
+	}
+
+	override void OnUpdate(float timeslice) {
+		super.OnUpdate(timeslice);
+
+		PVEZ_OneMinuteTimer += timeslice;
+		if (PVEZ_OneMinuteTimer >= 59) {
+			PVEZ_OneMinuteTimer = 0;
+			
+			// Reinit zones every hour to enable/disable them based on their schedule:
+			PVEZ_UpdateZonesActivity();
+			
+			// Check if lawbreakers have been reinitialized (when someone gets their flag off)
+			if (g_Game.pvez_LawbreakersRoster.updated && m_Players.Count() > 0) {
+				foreach (Man p : m_Players) {
+					bool isLB = g_Game.pvez_LawbreakersRoster.Check(p.GetIdentity().GetId());
+					PlayerBase.Cast(p).pvez_PlayerStatus.SetLawbreaker(isLB);
+				}
+				g_Game.pvez_LawbreakersRoster.updated = false;
+			}
+		}
+
+		if (m_Players.Count() > 0) {
+			PVEZ_ZonesUpdateTimer += timeslice;
+			PVEZ_LBMarkersUpdateTimer += timeslice;
+
+			if (PVEZ_ZonesUpdateTimer >= g_Game.pvez_Config.GENERAL.Update_Frequency) {
+				PVEZ_UpdatePlayersZoneStatus();
+				PVEZ_ZonesUpdateTimer = 0;
+			}
+
+			if (PVEZ_LBMarkersUpdateTimer >= g_Game.pvez_Config.MAP.Lawbreakers_Markers.Update_Frequency) {
+				PVEZ_UpdateLBMarkers();
+				PVEZ_LBMarkersUpdateTimer = 0;
+			}
+		}
+	}
+
+	override void PlayerDisconnected(PlayerBase player, PlayerIdentity identity, string uid) {	
+		bool isLB = g_Game.pvez_LawbreakersRoster.Check(uid);
+		if (isLB)
+			g_Game.pvez_LawbreakersRoster.Update(uid, isLB);
+		
+		super.PlayerDisconnected(player, identity, uid);
+	}
+
+	void PVEZ_UpdatePlayersZoneStatus() {
+		if (m_Players.Count() == 0)
+			return;
+		
+		autoptr PlayerBase player;
+		for (int i = 0; i < m_Players.Count(); i++) {
+			player = PlayerBase.Cast(m_Players.Get(i));
+
+			if (player && player.pvez_PlayerStatus) {
+				int zone = g_Game.pvez_Zones.GetPlayerZoneIndex(player.GetPosition());
+				player.pvez_PlayerStatus.Update(zone, false);
+			}
+		}
+	}
+
+	void PVEZ_UpdateLBMarkers() {
+		g_Game.pvez_LawbreakersMarkers.UpdateMarkersPositions(m_Players);
+	}
+
+	void PVEZ_UpdateZonesActivity() {
+		int hour, min, sec;
+		GetHourMinuteSecond(hour, min, sec);
+		// Updating zones within first 2 minutes of every hour.
+		if (PVEZNeedUpdate && min < 2) {
+			g_Game.pvez_Zones.Init();
+			PVEZNeedUpdate = false;
+		}
+		if (min > 2 && !PVEZNeedUpdate)
+			PVEZNeedUpdate = true;
+	}
+}

@@ -1,0 +1,205 @@
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                      DEBUG STUFF.                                               //
+//                     If the <#define pvezdebug> is uncommented,                                  //
+//                attacks from zombies will be treated as some player's attacks.                   //
+//_________________________________________________________________________________________________//
+#define pvezdebug;
+
+modded class PlayerBase extends ManBase {
+
+	protected bool isPVEZAdmin;
+	bool IsPVEZAdmin() { return isPVEZAdmin; }
+
+	// GUI widgets for client instance.
+	protected autoptr PVEZ_NotificationGUI pvez_NotificationGUI;
+	protected autoptr PVEZ_AdminConsoleGUI pvez_AdminConsoleGUI;
+
+	autoptr PVEZ_PlayerStatus pvez_PlayerStatus;
+
+	// Used to decide whether the damage should be reflected back depending on config settings.
+	protected int weaponType;
+
+	autoptr PVEZ_DamageRedistributor pvez_DamageRedistributor;
+	
+	/*
+	<bleedingSourceCountBeforeTheHit> stores the amount of bleeding sources before the <EEHitBy()> execution.
+	After the <super.EEHitBy()> we'll check if new bleeding source has been added, if that so then we should remove one (if needed, on player attack in PVE area).
+	It's done this way to prevent the abuse when (if we just attempt to remove bleeding on every hit) friendly punch could remove bleeding from the player.
+	So we'll only remove the bleeding source if it was applied right before our <HealDamageRecieved()> execution in PVE area. */
+	protected int bleedingSourceCountBeforeTheHit;
+
+	override void OnPlayerLoaded() {
+		super.OnPlayerLoaded();
+
+		// Check if identity != NULL. Somehow this code runs twice and at first run player's identity is NULL.
+		if (GetIdentity() && GetGame().IsServer()) {
+			g_Game.PVEZ_SendConfigToClient(this);
+			g_Game.PVEZ_SendActiveZonesToClient(this);
+			g_Game.PVEZ_GetAdminStatus(this);
+			pvez_PlayerStatus = new PVEZ_PlayerStatus(this);
+			if (pvez_PlayerStatus.GetIsLawbreaker())
+				g_Game.pvez_LawbreakersMarkers.AddMarker(GetPosition(), GetIdentity());
+			pvez_DamageRedistributor = new PVEZ_DamageRedistributor(this);
+		}
+	}
+
+	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef) {
+		// In the base method the bleeding will be applied to the player. And we store the current bleeding count before the new one is applied.
+		bleedingSourceCountBeforeTheHit = m_BleedingSourceCount;
+		
+		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+
+		if (GetGame().IsClient())
+			return;
+
+		if (!IsAlive() || g_Game.pvez_Config.GENERAL.Mode == PVEZ_MODE_PVP)
+			return;
+
+		// Have the player got a new bleeding from the recent hit in base method?
+		bool gotNewBleeding = false;
+		if (m_BleedingSourceCount > bleedingSourceCountBeforeTheHit)
+			gotNewBleeding = true;
+
+		pvez_DamageRedistributor.RegisterHit(this, source, weaponType, gotNewBleeding);
+		if (!pvez_DamageRedistributor.LastHitWasAllowed() && damageResult) {
+			if (g_Game.pvez_Config.DAMAGE.Restore_Target_Health) {
+				pvez_DamageRedistributor.HealDamageReceived(this, damageResult, dmgZone, gotNewBleeding);
+			}
+			pvez_DamageRedistributor.ReflectDamageBack(weaponType, damageResult.GetDamage("", ""));
+		}
+	}
+
+	override void OnBleedingSourceRemoved() {
+		super.OnBleedingSourceRemoved();
+
+		if (IsAlive() && m_BleedingSourceCount == 0)
+			pvez_DamageRedistributor.OnAllBleedingSourcesRemoved();
+	}
+
+	override void EEKilled(Object killer) {
+		super.EEKilled(killer);
+
+		if (GetGame().IsClient())
+			return;
+
+		if (!pvez_PlayerStatus) {
+			Print("PVEZ__[ERROR] No PlayerStatus on death!");
+			return;
+		}
+
+		pvez_DamageRedistributor.RegisterDeath(this, EntityAI.Cast(killer), weaponType);
+
+		if (PVEZ_ShouldBePardonedOnDeath())
+			pvez_PlayerStatus.SetLawbreaker(false);
+		
+		if (GetIdentity())
+			g_Game.pvez_LawbreakersMarkers.RemoveMarker(GetIdentity().GetId());
+	}
+
+	bool PVEZ_ShouldBePardonedOnDeath() {
+		if (g_Game.pvez_Config.LAWBREAKERS_SYSTEM.Pardon_On_Death_From_Any_Source) {
+			return true;
+		}
+		else if (pvez_DamageRedistributor.IsKilledByAnotherPlayer()) {
+			PlayerBase killerPlayer = PlayerBase.Cast(pvez_DamageRedistributor.GetKillerEntity());
+			if (killerPlayer && !killerPlayer.pvez_PlayerStatus.GetIsLawbreaker()) {
+				return true;
+			}
+#ifdef pvezdebug
+			ZombieBase killerZ = ZombieBase.Cast(pvez_DamageRedistributor.GetKillerEntity());
+			if (killerZ) {
+				return true;
+			}
+#endif
+		}
+		return false;
+	}
+
+	override void OnRPC(PlayerIdentity sender, int rpc_type, ParamsReadContext ctx) {
+		super.OnRPC(sender, rpc_type, ctx);
+
+		// All UI functions can only be executed on client.
+		if (GetGame().IsClient()) {
+			switch (rpc_type) {
+				case PVEZ_RPC.UPDATE_CONFIG_ON_CLIENT:
+					Param1<ref PVEZ_Config> data1 = new Param1<ref PVEZ_Config>(NULL);
+					ctx.Read(data1);
+					g_Game.pvez_Config = data1.param1;
+					if (isPVEZAdmin && GetPVEZAdminMenu().GetLayoutRoot().IsVisible())
+						MessageStatus("PVEZ: Config has been updated on server.");
+					break;
+				case PVEZ_RPC.UPDATE_ZONES_ON_CLIENT:
+					Param1<array<ref PVEZ_Zone>> data2 = new Param1<array<ref PVEZ_Zone>>(NULL);
+					ctx.Read(data2);
+					g_Game.pvez_Zones.activeZones = data2.param1;
+					if (isPVEZAdmin && GetPVEZAdminMenu().GetLayoutRoot().IsVisible()) {
+						MessageStatus("PVEZ: zones have been reinitialized on server.");
+						GetPVEZAdminMenu().UpdateZonesList();
+					}
+					break;
+				case PVEZ_RPC.ADMIN_ZONES_DATA_REQUEST:
+					if (isPVEZAdmin && GetPVEZAdminMenu().GetLayoutRoot().IsVisible()) {
+						Param1<array<ref PVEZ_Zone>> dataAZ = new Param1<array<ref PVEZ_Zone>>(NULL);
+						ctx.Read(dataAZ);
+						g_Game.pvez_Zones.allZones = dataAZ.param1;
+						GetPVEZAdminMenu().UpdateZonesList();
+					}
+					break;
+				case PVEZ_RPC.ADMIN_LAWBREAKERS_DATA_REQUEST:
+					if (isPVEZAdmin && GetPVEZAdminMenu().GetLayoutRoot().IsVisible()) {
+						MessageStatus("PVEZ: Received lawbreakers data from server.");
+						Param2<array<ref PVEZ_Lawbreaker>, array<Man>> data3 = new Param2<array<ref PVEZ_Lawbreaker>, array<Man>>(NULL, NULL);
+						ctx.Read(data3);
+						g_Game.pvez_LawbreakersRoster.lbDataBase = data3.param1;
+						GetPVEZAdminMenu().UpdateLawbreakersList(data3.param2);
+					}
+					break;
+				case PVEZ_RPC.UPDATE_ICON_ON_CLIENT:
+					// Here the params sent should contain 2 booleans: IsInPVP & IsLawbreaker, and the zone data (could be NULL if left a zone).
+					Param3<bool, bool, int> data4 = new Param3<bool, bool, int>(false, false, -1);
+					ctx.Read(data4);
+					if (m_Hud)
+						m_Hud.UpdatePVEZIcon(data4.param1, data4.param2, data4.param3);
+					break;
+				case PVEZ_RPC.NOTIFICATION_PERSONAL:
+					// Params should be: message text (string), duration in seconds (int), is it a countdown (bool).
+					// If bool param is true, duration will be used as a counter.
+					Param4<int, int, bool, int> data5 = new Param4<int, int, bool, int>(-1, 0, false, -1);
+					ctx.Read(data5);
+					PVEZ_Notifications.NotificationFromType(this, data5.param1, data5.param2, data5.param3, data5.param4);
+					break;
+				case PVEZ_RPC.NOTIFICATION_SERVERWIDE:
+					Param1<string> data6 = new Param1<string>("");
+					ctx.Read(data6);
+					PVEZ_Notifications.NotificationFromString(this, data6.param1);
+					break;
+				case PVEZ_RPC.ADMIN_ACCESS_REQUEST:
+					Param1<bool> data7 = new Param1<bool>(false);
+					ctx.Read(data7);
+					isPVEZAdmin = data7.param1;
+					break;
+			}
+		}
+	}
+
+	override void OnScheduledTick(float deltaTime) {
+		super.OnScheduledTick(deltaTime);
+
+		if (pvez_PlayerStatus)
+			pvez_PlayerStatus.OnScheduledTick(deltaTime);
+	}
+
+	bool PVEZ_ShouldProtectClothing() {
+		if (g_Game.pvez_Config)
+			return g_Game.pvez_Config.DAMAGE.Protect_Clothing_And_Cargo;
+		else return false;
+	}
+
+	ref PVEZ_AdminConsoleGUI GetPVEZAdminMenu() {
+		if (!pvez_AdminConsoleGUI) {
+			pvez_AdminConsoleGUI = new PVEZ_AdminConsoleGUI;
+			pvez_AdminConsoleGUI.Init();
+		}
+		return pvez_AdminConsoleGUI;
+	}
+}
