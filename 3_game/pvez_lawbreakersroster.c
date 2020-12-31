@@ -19,7 +19,7 @@ class PVEZ_LawbreakersRoster : Managed {
 
 	autoptr array<ref PVEZ_Lawbreaker> lbDataBase;
 
-	// This is monitored by MissionServer to update labreaker statuses on players when this roster is re-initiated.
+	// This flag is monitored by <MissionServer> to update labreaker statuses on players when this roster is getting re-initialized.
 	bool updated;
 
 	void PVEZ_LawbreakersRoster(PVEZ_Config c) {
@@ -44,11 +44,11 @@ class PVEZ_LawbreakersRoster : Managed {
 	}
 
 	void RemoveOutdated(PVEZ_Config config) {
+		if (!config.LAWBREAKERS_SYSTEM.Auto_Clear_Lawbreakers_Data || lbDataBase.Count() == 0)
+			return;
+		
 		// Call it again after 60 secs to update LBs on server.
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(this.RemoveOutdated, 60000, false, g_Game.pvez_Config);
-		
-		if (lbDataBase.Count() == 0)
-			return;
 		
 		autoptr PVEZ_DateTime lastMurderTime;
 		for (int i = 0; i < lbDataBase.Count(); i++) {
@@ -57,25 +57,22 @@ class PVEZ_LawbreakersRoster : Managed {
 			if (!lastMurderTime) {
 				lbDataBase.Remove(i);
 				continue;
+			}	
+			// Check the player's last murder date. If it was long ago, forgive the player.
+			int count;
+			switch (config.LAWBREAKERS_SYSTEM.Autoclear_Period_Mode) {
+				case 0: // Mode 0 counts minutes
+					count = PVEZ_TimeHelper.CountMinutesBetweenDates(lastMurderTime, PVEZ_DateTime.Now());
+					break;
+				case 1: // Mode 1 counts hours
+					count = PVEZ_TimeHelper.CountHoursBetweenDates(lastMurderTime, PVEZ_DateTime.Now());
+					break;
+				case 2: // Mode 2 counts days
+					count = PVEZ_TimeHelper.CountDaysBetweenDates(lastMurderTime, PVEZ_DateTime.Now());
+					break;
 			}
-
-			if (config.LAWBREAKERS_SYSTEM.Auto_Clear_Lawbreakers_Data) {
-				// Check the player's last murder date. If it was long ago, forgive the player.
-				int count;
-				switch (config.LAWBREAKERS_SYSTEM.Autoclear_Period_Mode) {
-					case 0: // Mode 0 counts minutes
-						count = PVEZ_TimeHelper.CountMinutesBetweenDates(lastMurderTime, PVEZ_DateTime.Now());
-						break;
-					case 1: // Mode 1 counts hours
-						count = PVEZ_TimeHelper.CountHoursBetweenDates(lastMurderTime, PVEZ_DateTime.Now());
-						break;
-					case 2: // Mode 2 counts days
-						count = PVEZ_TimeHelper.CountDaysBetweenDates(lastMurderTime, PVEZ_DateTime.Now());
-						break;
-				}
-				if (count >= config.LAWBREAKERS_SYSTEM.Autoclear_Period_Amount)
-					lbDataBase.Remove(i);
-			}
+			if (count >= config.LAWBREAKERS_SYSTEM.Autoclear_Period_Amount)
+				lbDataBase.Remove(i);
 		}
 		updated = true;
 	}
@@ -125,9 +122,6 @@ class PVEZ_LawbreakersRoster : Managed {
 			// Adding new lawbreaker data to the roster
 			lbDataBase.Insert(new ref PVEZ_Lawbreaker(murdererUID, murdererName, 1, true, time));
 		}
-
-		// Update Json because of the array changes
-		//SaveToJson();
 	}
 
 	void Update(string murdererUID, bool isLawbreaker) {
@@ -145,8 +139,6 @@ class PVEZ_LawbreakersRoster : Managed {
 				break;
 			}
 		}
-		// Update Json because of the array changes
-		//SaveToJson();
 	}
 
 	bool Check(string playerId) {

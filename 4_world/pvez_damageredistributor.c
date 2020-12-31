@@ -93,19 +93,39 @@ class PVEZ_DamageRedistributor : Managed {
 		}
 	}
 
+	void RegisterHitZ(ZombieBase victim, EntityAI source, out int wpnType, bool gotBleeding) {
+		
+		DirectDmgInitiator = GetDamageInitiator(source, wpnType);
+		if (gotBleeding) {
+			if (BleedingDmgInitiator == NULL || DirectDmgInitiator != entity) {
+				BleedingDmgInitiator = DirectDmgInitiator;
+			}
+		}
+
+		lastHitWasAllowed = true;
+		
+		if (IsHitByAnotherPlayer()) {
+			lastHitWasAllowed = victim.PVEZ_IsPvpAttackAllowed();
+		}
+	}
+
 	void RegisterDeath(EntityAI victim, EntityAI source, out int wpnType) {
 		DirectDmgInitiator = GetDamageInitiator(source, wpnType);
 
 		if (IsKilledByAnotherPlayer()) {
+			bool killedInLaw;
 			PlayerBase victimP = PlayerBase.Cast(victim);
-			if (victimP && !victimP.pvez_PlayerStatus.PVEZ_IsPvpAttackAllowed(GetKillerEntity())) {
-				PVEZ_KillManager.OnPlayerKilled(victimP, GetKillerEntity(), source, wpnType);
+			if (victimP) {
+				killedInLaw = victimP.pvez_PlayerStatus.PVEZ_IsPvpAttackAllowed(GetKillerEntity());
+				PVEZ_KillManager.OnPlayerKilled(victimP, GetKillerEntity(), source, wpnType, killedInLaw);
 			}
 #ifdef pvezdebug
 			else {
 				ZombieBase victimZ = ZombieBase.Cast(victim);
-				if (victimZ)
-					PVEZ_KillManager.OnZombieKilled(victimZ, GetKillerEntity(), source, wpnType);
+				if (victimZ) {
+					killedInLaw = victimZ.PVEZ_IsPvpAttackAllowed();
+					PVEZ_KillManager.OnZombieKilled(victimZ, GetKillerEntity(), source, wpnType, killedInLaw);
+				}
 			}
 #endif
 		}

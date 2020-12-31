@@ -8,9 +8,17 @@
 
 class PVEZ_KillManager : Managed {
 
-	static void OnPlayerKilled(PlayerBase victim, EntityAI killer, EntityAI weapon, int weaponType) {
+	static void OnPlayerKilled(PlayerBase victim, EntityAI killer, EntityAI weapon, int weaponType, bool killedInLaw) {
 
 		if (killer == victim) return;
+
+		if (killedInLaw) {
+			if (g_Game.pvez_Bounties.Enabled) {
+				if (victim.pvez_PlayerStatus.GetIsLawbreaker() && !PlayerBase.Cast(killer).pvez_PlayerStatus.GetIsLawbreaker())
+					g_Game.pvez_Bounties.RewardPlayer(Man.Cast(killer), victim.GetIdentity().GetName());
+			}
+			return;
+		}
 
 		// Both grenades and firearms return <IsWeapon()=true>, and we need grenades to be processed separately.
 		// So, check if <weapon> is inherited from <Grenade_Base> first, and weapons will go later.
@@ -54,7 +62,7 @@ class PVEZ_KillManager : Managed {
 				PVEZ_Notifications.ServerWideNotificationServer(killerEntity, victim, weapon);
 				// and print in server logs (with addition of date & time)
 				string time = " (" + PVEZ_TimeHelper.GetFormattedDateTime() + ").";
-				Print(PVEZ_LOG_PREFIX + crimeNotificationText + time);
+				Print("PVEZ :: " + crimeNotificationText + time);
 			}
 #ifdef pvezdebug
 			autoptr ZombieBase victimZ = ZombieBase.Cast(victimEntity);
@@ -67,14 +75,18 @@ class PVEZ_KillManager : Managed {
 				string crimeNotificationTextZ = "Killer: " + killerEntity.GetDisplayName() + " has killed " + victimZ.GetDisplayName() + ". Weapon: " + weapon.GetDisplayName();
 				PVEZ_Notifications.ServerWideNotificationServer(killerEntity, victimZ, weapon);
 				string timeZ = " (" + PVEZ_TimeHelper.GetFormattedDateTime() + ").";
-				Print(PVEZ_LOG_PREFIX + crimeNotificationTextZ + timeZ);
+				Print("PVEZ :: " + crimeNotificationTextZ + timeZ);
 			}
 #endif
 		}
 	}
 
 #ifdef pvezdebug
-	static void OnZombieKilled(ZombieBase victim, EntityAI killer, EntityAI weapon, int weaponType) {
+	static void OnZombieKilled(ZombieBase victim, EntityAI killer, EntityAI weapon, int weaponType, bool killedInLaw) {
+		
+		//if (killedInLaw)
+		//	g_Game.pvez_Bounties.RewardPlayer(Man.Cast(killer), victim.GetDisplayName());
+
 		switch (weaponType) {
 			case PVEZ_DAMAGE_SOURCE_TYPE_EXPLOSIVE:
 				if (g_Game.pvez_Config.LAWBREAKERS_SYSTEM.Declare_a_Lawbreaker_When_Killed_a_Player_in_PVE_Area.On_Explosive_Kill)

@@ -4,7 +4,7 @@ class PVEZ_NotificationGUI : Managed {
 	Widget iconWidget;
 	ImageWidget iconImage;
 	
-	Widget notiWidget;
+	GridSpacerWidget notiWidget;
 	RichTextWidget notiTextWidget;
 	int notiTime;
 
@@ -17,7 +17,7 @@ class PVEZ_NotificationGUI : Managed {
 		iconImage.LoadImageFile(1, "PVEZ/GUI/Images/skull_new2.edds"); //image #2: Lawbreaker
 		iconImage.LoadImageFile(2, "PVEZ/GUI/Images/shield_new2.edds"); //image #3: Safe zone
 
-		notiWidget = Widget.Cast(rootWidget.FindAnyWidget("NotificationWidget"));
+		notiWidget = GridSpacerWidget.Cast(rootWidget.FindAnyWidget("NotificationWidget"));
 		notiTextWidget = RichTextWidget.Cast(notiWidget.FindAnyWidget("NotificationTitle"));
 		
 		rootWidget.Show(true);
@@ -49,20 +49,13 @@ class PVEZ_NotificationGUI : Managed {
 		rootWidget.Show(value);
 	}
 
-	void ResizeNotificationWidget() {
-		float vsize = (notiTextWidget.GetNumLines() * 15) + 15;
-		if (vsize < 30) vsize = 30;
-		notiWidget.SetSize(0.15, vsize);
-	}
-
 	void ShowNotification(string text, int duration, bool countdown) {
 		GetGame().GetCallQueue(CALL_CATEGORY_GUI).Remove(this.UpdateNotification);
 		GetGame().GetCallQueue(CALL_CATEGORY_GUI).Remove(this.HideNotification);
 
-		notiWidget.Show(true);
 		notiTextWidget.SetText(text);
-		ResizeNotificationWidget();
-
+		notiWidget.Show(true);
+		
 		notiTime = duration;
 
 		if (countdown) {
@@ -79,7 +72,7 @@ class PVEZ_NotificationGUI : Managed {
 
 	void UpdateNotification(string text) {
 		notiTextWidget.SetText(text + "\n" + notiTime.ToString());
-		ResizeNotificationWidget();
+		notiWidget.Show(true);
 		
 		if (notiTime <= 0) {
 			notiWidget.Show(false);

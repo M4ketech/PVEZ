@@ -10,14 +10,14 @@ class PVEZ_MapMarkersDrawer : Managed {
 		if (!mapWidget)
 			return;
 
-		g_Game.pvez_LawbreakersMarkers.Get(markers);
+		markers = g_Game.pvez_LawbreakersMarkers.markers;
 		zones = g_Game.pvez_Zones.activeZones;
 		
 		// Drawing zones
 		zoneCirclePoints = new array<vector>;
 		// Get color from config
 		auto color = ARGB(
-				g_Game.pvez_Config.MAP.Zones_Border_Color.A,
+				200, //g_Game.pvez_Config.MAP.Zones_Border_Color.A,
 				g_Game.pvez_Config.MAP.Zones_Border_Color.R,
 				g_Game.pvez_Config.MAP.Zones_Border_Color.G,
 				g_Game.pvez_Config.MAP.Zones_Border_Color.B);
@@ -28,7 +28,7 @@ class PVEZ_MapMarkersDrawer : Managed {
 				// Border circle
 				if (zones[j].ShowBorderOnMap) {
 					zoneCirclePoints.Clear();
-					GetCirclePoints(zones[j].Radius, zonePos, zoneCirclePoints);
+					GetCirclePoints(zones[j], zoneCirclePoints);
 					for (int k = 0; k < zoneCirclePoints.Count(); k++) {
 						mapWidget.AddUserMark(zoneCirclePoints[k], "", color, "\\dz\\gear\\navigation\\data\\map_bush_ca.paa");
 					}
@@ -54,30 +54,31 @@ class PVEZ_MapMarkersDrawer : Managed {
 		}
 	}
 
-	static void GetCirclePoints(float radius, vector center, out array<vector> result) {
+	static void GetCirclePoints(PVEZ_Zone zone, out array<vector> result) {
 		// How many points we gotta draw. Depends on the circle radius. The bigger the circle, the more points.
-		float L = 2 * Math.PI * radius; // circle lenght
-		L = L / 10; // how much points to draww if we draw a point for every 10 meters on zone border line
+		float L = 2 * Math.PI * zone.Radius; // circle lenght
+		L = L / 10; // how much points to draw if we draw one point for every 10 meters on the zone border line
 
 		float slice = 2 * Math.PI / L;
 		for (int i = 0; i < L; i++) {
 			float angle = slice * i;
-			float newX = center[0] + radius * Math.Cos(angle);
-			float newY = center[2] + radius * Math.Sin(angle);
-			vector p = Vector(newX, 0, newY);
-			if (!IntersectsWithOtherCircles(p, center))
-				result.Insert(p);
+			float newX = zone.GetVectorPos()[0] + zone.Radius * Math.Cos(angle);
+			float newY = zone.GetVectorPos()[2] + zone.Radius * Math.Sin(angle);
+			vector point = Vector(newX, 0, newY);
+			if (!IntersectsWithOtherCircles(point, zone))
+				result.Insert(point);
 		}
 	}
 
-	static bool IntersectsWithOtherCircles(vector v, vector center) {
+	static bool IntersectsWithOtherCircles(vector point, PVEZ_Zone zone) {
 		autoptr PVEZ_Zone zoneToCheck;
 		for (int i = 0; i < zones.Count(); i++) {
 			zoneToCheck = zones[i];
-			if (zoneToCheck.GetVectorPos() == center)
+			// Ignore the zones with disabled borders and if it's the same zone, also if the zones have the same center and radius
+			if (!zoneToCheck.ShowBorderOnMap || zoneToCheck == zone || (zoneToCheck.GetVectorPos() == zone.GetVectorPos() && zoneToCheck.Radius == zone.Radius))
 				continue;
 			
-			if (vector.DistanceSq(zoneToCheck.GetVectorPos(), v) <= zoneToCheck.Radius * zoneToCheck.Radius)
+			if (vector.DistanceSq(zoneToCheck.GetVectorPos(), point) <= zoneToCheck.Radius * zoneToCheck.Radius)
 				return true;
 		}
 		return false;

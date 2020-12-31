@@ -14,8 +14,8 @@ FrameWidgetClass rootFrame {
    style editor_selection
    {
     ButtonWidgetClass btnGeneral {
-     position 0.03 9
-     size 0.3 69
+     position 0.01 9
+     size 0.24 69
      vexactpos 1
      vexactsize 1
      scaled 1
@@ -23,20 +23,28 @@ FrameWidgetClass rootFrame {
      text "SETTINGS"
     }
     ButtonWidgetClass btnZones {
-     position 0.35 9
-     size 0.3 69
+     position 0.26 9
+     size 0.24 69
      vexactpos 1
      vexactsize 1
      style Editor
      text "ZONES"
     }
     ButtonWidgetClass btnLawbreakers {
-     position 0.67 9
-     size 0.3 69
+     position 0.51 9
+     size 0.24 69
      vexactpos 1
      vexactsize 1
      style Editor
      text "LAWBREAKERS"
+    }
+    ButtonWidgetClass btnBounties {
+     position 0.76 9
+     size 0.24 69
+     vexactpos 1
+     vexactsize 1
+     style Editor
+     text "BOUNTIES"
     }
    }
   }
@@ -50,7 +58,7 @@ FrameWidgetClass rootFrame {
     ScrollWidgetClass list {
      clipchildren 1
      color 0.6235 0.1569 0.1569 1
-     position 0.01 0.01
+     position 0.01 0
      size 0.98 0.85
      style blank
      "Scrollbar V" 1
@@ -86,6 +94,7 @@ FrameWidgetClass rootFrame {
            text "Mode"
           }
           XComboBoxWidgetClass modeValue {
+           clipchildren 1
            position 0.5 0
            size 0.5 1
            style Default
@@ -643,8 +652,8 @@ FrameWidgetClass rootFrame {
       }
       PanelWidgetClass mapSettingsPanel {
        color 0 0 0 0.651
-       position 0 1305
-       size 1 215
+       position 0 1320
+       size 1 390
        vexactpos 1
        vexactsize 1
        style blank
@@ -658,9 +667,113 @@ FrameWidgetClass rootFrame {
          "text halign" center
          "text valign" center
         }
-        PanelWidgetClass mapShowLbMarkersPanel {
+        PanelWidgetClass mapPlayerMarkerPanel {
          color 0 0 0 0.651
          position 0 35
+         size 1 30
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass mapPlayerMarkerTitle {
+           position 0 0
+           size 0.94 1
+           text "Show player's position marker"
+           "text valign" center
+          }
+          CheckBoxWidgetClass mapPlayerMarkerValue {
+           position 0.94 0
+           size 0.05 1
+           style Default
+          }
+         }
+        }
+        PanelWidgetClass mapPlayerMarkerCustomTextPanel {
+         color 0 0 0 0.651
+         position 0 70
+         size 1 30
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass mapPlayerMarkerCustomTextTitle {
+           position 0 0
+           size 0.5 1
+           text "Custom text for player's marker"
+           "text valign" center
+          }
+          EditBoxWidgetClass mapPlayerMarkerCustomTextValue {
+           position 0.5 0
+           size 0.49 1
+           style DefaultBorder
+          }
+         }
+        }
+        PanelWidgetClass mapZoneBorderColorPanel {
+         color 0 0 0 0.651
+         position 0 105
+         size 1 90
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass mapZoneBorderColorTitle {
+           position 0 0
+           size 0.4 0.33
+           text "Zones border color"
+           "text valign" center
+          }
+          TextWidgetClass mapZoneBorderColorTitleR {
+           position 0.4 0
+           size 0.04 0.33
+           text "R:"
+           "text valign" center
+          }
+          SliderWidgetClass mapZoneBorderColorValueR {
+           color 1 0 0 1
+           position 0.45 0
+           size 0.4 0.3
+           style Default
+           maximum 255
+           current 255
+          }
+          TextWidgetClass mapZoneBorderColorTitleG {
+           position 0.4 0.3
+           size 0.04 0.33
+           text "G:"
+           "text valign" center
+          }
+          SliderWidgetClass mapZoneBorderColorValueG {
+           color 0 1 0 1
+           position 0.45 0.33
+           size 0.4 0.3
+           style Default
+           maximum 255
+           current 0
+          }
+          TextWidgetClass mapZoneBorderColorTitleB {
+           position 0.4 0.6
+           size 0.04 0.33
+           text "B:"
+           "text valign" center
+          }
+          SliderWidgetClass mapZoneBorderColorValueB {
+           color 0 0 1 1
+           position 0.45 0.66
+           size 0.4 0.3
+           style Default
+           maximum 255
+           current 0
+          }
+          ImageWidgetClass mapZoneBorderColorImage {
+           position 0.86 0
+           size 0.12 0.95
+          }
+         }
+        }
+        PanelWidgetClass mapShowLbMarkersPanel {
+         color 0 0 0 0.651
+         position 0 210
          size 1 30
          vexactpos 1
          vexactsize 1
@@ -681,7 +794,7 @@ FrameWidgetClass rootFrame {
         }
         PanelWidgetClass mapLbMarkersUpdateFreqPanel {
          color 0 0 0 0.651
-         position 0 70
+         position 0 245
          size 1 30
          vexactpos 1
          vexactsize 1
@@ -702,7 +815,7 @@ FrameWidgetClass rootFrame {
         }
         PanelWidgetClass mapLbMarkersUseApproximatePanel {
          color 0 0 0 0.651
-         position 0 105
+         position 0 280
          size 1 30
          vexactpos 1
          vexactsize 1
@@ -723,7 +836,7 @@ FrameWidgetClass rootFrame {
         }
         PanelWidgetClass mapLbMarkersApproximateOffsetPanel {
          color 0 0 0 0.651
-         position 0 140
+         position 0 315
          size 1 30
          vexactpos 1
          vexactsize 1
@@ -744,7 +857,7 @@ FrameWidgetClass rootFrame {
         }
         PanelWidgetClass mapLbCanSeeTheirOwnMarkerPanel {
          color 0 0 0 0.651
-         position 0 175
+         position 0 350
          size 1 30
          vexactpos 1
          vexactsize 1
@@ -790,15 +903,15 @@ FrameWidgetClass rootFrame {
   PanelWidgetClass ZonesRootPanel {
    visible 0
    color 0 0 0 0.7843
-   size 0.5 0.9
+   size 1 0.9
    valign bottom_ref
-   style editor_selection
+   style blank
    {
     PanelWidgetClass zonesListPanel {
      color 0 0 0 0.651
-     position 0.01 0.01
-     size 0.98 0.98
-     style Outline
+     position 0 0
+     size 0.5 1
+     style editor_selection
      {
       TextWidgetClass zonesListTitle {
        position 0.01 10
@@ -806,12 +919,12 @@ FrameWidgetClass rootFrame {
        vexactpos 1
        vexactsize 1
        style Normal
-       text "Zones:"
+       text "Static zones:"
        "text valign" center
       }
       TextListboxWidgetClass zonesList {
        position 0.01 55
-       size 0.97 615
+       size 0.97 535
        vexactpos 1
        vexactsize 1
        style Default
@@ -820,7 +933,7 @@ FrameWidgetClass rootFrame {
       }
       ImageWidgetClass btnCreateZoneBackground {
        color 0.2588 0.3647 0.6863 1
-       position 0.01 0.01
+       position 0.01 0.13
        size 0.5 0.1
        halign center_ref
        valign bottom_ref
@@ -837,294 +950,562 @@ FrameWidgetClass rootFrame {
         }
        }
       }
-     }
-    }
-   }
-  }
-  PanelWidgetClass ZoneSettingsPanel {
-   visible 0
-   color 0 0 0 0.7843
-   position 0.51 0.11
-   size 0.48 0.88
-   style DayZDefaultPanel
-   {
-    PanelWidgetClass zoneNamePanel {
-     color 0 0 0 0.7059
-     position 0.02 20
-     size 0.96 80
-     vexactpos 1
-     vexactsize 1
-     style DayZDefaultPanel
-     {
-      TextWidgetClass zoneNameTitle {
-       position 0.01 0.02
-       size 0.3 0.45
-       style Normal
-       text "Name"
-       "text valign" center
-      }
-      EditBoxWidgetClass zoneNameValue {
-       position 0.01 0.5
-       size 0.98 0.4
-       vexactpos 0
-       vexactsize 0
-       style DefaultBorder
-       text "Gorka-Dubrovka crossing fcojcej joe oe jedj blahlah!."
-       "limit visible" 1
-       "exact text" 1
-      }
-     }
-    }
-    PanelWidgetClass zoneCoordsPanel {
-     color 0 0 0 0.651
-     position 0.02 110
-     size 0.96 70
-     vexactpos 1
-     vexactsize 1
-     style DayZDefaultPanel
-     {
-      TextWidgetClass zoneCoordsTitle {
-       position 0.01 1
-       size 0.48 40
-       vexactpos 1
-       vexactsize 1
-       text "Coordinates"
-       "text valign" center
-      }
-      TextWidgetClass zoneCoordXTitle {
-       position 0.5 1
-       size 0.05 40
-       vexactpos 1
-       vexactsize 1
-       text "X:"
-       "text halign" right
-       "text valign" center
-      }
-      EditBoxWidgetClass zoneCoordXValue {
-       position 0.55 0.05
-       size 0.2 0.44
-       style DefaultBorder
-      }
-      TextWidgetClass zoneCoordZTitle {
-       position 0.75 1
-       size 0.05 40
-       vexactpos 1
-       vexactsize 1
-       text "Z:"
-       "text halign" right
-       "text valign" center
-      }
-      EditBoxWidgetClass zoneCoordZValue {
-       position 0.8 0.05
-       size 0.19 0.44
-       style DefaultBorder
-      }
-      ButtonWidgetClass btnZoneSetCurrentPosition {
-       color 0.0706 0.5608 0.5608 1
-       position 0.5 0.08
-       size 0.49 0.38
-       valign bottom_ref
-       style Editor
-       text "My character's position"
-      }
-     }
-    }
-    PanelWidgetClass zoneRadiusPanel {
-     color 0 0 0 0.651
-     position 0.02 190
-     size 0.96 40
-     vexactpos 1
-     vexactsize 1
-     style DayZDefaultPanel
-     {
-      TextWidgetClass zoneRadiusTitle {
-       position 0.01 0
-       size 0.48 1
-       text "Radius (meters)"
-       "text valign" center
-      }
-      EditBoxWidgetClass zoneRadiusValue {
-       position 0.5 0.12
-       size 0.49 0.8
-       style DefaultBorder
-      }
-     }
-    }
-    PanelWidgetClass zoneShowBorderPanel {
-     color 0 0 0 0.651
-     position 0.02 240
-     size 0.96 40
-     vexactpos 1
-     vexactsize 1
-     style DayZDefaultPanel
-     {
-      TextWidgetClass zoneShowBorderTitle {
-       position 0.01 0
-       size 0.93 1
-       text "Show border on map"
-       "text valign" center
-      }
-      CheckBoxWidgetClass zoneShowBorderValue {
-       position 0.94 0
-       size 0.05 1
-      }
-     }
-    }
-    PanelWidgetClass zoneShowNamePanel {
-     color 0 0 0 0.651
-     position 0.02 295
-     size 0.96 40
-     vexactpos 1
-     vexactsize 1
-     style DayZDefaultPanel
-     {
-      TextWidgetClass zoneShowNameTitle {
-       position 0.01 0
-       size 0.93 1
-       text "Show name on map"
-       "text valign" center
-      }
-      CheckBoxWidgetClass zoneShowNameValue {
-       position 0.94 0
-       size 0.05 1
-      }
-     }
-    }
-    PanelWidgetClass zoneDaysPanel {
-     color 0 0 0 0.651
-     position 0.02 350
-     size 0.96 80
-     vexactpos 1
-     vexactsize 1
-     style DayZDefaultPanel
-     {
-      TextWidgetClass zoneDaysTitle {
+      ImageWidgetClass btnAirdropZonesBackground {
+       color 0.2588 0.3647 0.6863 1
        position 0.01 0.01
-       size 0.98 0.45
-       style Normal
-       text "Active days (numbers, e.g., 6 7)"
-       "exact text" 0
-       "text valign" center
-      }
-      EditBoxWidgetClass zoneDaysValue {
-       position 0.01 0.5
-       size 0.98 0.39
-       style DefaultBorder
-      }
-     }
-    }
-    PanelWidgetClass zoneDaysModePanel {
-     color 0 0 0 0.651
-     position 0.02 440
-     size 0.96 40
-     vexactpos 1
-     vexactsize 1
-     style DayZDefaultPanel
-     {
-      TextWidgetClass zoneDaysModeTitle {
-       position 0.01 0
-       size 0.93 1
-       text "Week starts on Sunday"
-       "text valign" center
-      }
-      CheckBoxWidgetClass zoneDaysModeValue {
-       position 0.94 0
-       size 0.05 1
-       style Default
-      }
-     }
-    }
-    PanelWidgetClass zoneHoursPanel {
-     color 0 0 0 0.651
-     position 0.02 490
-     size 0.96 80
-     vexactpos 1
-     vexactsize 1
-     style DayZDefaultPanel
-     {
-      TextWidgetClass zoneHoursTitle {
-       position 0.01 0
-       size 0.98 0.48
-       text "Active hours (from 0 to 24)"
-       "text valign" center
-      }
-      TextWidgetClass zoneHourStartTitle {
-       position 0.01 0.5
-       size 0.25 0.48
-       text "Start hour:"
-      }
-      EditBoxWidgetClass zoneHourStartValue {
-       position 0.28 0.5
-       size 0.2 0.43
-       style DefaultBorder
-      }
-      TextWidgetClass zoneHourEndTitle {
-       position 0.5 0.5
-       size 0.25 0.46
-       text "End hour:"
-      }
-      EditBoxWidgetClass zoneHourEndValue {
-       position 0.79 0.5
-       size 0.2 0.44
-       style DefaultBorder
-      }
-     }
-    }
-    PanelWidgetClass serverTimePanel {
-     color 0 0 0 0.651
-     position 0.02 585
-     size 0.96 40
-     vexactpos 1
-     vexactsize 1
-     style blank
-     {
-      TextWidgetClass serverTimeTitle {
-       position 0.01 0
-       size 0.3 1
-       text "Server time:"
-       "text valign" center
-      }
-      TextWidgetClass serverTimeValue {
-       position 0.32 0
-       size 0.67 1
-       style Normal
-       "text halign" right
-       "text valign" center
-      }
-     }
-    }
-    ImageWidgetClass btnZoneApplyBackground {
-     color 0.3137 0.5608 0.0706 1
-     position 0.02 0.02
-     size 0.47 0.1
-     valign bottom_ref
-     {
-      ButtonWidgetClass btnZoneApply {
-       color 0.0706 0.5608 0.1922 1
-       position 0 0
-       size 1 1
-       halign left_ref
+       size 0.28 0.1
        valign bottom_ref
-       style ServerBrowserCollapse
-       text "Save zone"
+       {
+        ButtonWidgetClass btnAirdropZonesSetup {
+         inheritalpha 0
+         color 0.0706 0.1922 0.5608 1
+         size 1 1
+         halign center_ref
+         valign center_ref
+         style Editor
+         text "AIRDROP ZONES"
+        }
+       }
+      }
+      ImageWidgetClass btnFlagZonesBackground {
+       color 0.2588 0.3647 0.6863 1
+       position 0.3 0.01
+       size 0.28 0.1
+       valign bottom_ref
+       {
+        ButtonWidgetClass btnFlagZonesSetup {
+         inheritalpha 0
+         color 0.0706 0.1922 0.5608 1
+         position 0 0
+         size 1 1
+         halign center_ref
+         valign center_ref
+         style Editor
+         text "TERRITORY FLAG ZONES"
+        }
+       }
       }
      }
     }
-    ImageWidgetClass btnZoneDeleteBackground {
-     color 0.6863 0.2588 0.2588 1
-     position 0.02 0.02
-     size 0.47 0.1
-     halign right_ref
-     valign bottom_ref
+    PanelWidgetClass ZoneSettingsPanel {
+     visible 0
+     color 0 0 0 0.7843
+     position 0.51 0
+     size 0.48 1
+     style DayZDefaultPanel
      {
-      ButtonWidgetClass btnZoneDelete {
-       color 0.5608 0.0706 0.0706 1
-       position 0 0
-       size 1 1
+      PanelWidgetClass zoneNamePanel {
+       color 0 0 0 0.7059
+       position 0.02 20
+       size 0.96 80
+       vexactpos 1
+       vexactsize 1
+       style DayZDefaultPanel
+       {
+        TextWidgetClass zoneNameTitle {
+         position 0.01 0.02
+         size 0.3 0.45
+         style Normal
+         text "Name"
+         "text valign" center
+        }
+        EditBoxWidgetClass zoneNameValue {
+         position 0.01 0.5
+         size 0.98 0.4
+         vexactpos 0
+         vexactsize 0
+         style DefaultBorder
+         text "Gorka-Dubrovka crossing fcojcej joe oe jedj blahlah!."
+         "limit visible" 1
+         "exact text" 1
+        }
+       }
+      }
+      PanelWidgetClass zoneCoordsPanel {
+       color 0 0 0 0.651
+       position 0.02 110
+       size 0.96 70
+       vexactpos 1
+       vexactsize 1
+       style DayZDefaultPanel
+       {
+        TextWidgetClass zoneCoordsTitle {
+         position 0.01 1
+         size 0.48 40
+         vexactpos 1
+         vexactsize 1
+         text "Coordinates"
+         "text valign" center
+        }
+        TextWidgetClass zoneCoordXTitle {
+         position 0.5 1
+         size 0.05 40
+         vexactpos 1
+         vexactsize 1
+         text "X:"
+         "text halign" right
+         "text valign" center
+        }
+        EditBoxWidgetClass zoneCoordXValue {
+         position 0.55 0.05
+         size 0.2 0.44
+         style DefaultBorder
+        }
+        TextWidgetClass zoneCoordZTitle {
+         position 0.75 1
+         size 0.05 40
+         vexactpos 1
+         vexactsize 1
+         text "Z:"
+         "text halign" right
+         "text valign" center
+        }
+        EditBoxWidgetClass zoneCoordZValue {
+         position 0.8 0.05
+         size 0.19 0.44
+         style DefaultBorder
+        }
+        ButtonWidgetClass btnZoneSetCurrentPosition {
+         color 0.0706 0.5608 0.5608 1
+         position 0.5 0.08
+         size 0.49 0.38
+         valign bottom_ref
+         style Editor
+         text "My character's position"
+        }
+       }
+      }
+      PanelWidgetClass zoneRadiusPanel {
+       color 0 0 0 0.651
+       position 0.02 190
+       size 0.96 40
+       vexactpos 1
+       vexactsize 1
+       style DayZDefaultPanel
+       {
+        TextWidgetClass zoneRadiusTitle {
+         position 0.01 0
+         size 0.48 1
+         text "Radius (meters)"
+         "text valign" center
+        }
+        EditBoxWidgetClass zoneRadiusValue {
+         position 0.5 0.12
+         size 0.49 0.8
+         style DefaultBorder
+        }
+       }
+      }
+      PanelWidgetClass zoneShowBorderPanel {
+       color 0 0 0 0.651
+       position 0.02 240
+       size 0.96 40
+       vexactpos 1
+       vexactsize 1
+       style DayZDefaultPanel
+       {
+        TextWidgetClass zoneShowBorderTitle {
+         position 0.01 0
+         size 0.93 1
+         text "Show border on map"
+         "text valign" center
+        }
+        CheckBoxWidgetClass zoneShowBorderValue {
+         position 0.94 0
+         size 0.05 1
+        }
+       }
+      }
+      PanelWidgetClass zoneShowNamePanel {
+       color 0 0 0 0.651
+       position 0.02 295
+       size 0.96 40
+       vexactpos 1
+       vexactsize 1
+       style DayZDefaultPanel
+       {
+        TextWidgetClass zoneShowNameTitle {
+         position 0.01 0
+         size 0.93 1
+         text "Show name on map"
+         "text valign" center
+        }
+        CheckBoxWidgetClass zoneShowNameValue {
+         position 0.94 0
+         size 0.05 1
+        }
+       }
+      }
+      PanelWidgetClass zoneDaysPanel {
+       color 0 0 0 0.651
+       position 0.02 350
+       size 0.96 80
+       vexactpos 1
+       vexactsize 1
+       style DayZDefaultPanel
+       {
+        TextWidgetClass zoneDaysTitle {
+         position 0.01 0.01
+         size 0.98 0.45
+         style Normal
+         text "Active days (numbers, e.g., 6 7)"
+         "exact text" 0
+         "text valign" center
+        }
+        EditBoxWidgetClass zoneDaysValue {
+         position 0.01 0.5
+         size 0.98 0.39
+         style DefaultBorder
+        }
+       }
+      }
+      PanelWidgetClass zoneDaysModePanel {
+       color 0 0 0 0.651
+       position 0.02 440
+       size 0.96 40
+       vexactpos 1
+       vexactsize 1
+       style DayZDefaultPanel
+       {
+        TextWidgetClass zoneDaysModeTitle {
+         position 0.01 0
+         size 0.93 1
+         text "Week starts on Sunday"
+         "text valign" center
+        }
+        CheckBoxWidgetClass zoneDaysModeValue {
+         position 0.94 0
+         size 0.05 1
+         style Default
+        }
+       }
+      }
+      PanelWidgetClass zoneHoursPanel {
+       color 0 0 0 0.651
+       position 0.02 490
+       size 0.96 80
+       vexactpos 1
+       vexactsize 1
+       style DayZDefaultPanel
+       {
+        TextWidgetClass zoneHoursTitle {
+         position 0.01 0
+         size 0.98 0.48
+         text "Active hours (from 0 to 24)"
+         "text valign" center
+        }
+        TextWidgetClass zoneHourStartTitle {
+         position 0.01 0.5
+         size 0.25 0.48
+         text "Start hour:"
+        }
+        EditBoxWidgetClass zoneHourStartValue {
+         position 0.28 0.5
+         size 0.2 0.43
+         style DefaultBorder
+        }
+        TextWidgetClass zoneHourEndTitle {
+         position 0.5 0.5
+         size 0.25 0.46
+         text "End hour:"
+        }
+        EditBoxWidgetClass zoneHourEndValue {
+         position 0.79 0.5
+         size 0.2 0.44
+         style DefaultBorder
+        }
+       }
+      }
+      PanelWidgetClass serverTimePanel {
+       color 0 0 0 0.651
+       position 0.02 585
+       size 0.96 40
+       vexactpos 1
+       vexactsize 1
+       style blank
+       {
+        TextWidgetClass serverTimeTitle {
+         position 0.01 0
+         size 0.3 1
+         text "Server time:"
+         "text valign" center
+        }
+        TextWidgetClass serverTimeValue {
+         position 0.32 0
+         size 0.67 1
+         style Normal
+         "text halign" right
+         "text valign" center
+        }
+       }
+      }
+      ImageWidgetClass btnZoneApplyBackground {
+       color 0.3137 0.5608 0.0706 1
+       position 0.02 0.02
+       size 0.47 0.1
+       valign bottom_ref
+       {
+        ButtonWidgetClass btnZoneApply {
+         color 0.0706 0.5608 0.1922 1
+         position 0 0
+         size 1 1
+         halign left_ref
+         valign bottom_ref
+         style ServerBrowserCollapse
+         text "Save zone"
+        }
+       }
+      }
+      ImageWidgetClass btnZoneDeleteBackground {
+       color 0.6863 0.2588 0.2588 1
+       position 0.02 0.02
+       size 0.47 0.1
        halign right_ref
        valign bottom_ref
-       style ServerBrowserCollapse
-       text "Delete zone"
+       {
+        ButtonWidgetClass btnZoneDelete {
+         color 0.5608 0.0706 0.0706 1
+         position 0 0
+         size 1 1
+         halign right_ref
+         valign bottom_ref
+         style ServerBrowserCollapse
+         text "Delete zone"
+        }
+       }
+      }
+     }
+    }
+    PanelWidgetClass DynamicZoneSettingsPanel {
+     visible 1
+     color 0 0 0 0.7843
+     position 0.51 0
+     size 0.48 1
+     style DayZDefaultPanel
+     {
+      PanelWidgetClass dynamicZoneTitlePanel {
+       color 0 0 0 0.7059
+       position 0.02 30
+       size 0.96 40
+       vexactpos 1
+       vexactsize 1
+       style DayZDefaultPanel
+       {
+        TextWidgetClass dynamicZoneTitle {
+         position 0.01 0
+         size 0.98 1
+         style Normal
+         text "Dynamic zones title"
+         "text valign" center
+        }
+       }
+      }
+      PanelWidgetClass dynamicZoneNamePanel {
+       color 0 0 0 0.7059
+       position 0.02 100
+       size 0.96 80
+       vexactpos 1
+       vexactsize 1
+       style DayZDefaultPanel
+       {
+        TextWidgetClass dynamicZoneNameTitle {
+         position 0.01 0.02
+         size 0.3 0.45
+         style Normal
+         text "Name"
+         "text valign" center
+        }
+        EditBoxWidgetClass dynamicZoneNameValue {
+         position 0.01 0.5
+         size 0.98 0.4
+         vexactpos 0
+         vexactsize 0
+         style DefaultBorder
+         text "Gorka-Dubrovka crossing fcojcej joe oe jedj blahlah!."
+         "limit visible" 1
+         "exact text" 1
+        }
+       }
+      }
+      PanelWidgetClass dynamicZoneRadiusPanel {
+       color 0 0 0 0.651
+       position 0.02 190
+       size 0.96 40
+       vexactpos 1
+       vexactsize 1
+       style DayZDefaultPanel
+       {
+        TextWidgetClass dynamicZoneRadiusTitle {
+         position 0.01 0
+         size 0.48 1
+         text "Radius (meters)"
+         "text valign" center
+        }
+        EditBoxWidgetClass dynamicZoneRadiusValue {
+         position 0.5 0.12
+         size 0.49 0.8
+         style DefaultBorder
+        }
+       }
+      }
+      PanelWidgetClass dynamicZoneShowBorderPanel {
+       color 0 0 0 0.651
+       position 0.02 240
+       size 0.96 40
+       vexactpos 1
+       vexactsize 1
+       style DayZDefaultPanel
+       {
+        TextWidgetClass dynamicZoneShowBorderTitle {
+         position 0.01 0
+         size 0.93 1
+         text "Show border on map"
+         "text valign" center
+        }
+        CheckBoxWidgetClass dynamicZoneShowBorderValue {
+         position 0.94 0
+         size 0.05 1
+        }
+       }
+      }
+      PanelWidgetClass dynaimcZoneShowNamePanel {
+       color 0 0 0 0.651
+       position 0.02 295
+       size 0.96 40
+       vexactpos 1
+       vexactsize 1
+       style DayZDefaultPanel
+       {
+        TextWidgetClass dynaimcZoneShowNameTitle {
+         position 0.01 0
+         size 0.93 1
+         text "Show name on map"
+         "text valign" center
+        }
+        CheckBoxWidgetClass dynamicZoneShowNameValue {
+         position 0.94 0
+         size 0.05 1
+        }
+       }
+      }
+      PanelWidgetClass dynamicZoneDaysPanel {
+       color 0 0 0 0.651
+       position 0.02 400
+       size 0.96 80
+       vexactpos 1
+       vexactsize 1
+       style DayZDefaultPanel
+       {
+        TextWidgetClass dynamicZoneDaysTitle {
+         position 0.01 0.01
+         size 0.98 0.45
+         style Normal
+         text "Active days (numbers, e.g., 6 7)"
+         "exact text" 0
+         "text valign" center
+        }
+        EditBoxWidgetClass dynamicZoneDaysValue {
+         position 0.01 0.5
+         size 0.98 0.39
+         style DefaultBorder
+        }
+       }
+      }
+      PanelWidgetClass dynamicZoneDaysModePanel {
+       color 0 0 0 0.651
+       position 0.02 490
+       size 0.96 40
+       vexactpos 1
+       vexactsize 1
+       style DayZDefaultPanel
+       {
+        TextWidgetClass dynamicZoneDaysModeTitle {
+         position 0.01 0
+         size 0.93 1
+         text "Week starts on Sunday"
+         "text valign" center
+        }
+        CheckBoxWidgetClass dynamicZoneDaysModeValue {
+         position 0.94 0
+         size 0.05 1
+         style Default
+        }
+       }
+      }
+      PanelWidgetClass dynamicZoneHoursPanel {
+       color 0 0 0 0.651
+       position 0.02 545
+       size 0.96 80
+       vexactpos 1
+       vexactsize 1
+       style DayZDefaultPanel
+       {
+        TextWidgetClass dynamicZoneHoursTitle {
+         position 0.01 0
+         size 0.98 0.48
+         text "Active hours (from 0 to 24)"
+         "text valign" center
+        }
+        TextWidgetClass dynamicZoneHourStartTitle {
+         position 0.01 0.5
+         size 0.25 0.48
+         text "Start hour:"
+        }
+        EditBoxWidgetClass dynamicZoneHourStartValue {
+         position 0.28 0.5
+         size 0.2 0.43
+         style DefaultBorder
+        }
+        TextWidgetClass dynamicZoneHourEndTitle {
+         position 0.5 0.5
+         size 0.25 0.46
+         text "End hour:"
+        }
+        EditBoxWidgetClass dynamicZoneHourEndValue {
+         position 0.79 0.5
+         size 0.2 0.44
+         style DefaultBorder
+        }
+       }
+      }
+      PanelWidgetClass dynamicZoneFlagRaisedPanel {
+       color 0 0 0 0.651
+       position 0.02 345
+       size 0.96 40
+       vexactpos 1
+       vexactsize 1
+       style DayZDefaultPanel
+       {
+        TextWidgetClass dynamicZoneFlagRaisedTitle {
+         position 0.01 0
+         size 0.93 1
+         text "Active only when the flag is raised up. Requires server restart."
+         "exact text" 1
+         "text valign" center
+        }
+        CheckBoxWidgetClass dynamicZoneFlagRaisedValue {
+         position 0.94 0
+         size 0.05 1
+        }
+       }
+      }
+      ImageWidgetClass btnDynamicZoneApplyBackground {
+       color 0.3137 0.5608 0.0706 1
+       position 0 0.01
+       size 0.47 0.1
+       halign center_ref
+       valign bottom_ref
+       {
+        ButtonWidgetClass btnDynamicZoneApply {
+         color 0.0706 0.5608 0.1922 1
+         position 0 0
+         size 1 1
+         halign left_ref
+         valign bottom_ref
+         style ServerBrowserCollapse
+         text "Apply"
+        }
+       }
       }
      }
     }
@@ -1326,40 +1707,189 @@ FrameWidgetClass rootFrame {
     }
    }
   }
-  FrameWidgetClass descriptionFrame {
+  PanelWidgetClass BountySettingsRootPanel {
    visible 0
-   position 0.51 0.1
-   size 0.48 0
-   vexactsize 1
+   color 0 0 0 0.7843
+   position 0 0.1
+   size 0.5 0.9
+   style DayZDefaultPanel
    {
-    PanelWidgetClass descriptionPanel {
-     clipchildren 1
-     color 0 0 0 0.8667
-     position 0 0
-     size 1 1
-     hexactpos 0
-     vexactpos 0
-     hexactsize 0
-     vexactsize 0
+    PanelWidgetClass bountyCheckboxPanel {
+     visible 1
+     color 0 0 0 0.651
+     position 0.02 15
+     size 0.96 40
+     vexactpos 1
+     vexactsize 1
      style DayZDefaultPanel
+     {
+      TextWidgetClass bountyCheckboxTitle {
+       size 0.94 1
+       text "Enable bounties"
+       "text valign" center
+      }
+      CheckBoxWidgetClass bountyCheckboxValue {
+       position 0.95 0
+       size 0.05 1
+       style Default
+      }
+     }
     }
+    PanelWidgetClass bountyAllItemsTitlePanel {
+     visible 0
+     color 0 0 0 0.651
+     position 0.02 40
+     size 0.96 30
+     vexactpos 1
+     vexactsize 1
+     style DayZDefaultPanel
+     {
+      TextWidgetClass bountyAllItemsTitle {
+       position 0.01 0
+       size 1 1
+       style Normal
+       text "Type to search for items, click the button below to add them to bounty."
+       "text valign" center
+      }
+     }
+    }
+    PanelWidgetClass bountySearchPanel {
+     color 0 0 0 0.651
+     position 0.02 70
+     size 0.96 30
+     vexactpos 1
+     vexactsize 1
+     style DayZDefaultPanel
+     {
+      TextWidgetClass bountySearchTitle {
+       position 0.01 0
+       size 0.15 1
+       style Normal
+       text "Search:"
+       "text valign" center
+      }
+      EditBoxWidgetClass bountySearchValue {
+       position 0.17 0
+       size 0.82 1
+       style DefaultBorder
+      }
+     }
+    }
+    TextListboxWidgetClass bountyAllItemsList {
+     inheritalpha 0
+     position 0.02 110
+     size 0.96 230
+     vexactpos 1
+     vexactsize 1
+     style Default
+     "title visible" 0
+     lines 7
+    }
+    ButtonWidgetClass bountyAddButton {
+     color 0.2588 0.3647 0.6863 1
+     position 0.02 355
+     size 0.96 30
+     vexactpos 1
+     vexactsize 1
+     style DayZDefaultButton
+     text "Add selected item to bounty"
+    }
+    PanelWidgetClass bountySelectedItemsTitlePanel {
+     color 0 0 0 0.651
+     position 0.02 395
+     size 0.96 30
+     vexactpos 1
+     vexactsize 1
+     style DayZDefaultPanel
+     {
+      TextWidgetClass bountySelectedItemsTitle {
+       position 0.01 0
+       size 1 1
+       style Normal
+       text "Headhunters will receive the following rewards:"
+       "text valign" center
+      }
+     }
+    }
+    TextListboxWidgetClass bountySelectedItemsList {
+     position 0.02 430
+     size 0.96 220
+     vexactpos 1
+     vexactsize 1
+     style Default
+     "title visible" 0
+     lines 7
+    }
+    ButtonWidgetClass bountyRemoveButton {
+     color 0.2588 0.3647 0.6863 1
+     position 0.02 670
+     size 0.96 30
+     vexactpos 1
+     vexactsize 1
+     style DayZDefaultButton
+     text "Remove selected item from bounty"
+    }
+    ImageWidgetClass bountyApplyButtonBackground {
+     color 0.3137 0.5608 0.0706 1
+     position 0.01 0.01
+     size 0.35 0.08
+     halign center_ref
+     valign bottom_ref
+     {
+      ButtonWidgetClass bountyApplyButton {
+       color 0.0706 0.5608 0.1922 1
+       size 1 1
+       halign center_ref
+       valign center_ref
+       vexactpos 0
+       vexactsize 0
+       style ServerBrowserCollapse
+       text "Apply"
+      }
+     }
+    }
+   }
+  }
+  GridSpacerWidgetClass descriptionFrame {
+   visible 0
+   clipchildren 0
+   ignorepointer 1
+   color 0 0 0 0.902
+   position 0.51 0.1
+   size 0.48 1
+   vexactsize 1
+   style DayZDefaultPanel
+   Padding 1
+   Margin 15
+   "Size To Content V" 1
+   Columns 1
+   Rows 1
+   {
     RichTextWidgetClass descriptionTitle {
-     clipchildren 1
-     size 0.95 1
+     ignorepointer 1
+     size 0.98 0.98
+     halign center_ref
+     hexactpos 1
+     vexactpos 1
+     text "The The mode:"\
+     "* PVP zones: the zones are PvP areas, the rest of the map is PvE."\
+     "* PVE zones: the zones are PvE safe zones, the rest of the map is PvP area."\
+     "* PVE: the whole map is PvE area, PvP is not allowed (except Airdrop zones if you use one of the Airdrop(Upgraded)+PVEZAirdropZones or DayZ-Expansion+PVEZExpansionPlugin.)"\
+     "* PVP: just like the vanilla game, PvP works anywwhere, but you can use the zones to show your players where PvP is legal.:"
+     font "gui/fonts/sdf_MetronLight72"
+     "exact text" 1
+     "exact text size" 20
+     "size to text v" 1
+     wrap 1
+     "condense whitespace" 1
+    }
+    PanelWidgetClass descriptionPanel {
+     ignorepointer 1
+     color 0 0 0 0.7843
      halign center_ref
      valign center_ref
-     hexactpos 0
-     vexactpos 0
-     hexactsize 0
-     vexactsize 0
-     scaled 1
-     style DayZNormal
-     text "The description:"
-     "exact text" 1
-     "size to text h" 0
-     "size to text v" 0
-     "text valign" center
-     wrap 1
+     vexactpos 1
+     style DayZDefaultPanel
     }
    }
   }

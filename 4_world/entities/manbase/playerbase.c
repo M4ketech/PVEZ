@@ -49,23 +49,22 @@ modded class PlayerBase extends ManBase {
 		
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 
-		if (GetGame().IsClient())
-			return;
+		if (GetGame().IsServer()) {
+			if (!IsAlive() || g_Game.pvez_Config.GENERAL.Mode == PVEZ_MODE_PVP)
+				return;
 
-		if (!IsAlive() || g_Game.pvez_Config.GENERAL.Mode == PVEZ_MODE_PVP)
-			return;
+			// Have the player got a new bleeding from the recent hit in base method?
+			bool gotNewBleeding = false;
+			if (m_BleedingSourceCount > bleedingSourceCountBeforeTheHit)
+				gotNewBleeding = true;
 
-		// Have the player got a new bleeding from the recent hit in base method?
-		bool gotNewBleeding = false;
-		if (m_BleedingSourceCount > bleedingSourceCountBeforeTheHit)
-			gotNewBleeding = true;
-
-		pvez_DamageRedistributor.RegisterHit(this, source, weaponType, gotNewBleeding);
-		if (!pvez_DamageRedistributor.LastHitWasAllowed() && damageResult) {
-			if (g_Game.pvez_Config.DAMAGE.Restore_Target_Health) {
-				pvez_DamageRedistributor.HealDamageReceived(this, damageResult, dmgZone, gotNewBleeding);
+			pvez_DamageRedistributor.RegisterHit(this, source, weaponType, gotNewBleeding);
+			if (!pvez_DamageRedistributor.LastHitWasAllowed() && damageResult) {
+				if (g_Game.pvez_Config.DAMAGE.Restore_Target_Health) {
+					pvez_DamageRedistributor.HealDamageReceived(this, damageResult, dmgZone, gotNewBleeding);
+				}
+				pvez_DamageRedistributor.ReflectDamageBack(weaponType, damageResult.GetDamage("", ""));
 			}
-			pvez_DamageRedistributor.ReflectDamageBack(weaponType, damageResult.GetDamage("", ""));
 		}
 	}
 
@@ -79,21 +78,18 @@ modded class PlayerBase extends ManBase {
 	override void EEKilled(Object killer) {
 		super.EEKilled(killer);
 
-		if (GetGame().IsClient())
-			return;
+		if (GetGame().IsServer()) {
+			if (!pvez_PlayerStatus) {
+				Print(PVEZ_ERROR_PREFIX + "No PlayerStatus on death!");
+				return;
+			}
 
-		if (!pvez_PlayerStatus) {
-			Print("PVEZ__[ERROR] No PlayerStatus on death!");
-			return;
+			pvez_DamageRedistributor.RegisterDeath(this, EntityAI.Cast(killer), weaponType);
+			if (PVEZ_ShouldBePardonedOnDeath())
+				pvez_PlayerStatus.SetLawbreaker(false);
+			if (GetIdentity())
+				g_Game.pvez_LawbreakersMarkers.RemoveMarker(GetIdentity().GetId());
 		}
-
-		pvez_DamageRedistributor.RegisterDeath(this, EntityAI.Cast(killer), weaponType);
-
-		if (PVEZ_ShouldBePardonedOnDeath())
-			pvez_PlayerStatus.SetLawbreaker(false);
-		
-		if (GetIdentity())
-			g_Game.pvez_LawbreakersMarkers.RemoveMarker(GetIdentity().GetId());
 	}
 
 	bool PVEZ_ShouldBePardonedOnDeath() {
@@ -121,27 +117,28 @@ modded class PlayerBase extends ManBase {
 		// All UI functions can only be executed on client.
 		if (GetGame().IsClient()) {
 			switch (rpc_type) {
-				case PVEZ_RPC.UPDATE_CONFIG_ON_CLIENT:
+				case PVEZ_RPC.UPDATE_CONFIG:
 					Param1<ref PVEZ_Config> data1 = new Param1<ref PVEZ_Config>(NULL);
-					ctx.Read(data1);
+					if (!ctx.Read(data1)) {
+						MessageStatus(PVEZ_ERROR_PREFIX + "Failed to get config from server.");
+						Print(PVEZ_ERROR_PREFIX + "PlayerBase.OnRPC. Failed to read config data.");
+						break;
+					}
 					g_Game.pvez_Config = data1.param1;
 					if (isPVEZAdmin && GetPVEZAdminMenu().GetLayoutRoot().IsVisible())
 						MessageStatus("PVEZ: Config has been updated on server.");
 					break;
-				case PVEZ_RPC.UPDATE_ZONES_ON_CLIENT:
+				case PVEZ_RPC.UPDATE_ZONES:
 					Param1<array<ref PVEZ_Zone>> data2 = new Param1<array<ref PVEZ_Zone>>(NULL);
-					ctx.Read(data2);
+					if (!ctx.Read(data2)) break;
 					g_Game.pvez_Zones.activeZones = data2.param1;
-					if (isPVEZAdmin && GetPVEZAdminMenu().GetLayoutRoot().IsVisible()) {
-						MessageStatus("PVEZ: zones have been reinitialized on server.");
-						GetPVEZAdminMenu().UpdateZonesList();
-					}
 					break;
 				case PVEZ_RPC.ADMIN_ZONES_DATA_REQUEST:
 					if (isPVEZAdmin && GetPVEZAdminMenu().GetLayoutRoot().IsVisible()) {
+						MessageStatus("PVEZ: received zones list from server.");
 						Param1<array<ref PVEZ_Zone>> dataAZ = new Param1<array<ref PVEZ_Zone>>(NULL);
-						ctx.Read(dataAZ);
-						g_Game.pvez_Zones.allZones = dataAZ.param1;
+						if (!ctx.Read(dataAZ)) break;
+						g_Game.pvez_Zones.staticZones = dataAZ.param1;
 						GetPVEZAdminMenu().UpdateZonesList();
 					}
 					break;
@@ -149,34 +146,40 @@ modded class PlayerBase extends ManBase {
 					if (isPVEZAdmin && GetPVEZAdminMenu().GetLayoutRoot().IsVisible()) {
 						MessageStatus("PVEZ: Received lawbreakers data from server.");
 						Param2<array<ref PVEZ_Lawbreaker>, array<Man>> data3 = new Param2<array<ref PVEZ_Lawbreaker>, array<Man>>(NULL, NULL);
-						ctx.Read(data3);
+						if (!ctx.Read(data3)) break;
 						g_Game.pvez_LawbreakersRoster.lbDataBase = data3.param1;
 						GetPVEZAdminMenu().UpdateLawbreakersList(data3.param2);
 					}
 					break;
+				case PVEZ_RPC.ADMIN_BOUNTIES_DATA_REQUEST:
+					if (isPVEZAdmin && GetPVEZAdminMenu().GetLayoutRoot().IsVisible()) {
+						MessageStatus("PVEZ: Received bounties data from server.");
+						Param1<ref PVEZ_Bounties> data4 = new Param1<ref PVEZ_Bounties>(NULL);
+						if (!ctx.Read(data4)) break;
+						GetPVEZAdminMenu().UpdateBountiesPage(data4.param1);
+					}
+					break;
 				case PVEZ_RPC.UPDATE_ICON_ON_CLIENT:
 					// Here the params sent should contain 2 booleans: IsInPVP & IsLawbreaker, and the zone data (could be NULL if left a zone).
-					Param3<bool, bool, int> data4 = new Param3<bool, bool, int>(false, false, -1);
-					ctx.Read(data4);
+					Param3<bool, bool, int> data5 = new Param3<bool, bool, int>(false, false, -1);
+					if (!ctx.Read(data5)) break;
 					if (m_Hud)
-						m_Hud.UpdatePVEZIcon(data4.param1, data4.param2, data4.param3);
+						m_Hud.UpdatePVEZIcon(data5.param1, data5.param2, data5.param3);
 					break;
 				case PVEZ_RPC.NOTIFICATION_PERSONAL:
-					// Params should be: message text (string), duration in seconds (int), is it a countdown (bool).
-					// If bool param is true, duration will be used as a counter.
-					Param4<int, int, bool, int> data5 = new Param4<int, int, bool, int>(-1, 0, false, -1);
-					ctx.Read(data5);
-					PVEZ_Notifications.NotificationFromType(this, data5.param1, data5.param2, data5.param3, data5.param4);
+					Param4<int, int, bool, string> data6 = new Param4<int, int, bool, string>(-1, 0, false, "");
+					if (!ctx.Read(data6)) break;
+					PVEZ_Notifications.NotificationFromType(data6.param1, data6.param2, data6.param3, data6.param4);
 					break;
 				case PVEZ_RPC.NOTIFICATION_SERVERWIDE:
-					Param1<string> data6 = new Param1<string>("");
-					ctx.Read(data6);
-					PVEZ_Notifications.NotificationFromString(this, data6.param1);
+					Param1<string> data7 = new Param1<string>("");
+					if (!ctx.Read(data7)) break;
+					PVEZ_Notifications.NotificationFromString(data7.param1);
 					break;
 				case PVEZ_RPC.ADMIN_ACCESS_REQUEST:
-					Param1<bool> data7 = new Param1<bool>(false);
-					ctx.Read(data7);
-					isPVEZAdmin = data7.param1;
+					Param1<bool> data8 = new Param1<bool>(false);
+					if (!ctx.Read(data8)) break;
+					isPVEZAdmin = data8.param1;
 					break;
 			}
 		}

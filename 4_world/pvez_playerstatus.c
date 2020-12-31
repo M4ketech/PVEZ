@@ -28,7 +28,7 @@ class PVEZ_PlayerStatus : Managed {
 		}
 	}
 
-	// bool forceUpdate - used to update status instantly (without a countdown) when the countdown is already over,
+	// bool forceUpdate - to update status instantly (without a countdown) when the countdown is already over,
 	// or when the player just connected to the server.
 	void Update(int zone, bool forceUpdate) {
 		if (IsLawbreaker) // for a lawbreaker it doesn't matter, they're in PVP all the time
@@ -42,14 +42,15 @@ class PVEZ_PlayerStatus : Managed {
 			return;
 		}
 
-		if (SetByMode(zone))
-			PVEZ_Notifications.PersonalNotificationServer(player, PVEZ_NotificationTypes.NOTIF_ZONE_ENTER, 5, false, zone);
-		else if (exitDelayed)
-			PVEZ_Notifications.PersonalNotificationServer(player, PVEZ_NotificationTypes.NOTIF_ZONE_EXIT, 5, false);
-		
+		if (SetByMode(zone)) {
+			PVEZ_Notifications.PersonalNotificationServer(player, PVEZ_NotificationType.NOTIF_ZONE_ENTER, 5, false, zone.ToString());
+		}
+		else if (exitDelayed) {
+			PVEZ_Notifications.PersonalNotificationServer(player, PVEZ_NotificationType.NOTIF_ZONE_EXIT, 5, false);
+		}
+		PVEZ_Notifications.IconUpdate(player, IsInPVP, IsLawbreaker, zone);
 		exitDelayed = false;
 		exitCounter = 0;
-		PVEZ_Notifications.IconUpdate(player, IsInPVP, IsLawbreaker, zone);
 	}
 
 	bool SetByMode(int zone) {
@@ -60,10 +61,10 @@ class PVEZ_PlayerStatus : Managed {
 				IsInPVP = true; //PVP always on
 				break;
 			case PVEZ_MODE_PVE:
-				//valueZone = false;
-				//IsInPVP = false; //PVP always off
-				valueZone = (zone >= 0);
-				IsInPVP = valueZone; //PVP is on in zones (PVP still should work within Airdrop zones)
+				valueZone = false;
+				IsInPVP = false; //PVP always off
+				//valueZone = (zone >= 0);
+				//IsInPVP = valueZone; //PVP is on in zones (PVP still should work within Airdrop zones)
 				break;
 			case PVEZ_MODE_PVP_ZONES:
 				valueZone = (zone >= 0);
@@ -91,13 +92,13 @@ class PVEZ_PlayerStatus : Managed {
 		if (g_Game.pvez_Config.GENERAL.Exit_Zone_Countdown > 0) {
 			exitDelayed = true;
 			// RPC call to client to show UI countdown notification
-			PVEZ_Notifications.PersonalNotificationServer(player, PVEZ_NotificationTypes.NOTIF_EXIT_COUNTDOWN, g_Game.pvez_Config.GENERAL.Exit_Zone_Countdown, true);
+			PVEZ_Notifications.PersonalNotificationServer(player, PVEZ_NotificationType.NOTIF_EXIT_COUNTDOWN, g_Game.pvez_Config.GENERAL.Exit_Zone_Countdown, true);
 			
 			// WRNG! The following approach doesn't work correctly after a long server life time (more than 4-5 hours without a restart).
 			// Had to change it to a trigger update call from OnScheduledTick() in PlayerBase class.
 			/*
 			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(Update, g_Game.pvez_Config.GENERAL.Exit_Zone_Countdown * 1000, false, -1, true);
-			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(PVEZ_Notifications.PersonalNotificationServer, g_Game.pvez_Config.GENERAL.Exit_Zone_Countdown * 1000, false, player, PVEZ_NotificationTypes.NOTIF_ZONE_EXIT, g_Game.pvez_Config.GENERAL.Exit_Zone_Countdown, true);
+			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(PVEZ_Notifications.PersonalNotificationServer, g_Game.pvez_Config.GENERAL.Exit_Zone_Countdown * 1000, false, player, PVEZ_NotificationType.NOTIF_ZONE_EXIT, g_Game.pvez_Config.GENERAL.Exit_Zone_Countdown, true);
 			*/
 		}
 		else {
@@ -121,7 +122,7 @@ class PVEZ_PlayerStatus : Managed {
 			if (value) {
 				// If the player is not in LB status yet, inform them
 				if (IsLawbreaker != value) {
-					PVEZ_Notifications.PersonalNotificationServer(player, PVEZ_NotificationTypes.NOTIF_LB_PERSONAL, 10, false);
+					PVEZ_Notifications.PersonalNotificationServer(player, PVEZ_NotificationType.NOTIF_LB_PERSONAL, 10, false);
 				}
 			}
 			g_Game.pvez_LawbreakersRoster.Update(player.GetIdentity().GetId(), value);
@@ -142,11 +143,11 @@ class PVEZ_PlayerStatus : Managed {
 			if (GetIsLawbreaker())
 				return true;
 			// if both fighters are in PVP zone:
-			else if (GetIsInPVP() && ZombieBase.Cast(attacker).PVEZ_GetIsInPVP())
+			else if (GetIsInPVP() && ZombieBase.Cast(attacker).GetIsInPVP())
 				return true;
 			// if config allows PVP when at least one of them is in PVP zone:
 			else if (g_Game.pvez_Config.DAMAGE.Allow_Damage_Between_PVP_and_PVE)
-				return GetIsInPVP() || ZombieBase.Cast(attacker).PVEZ_GetIsInPVP();
+				return GetIsInPVP() || ZombieBase.Cast(attacker).GetIsInPVP();
 			else
 				return false;
 		}

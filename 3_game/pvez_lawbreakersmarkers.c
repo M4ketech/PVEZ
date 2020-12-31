@@ -13,7 +13,7 @@ class PVEZ_LawbreakerMarker : Managed {
 }
 
 class PVEZ_LawbreakersMarkers : Managed {
-	protected autoptr array<ref PVEZ_LawbreakerMarker> markers;
+	autoptr array<ref PVEZ_LawbreakerMarker> markers;
 
 	void PVEZ_LawbreakersMarkers() {
 		markers = new array<ref PVEZ_LawbreakerMarker>;
@@ -90,7 +90,7 @@ class PVEZ_LawbreakersMarkers : Managed {
 	void Sync(array<ref PVEZ_LawbreakerMarker> newMarkers = NULL) {
 		if (GetGame().IsServer()) {
 			Param1<array<ref PVEZ_LawbreakerMarker>> markersData = new Param1<array<ref PVEZ_LawbreakerMarker>>(markers);
-			g_Game.PVEZ_RPCForAllClients(PVEZ_RPC.UPDATE_MARKERS_ON_CLIENT, markersData);
+			g_Game.PVEZ_RPCForAllClients(PVEZ_RPC.UPDATE_LAWBREAKERS_MARKERS, markersData);
 		}
 		else {
 			markers = newMarkers;

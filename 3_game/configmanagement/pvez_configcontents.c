@@ -20,21 +20,6 @@ class PVEZ_GeneralSettings : Managed {
 	void PVEZ_GeneralSettings() { }
 }
 
-class PVEZ_GeneralSettings_Old : Managed {
-	string Mode = "PVP_ZONES"; // Other options are: "PVE_ZONES", "PVP", "PVE".
-	float Update_Frequency = 5;
-	bool Show_Notifications = true;
-	bool Use_UI_Notifications = true;
-	bool Add_Zone_Name_To_Message = true;
-	float Exit_Zone_Countdown = 10;
-	bool Week_Starts_On_Sunday = false;
-	string Custom_Enter_Zone_Message = "";
-	string Custom_Exit_Zone_Message = "";
-	string Custom_Exit_Zone_Countdown_Message = "";
-
-	void PVEZ_GeneralSettings() { }
-}
-
 //____________________________________________________________________________//
 //--------------------------DAMAGE PROTECTION RULES---------------------------//
 class PVEZ_DamageSettings : Managed {
@@ -89,10 +74,10 @@ class PVEZ_LawbreakersRules : Managed {
 //__________________________________________________________________________//
 //-------------------------------MAP MARKERS--------------------------------//
 class PVEZ_ZoneColor : Managed {
-	int A = 200;
-	int R = 255;
-	int G = 0;
-	int B = 0;
+	//int A = 200;
+	float R = 255;
+	float G = 0;
+	float B = 0;
 	
 	void PVEZ_ZoneColor() { }
 }
@@ -122,10 +107,32 @@ class PVEZ_LawbreakersMapMarkers : Managed {
 	void PVEZ_LawbreakersMapMarkers() { }
 }
 
-// Settings for Airdrop mod compatibility submod (PVEZAirdropZones)
-class PVEZ_AirdropSettings : Managed {
+// Settings for Airdrop compatibility submod (PVEZAirdropZones) & PVEZExpansionPlugin
+class PVEZ_AirdropZonesSettings : Managed {
 	float Radius = 150;
-	string Zone_Name = "Airdrop";
-	bool Show_On_Map = true;
-	bool Show_Name_On_Map = true;
+	string Name = "Airdrop";
+	bool ShowBorderOnMap = true;
+	bool ShowNameOnMap = true;
+	autoptr ref PVEZ_Zone_Schedule Activity_Schedule;
+
+	void PVEZ_AirdropZonesSettings() {
+		Activity_Schedule = new PVEZ_Zone_Schedule;
+	}
+}
+
+// Settings for territory flag zones
+class PVEZ_TerritoryFlagZonesSettings : Managed {
+	float Radius = 150;
+	string Name = "Base territory";
+	bool ShowBorderOnMap = false;
+	bool ShowNameOnMap = false;
+	bool OnlyWhenFlagIsRaised = true;
+	autoptr ref PVEZ_Zone_Schedule Activity_Schedule;
+
+	void PVEZ_TerritoryFlagZonesSettings() {
+		Activity_Schedule = new PVEZ_Zone_Schedule;
+		Activity_Schedule.Days = "";
+		Activity_Schedule.StartHour = 0;
+		Activity_Schedule.EndHour = 0;
+	}
 }

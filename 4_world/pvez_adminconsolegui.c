@@ -1,8 +1,9 @@
 class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 
-	autoptr ref PVEZ_Zone selectedZone;
-	autoptr ref PVEZ_Lawbreaker selectedLawbreaker;
-	autoptr ref array<Man> playersOnServer;
+	protected autoptr ref PVEZ_Zone selectedZone;
+	protected int dynamicZonesTypeSelected;
+	protected autoptr ref PVEZ_Lawbreaker selectedLawbreaker;
+	protected autoptr ref array<Man> playersOnServer;
 
 	protected bool isTypingText;
 
@@ -10,6 +11,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 	protected ButtonWidget btnGeneral;
 	protected ButtonWidget btnZones;
 	protected ButtonWidget btnLawbreakers;
+	protected ButtonWidget btnBounties;
 
 	protected Widget descriptionFrame;
 	protected RichTextWidget descriptionTitle;
@@ -68,7 +70,28 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 	protected Widget customMsgLbServerWidePanel;
 	protected EditBoxWidget customMsgLbPersonalValue;
 	protected Widget customMsgLbPersonalPanel;
+
+	// Bounty system
+	protected Widget BountySettingsRootPanel;
+	protected CheckBoxWidget bountyCheckboxValue;
+	protected Widget bountyCheckboxPanel;
+	protected EditBoxWidget bountySearchValue;
+	protected TextListboxWidget bountyAllItemsList;
+	protected ButtonWidget bountyAddButton;
+	protected TextListboxWidget bountySelectedItemsList;
+	protected ButtonWidget bountyRemoveButton;
+	protected ButtonWidget bountyApplyButton;
+
 	// map settings
+	protected Widget mapPlayerMarkerPanel;
+	protected CheckBoxWidget mapPlayerMarkerValue;
+	protected Widget mapPlayerMarkerCustomTextPanel;
+	protected EditBoxWidget mapPlayerMarkerCustomTextValue;
+	protected Widget mapZoneBorderColorPanel;
+	protected SliderWidget mapZoneBorderColorValueR;
+	protected SliderWidget mapZoneBorderColorValueG;
+	protected SliderWidget mapZoneBorderColorValueB;
+	protected ImageWidget mapZoneBorderColorImage;
 	protected CheckBoxWidget mapShowLbMarkersValue;
 	protected Widget mapShowLbMarkersPanel;
 	protected EditBoxWidget mapLbMarkersUpdateFreqValue;
@@ -104,6 +127,27 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 	protected ButtonWidget btnZoneApply;
 	protected ButtonWidget btnZoneDelete;
 
+	// dynamic zones setup panel
+	protected ButtonWidget btnAirdropZonesSetup;
+	protected ButtonWidget btnFlagZonesSetup;
+
+	protected Widget DynamicZoneSettingsPanel;
+	protected TextWidget dynamicZoneTitle;
+	protected EditBoxWidget dynamicZoneNameValue;
+	protected EditBoxWidget dynamicZoneCoordXValue;
+	protected EditBoxWidget dynamicZoneCoordZValue;
+	protected EditBoxWidget dynamicZoneRadiusValue;
+	protected CheckBoxWidget dynamicZoneShowBorderValue;
+	protected CheckBoxWidget dynamicZoneShowNameValue;
+	protected EditBoxWidget dynamicZoneDaysValue;
+	protected CheckBoxWidget dynamicZoneDaysModeValue;
+	protected EditBoxWidget dynamicZoneHourStartValue;
+	protected EditBoxWidget dynamicZoneHourEndValue;
+	protected Widget dynamicZoneFlagRaisedPanel;
+	protected CheckBoxWidget dynamicZoneFlagRaisedValue;
+	protected ButtonWidget btnDynamicZoneApply;
+	protected ButtonWidget btnDynamicZoneDelete;
+
 	/// LAWBREAKERS page
 	protected Widget LawbreakersRootPanel;
 	protected TextListboxWidget lbPlayersList;
@@ -129,6 +173,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 		btnGeneral = ButtonWidget.Cast(layoutRoot.FindAnyWidget("btnGeneral"));
 		btnZones = ButtonWidget.Cast(layoutRoot.FindAnyWidget("btnZones"));
 		btnLawbreakers = ButtonWidget.Cast(layoutRoot.FindAnyWidget("btnLawbreakers"));
+		btnBounties = ButtonWidget.Cast(layoutRoot.FindAnyWidget("btnBounties"));
 
 		descriptionFrame = Widget.Cast(layoutRoot.FindAnyWidget("descriptionFrame"));
 		descriptionTitle = RichTextWidget.Cast(layoutRoot.FindAnyWidget("descriptionTitle"));
@@ -188,7 +233,17 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 		customMsgLbServerWidePanel = Widget.Cast(layoutRoot.FindAnyWidget("customMsgLbServerWidePanel"));
 		customMsgLbPersonalValue = EditBoxWidget.Cast(layoutRoot.FindAnyWidget("customMsgLbPersonalValue"));
 		customMsgLbPersonalPanel = Widget.Cast(layoutRoot.FindAnyWidget("customMsgLbPersonalPanel"));
+		
 		// map
+		mapPlayerMarkerPanel = Widget.Cast(layoutRoot.FindAnyWidget("mapPlayerMarkerPanel"));
+		mapPlayerMarkerValue = CheckBoxWidget.Cast(layoutRoot.FindAnyWidget("mapPlayerMarkerValue"));
+		mapPlayerMarkerCustomTextPanel = Widget.Cast(layoutRoot.FindAnyWidget("mapPlayerMarkerCustomTextPanel"));
+		mapPlayerMarkerCustomTextValue = EditBoxWidget.Cast(layoutRoot.FindAnyWidget("mapPlayerMarkerCustomTextValue"));
+		mapZoneBorderColorPanel = Widget.Cast(layoutRoot.FindAnyWidget("mapZoneBorderColorPanel"));
+		mapZoneBorderColorValueR = SliderWidget.Cast(layoutRoot.FindAnyWidget("mapZoneBorderColorValueR"));
+		mapZoneBorderColorValueG = SliderWidget.Cast(layoutRoot.FindAnyWidget("mapZoneBorderColorValueG"));
+		mapZoneBorderColorValueB = SliderWidget.Cast(layoutRoot.FindAnyWidget("mapZoneBorderColorValueB"));
+		mapZoneBorderColorImage = ImageWidget.Cast(layoutRoot.FindAnyWidget("mapZoneBorderColorImage"));
 		mapShowLbMarkersValue = CheckBoxWidget.Cast(layoutRoot.FindAnyWidget("mapShowLbMarkersValue"));
 		mapShowLbMarkersPanel = Widget.Cast(layoutRoot.FindAnyWidget("mapShowLbMarkersPanel"));
 		mapLbMarkersUpdateFreqValue = EditBoxWidget.Cast(layoutRoot.FindAnyWidget("mapLbMarkersUpdateFreqValue"));
@@ -227,6 +282,28 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 		btnZoneApply = ButtonWidget.Cast(layoutRoot.FindAnyWidget("btnZoneApply"));
 		btnZoneDelete = ButtonWidget.Cast(layoutRoot.FindAnyWidget("btnZoneDelete"));
 
+		// dynamic zones setup panel
+		btnAirdropZonesSetup = ButtonWidget.Cast(layoutRoot.FindAnyWidget("btnAirdropZonesSetup"));
+		btnFlagZonesSetup = ButtonWidget.Cast(layoutRoot.FindAnyWidget("btnFlagZonesSetup"));
+		
+		DynamicZoneSettingsPanel = Widget.Cast(layoutRoot.FindAnyWidget("DynamicZoneSettingsPanel"));
+		DynamicZoneSettingsPanel.Show(false);
+		dynamicZoneTitle = TextWidget.Cast(layoutRoot.FindAnyWidget("dynamicZoneTitle"));
+		dynamicZoneNameValue = EditBoxWidget.Cast(layoutRoot.FindAnyWidget("dynamicZoneNameValue"));
+		dynamicZoneCoordXValue = EditBoxWidget.Cast(layoutRoot.FindAnyWidget("dynamicZoneCoordXValue"));
+		dynamicZoneCoordZValue = EditBoxWidget.Cast(layoutRoot.FindAnyWidget("dynamicZoneCoordZValue"));
+		dynamicZoneRadiusValue = EditBoxWidget.Cast(layoutRoot.FindAnyWidget("dynamicZoneRadiusValue"));
+		dynamicZoneShowBorderValue = CheckBoxWidget.Cast(layoutRoot.FindAnyWidget("dynamicZoneShowBorderValue"));
+		dynamicZoneShowNameValue = CheckBoxWidget.Cast(layoutRoot.FindAnyWidget("dynamicZoneShowNameValue"));
+		dynamicZoneDaysValue = EditBoxWidget.Cast(layoutRoot.FindAnyWidget("dynamicZoneDaysValue"));
+		dynamicZoneDaysModeValue = CheckBoxWidget.Cast(layoutRoot.FindAnyWidget("dynamicZoneDaysModeValue"));
+		dynamicZoneHourStartValue = EditBoxWidget.Cast(layoutRoot.FindAnyWidget("dynamicZoneHourStartValue"));
+		dynamicZoneHourEndValue = EditBoxWidget.Cast(layoutRoot.FindAnyWidget("dynamicZoneHourEndValue"));
+		dynamicZoneFlagRaisedPanel = Widget.Cast(layoutRoot.FindAnyWidget("dynamicZoneFlagRaisedPanel"));
+		dynamicZoneFlagRaisedValue = CheckBoxWidget.Cast(layoutRoot.FindAnyWidget("dynamicZoneFlagRaisedValue"));
+		// selected zone actions
+		btnDynamicZoneApply = ButtonWidget.Cast(layoutRoot.FindAnyWidget("btnDynamicZoneApply"));
+
 		/// LAWBREAKERS page
 		LawbreakersRootPanel = Widget.Cast(layoutRoot.FindAnyWidget("LawbreakersRootPanel"));
 		LawbreakersRootPanel.Show(false);
@@ -244,6 +321,18 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 		// selected LB actions
 		btnLbApply = ButtonWidget.Cast(layoutRoot.FindAnyWidget("btnLbApply"));
 		btnLbDelete = ButtonWidget.Cast(layoutRoot.FindAnyWidget("btnLbDelete"));
+
+		// BOUNTIES page
+		BountySettingsRootPanel = Widget.Cast(layoutRoot.FindAnyWidget("BountySettingsRootPanel"));
+		BountySettingsRootPanel.Show(false);
+		bountyCheckboxValue = CheckBoxWidget.Cast(layoutRoot.FindAnyWidget("bountyCheckboxValue"));
+		bountyCheckboxPanel = Widget.Cast(layoutRoot.FindAnyWidget("bountyCheckboxPanel"));
+		bountySearchValue = EditBoxWidget.Cast(layoutRoot.FindAnyWidget("bountySearchValue"));
+		bountyAllItemsList = TextListboxWidget.Cast(layoutRoot.FindAnyWidget("bountyAllItemsList"));
+		bountyAddButton = ButtonWidget.Cast(layoutRoot.FindAnyWidget("bountyAddButton"));
+		bountySelectedItemsList = TextListboxWidget.Cast(layoutRoot.FindAnyWidget("bountySelectedItemsList"));
+		bountyRemoveButton = ButtonWidget.Cast(layoutRoot.FindAnyWidget("bountyRemoveButton"));
+		bountyApplyButton = ButtonWidget.Cast(layoutRoot.FindAnyWidget("bountyApplyButton"));
 
 		layoutRoot.Show(false);
 		return layoutRoot;
@@ -284,6 +373,12 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 		customMsgLbServerWideValue.SetText(g_Game.pvez_Config.LAWBREAKERS_SYSTEM.Custom_Crime_Notification_Message_Format);
 		customMsgLbPersonalValue.SetText(g_Game.pvez_Config.LAWBREAKERS_SYSTEM.Custom_Message_for_the_Lawbreaker);
 
+		mapPlayerMarkerValue.SetChecked(g_Game.pvez_Config.MAP.Show_Player_Marker);
+		mapPlayerMarkerCustomTextValue.SetText(g_Game.pvez_Config.MAP.Custom_Player_Marker_Text);
+		mapZoneBorderColorValueR.SetCurrent(g_Game.pvez_Config.MAP.Zones_Border_Color.R);
+		mapZoneBorderColorValueG.SetCurrent(g_Game.pvez_Config.MAP.Zones_Border_Color.G);
+		mapZoneBorderColorValueB.SetCurrent(g_Game.pvez_Config.MAP.Zones_Border_Color.B);
+		mapZoneBorderColorImage.SetColor(ARGB(255, g_Game.pvez_Config.MAP.Zones_Border_Color.R, g_Game.pvez_Config.MAP.Zones_Border_Color.G, g_Game.pvez_Config.MAP.Zones_Border_Color.B));
 		mapShowLbMarkersValue.SetChecked(g_Game.pvez_Config.MAP.Lawbreakers_Markers.Show_Markers_On_Map);
 		mapLbMarkersUpdateFreqValue.SetText(g_Game.pvez_Config.MAP.Lawbreakers_Markers.Update_Frequency.ToString());
 		mapLbMarkersUseApproximateValue.SetChecked(g_Game.pvez_Config.MAP.Lawbreakers_Markers.Approximate_Location);
@@ -311,6 +406,14 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 				showNotifsValue.SetChecked(true);
 			return true;
 		}
+		if (w == bountySearchValue) {
+			UpdateBountiesAllItemsList();
+			return true;
+		}
+		if (w == mapZoneBorderColorValueR || w == mapZoneBorderColorValueG || w == mapZoneBorderColorValueB) {
+			mapZoneBorderColorImage.SetColor(ARGB(255, mapZoneBorderColorValueR.GetCurrent(), mapZoneBorderColorValueG.GetCurrent(), mapZoneBorderColorValueB.GetCurrent()));
+			return true;
+		}
 		return false;
 	}
 
@@ -318,27 +421,39 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 		if (w == btnGeneral) {
 			SettingsRootPanel.Show(true);
 			ZonesRootPanel.Show(false);
-			ZoneSettingsPanel.Show(false);
 			LawbreakersRootPanel.Show(false);
 			lbDataPanel.Show(false);
+			BountySettingsRootPanel.Show(false);
 			return true;
 		}
 		if (w == btnZones) {
 			SettingsRootPanel.Show(false);
 			ZonesRootPanel.Show(true);
 			ZoneSettingsPanel.Show(false);
+			DynamicZoneSettingsPanel.Show(false);
 			LawbreakersRootPanel.Show(false);
 			lbDataPanel.Show(false);
+			BountySettingsRootPanel.Show(false);
 			GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.ADMIN_ZONES_DATA_REQUEST, NULL, true);
 			return true;
 		}
 		if (w == btnLawbreakers) {
 			SettingsRootPanel.Show(false);
 			ZonesRootPanel.Show(false);
-			ZoneSettingsPanel.Show(false);
 			LawbreakersRootPanel.Show(true);
 			lbDataPanel.Show(false);
+			BountySettingsRootPanel.Show(false);
 			GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.ADMIN_LAWBREAKERS_DATA_REQUEST, NULL, true);
+			return true;
+		}
+		if (w == btnBounties) {
+			SettingsRootPanel.Show(false);
+			ZonesRootPanel.Show(false);
+			LawbreakersRootPanel.Show(false);
+			lbDataPanel.Show(false);
+			BountySettingsRootPanel.Show(true);
+			GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.ADMIN_BOUNTIES_DATA_REQUEST, NULL, true);
+			UpdateBountiesAllItemsList();
 			return true;
 		}
 		if (w == btnSettingsApply) {
@@ -374,13 +489,47 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 			g_Game.pvez_Config.LAWBREAKERS_SYSTEM.Custom_Crime_Notification_Message_Format = customMsgLbServerWideValue.GetText();
 			g_Game.pvez_Config.LAWBREAKERS_SYSTEM.Custom_Message_for_the_Lawbreaker = customMsgLbPersonalValue.GetText();
 
+			g_Game.pvez_Config.MAP.Show_Player_Marker = mapPlayerMarkerValue.IsChecked();
+			g_Game.pvez_Config.MAP.Custom_Player_Marker_Text =mapPlayerMarkerCustomTextValue.GetText();
+			g_Game.pvez_Config.MAP.Zones_Border_Color.R = mapZoneBorderColorValueR.GetCurrent();
+			g_Game.pvez_Config.MAP.Zones_Border_Color.G = mapZoneBorderColorValueG.GetCurrent();
+			g_Game.pvez_Config.MAP.Zones_Border_Color.B = mapZoneBorderColorValueB.GetCurrent();
 			g_Game.pvez_Config.MAP.Lawbreakers_Markers.Show_Markers_On_Map = mapShowLbMarkersValue.IsChecked();
 			g_Game.pvez_Config.MAP.Lawbreakers_Markers.Update_Frequency = mapLbMarkersUpdateFreqValue.GetText().ToInt();
 			g_Game.pvez_Config.MAP.Lawbreakers_Markers.Approximate_Location = mapLbMarkersUseApproximateValue.IsChecked();
 			g_Game.pvez_Config.MAP.Lawbreakers_Markers.Approximate_Location_Max_Offset = mapLbMarkersApproximateOffsetValue.GetText().ToInt();
 			g_Game.pvez_Config.MAP.Lawbreakers_Markers.Lawbreakers_Can_See_Their_Own_Markers = mapLbCanSeeTheirOwnMarkerValue.IsChecked();
-			PlayerBase.Cast(GetGame().GetPlayer()).MessageStatus("PVEZ: Applying changes to config");
-			GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.ADMIN_UPDATE_CONFIG_ON_SERVER, new Param1<PVEZ_Config>(g_Game.pvez_Config), true);
+			//PlayerBase.Cast(GetGame().GetPlayer()).MessageStatus("PVEZ: Applying changes to config");
+			GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.UPDATE_CONFIG, new Param1<PVEZ_Config>(g_Game.pvez_Config), true);
+			// If the mode has been changed, then reinit the zones
+			return true;
+		}
+		if (w == bountyAddButton) {
+			int itemRow = bountyAllItemsList.GetSelectedRow();
+			if (itemRow == -1) return true;
+
+			Param2<string, string> itemParam = new Param2<string, string>("", "");
+			bountyAllItemsList.GetItemData(itemRow, 0, itemParam);
+			AddToBountySelectedItemsList(itemParam.param1, itemParam.param2);
+			return true;
+		}
+		if (w == bountyRemoveButton) {
+			RemoveFromBountySelectedItemsList(bountySelectedItemsList.GetSelectedRow());
+			return true;
+		}
+		if (w == bountyApplyButton) {
+			autoptr array<ref PVEZ_BountyItemData> newBountiesList = new array<ref PVEZ_BountyItemData>;
+			for (int i = 0; i < bountySelectedItemsList.GetNumItems(); i++) {
+				Param3<string, string, int> selectedItemParam = new Param3<string, string, int>("", "", -1);
+				bountySelectedItemsList.GetItemData(i, 0, selectedItemParam);
+				string className = selectedItemParam.param1;
+				string displayName = selectedItemParam.param2;
+				int amount = selectedItemParam.param3;
+				ref PVEZ_BountyItemData itemData = new PVEZ_BountyItemData(className, displayName, amount);
+				newBountiesList.Insert(itemData);
+			}
+			Param2<bool, array<ref PVEZ_BountyItemData>> newBountiesSettings = new Param2<bool, array<ref PVEZ_BountyItemData>>(bountyCheckboxValue.IsChecked(), newBountiesList);
+			GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.UPDATE_BOUNTIES, newBountiesSettings, true);
 			return true;
 		}
 		if (w == zonesList) {
@@ -394,11 +543,11 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 			if (selectedZone)
 				OnZoneSelected(selectedZone);
 			else
-				zoneNameValue.SetText("No zone");
+				ZoneSettingsPanel.Show(false);
 			return true;
 		}
 		if (w == btnCreateNewZone) {
-			selectedZone = new ref PVEZ_Zone(0, 0, "New zone", 100, false, false);
+			selectedZone = new ref PVEZ_Zone(PVEZ_ZONE_TYPE_STATIC, 0, 0, "New zone", 100, false, false);
 			OnZoneSelected(selectedZone);
 			return true;
 		}
@@ -409,14 +558,14 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 			return true;
 		}
 		if (w == btnZoneApply) {
-			int zoneindex = g_Game.pvez_Zones.allZones.Find(selectedZone);
+			int zoneindex = g_Game.pvez_Zones.staticZones.Find(selectedZone);
 			if (zoneindex >= 0) {
-				PlayerBase.Cast(GetGame().GetPlayer()).MessageStatus("PVEZ: Applying changes to the zone " + selectedZone.Name);
-				selectedZone = g_Game.pvez_Zones.allZones[zoneindex];
+				//PlayerBase.Cast(GetGame().GetPlayer()).MessageStatus("PVEZ: Applying changes to the zone " + selectedZone.Name);
+				selectedZone = g_Game.pvez_Zones.staticZones[zoneindex];
 			}
 			else {
-				PlayerBase.Cast(GetGame().GetPlayer()).MessageStatus("PVEZ: Creating a new zone...");
-				g_Game.pvez_Zones.allZones.Insert(selectedZone);
+				//PlayerBase.Cast(GetGame().GetPlayer()).MessageStatus("PVEZ: Creating a new zone...");
+				g_Game.pvez_Zones.staticZones.Insert(selectedZone);
 			}
 			selectedZone.Name = zoneNameValue.GetText();
 			selectedZone.X = zoneCoordXValue.GetText().ToInt();
@@ -427,19 +576,52 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 			selectedZone.Activity_Schedule.Days = zoneDaysValue.GetText();
 			selectedZone.Activity_Schedule.StartHour = zoneHourStartValue.GetText().ToInt();
 			selectedZone.Activity_Schedule.EndHour = zoneHourEndValue.GetText().ToInt();
-			GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.UPDATE_ZONES_ON_SERVER, new Param1<array<ref PVEZ_Zone>>(g_Game.pvez_Zones.allZones), true);
+			GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.UPDATE_ZONES, new Param1<array<ref PVEZ_Zone>>(g_Game.pvez_Zones.staticZones), true);
 			// If the week mode has been toggled, then push new config update to server
 			if (zoneDaysModeValue.IsChecked() != g_Game.pvez_Config.GENERAL.Week_Starts_On_Sunday) {
 				g_Game.pvez_Config.GENERAL.Week_Starts_On_Sunday = zoneDaysModeValue.IsChecked();
-				GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.ADMIN_UPDATE_CONFIG_ON_SERVER, new Param1<PVEZ_Config>(g_Game.pvez_Config), true);
+				GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.UPDATE_CONFIG, new Param1<PVEZ_Config>(g_Game.pvez_Config), true);
 			}
+			UpdateZonesList();
 			return true;
 		}
 		if (w == btnZoneDelete) {
-			PlayerBase.Cast(GetGame().GetPlayer()).MessageStatus("PVEZ: Removing the zone " + selectedZone.Name + "...");
-			g_Game.pvez_Zones.allZones.RemoveItem(selectedZone);
-			GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.UPDATE_ZONES_ON_SERVER, new Param1<array<ref PVEZ_Zone>>(g_Game.pvez_Zones.allZones), true);
+			//PlayerBase.Cast(GetGame().GetPlayer()).MessageStatus("PVEZ: Removing the zone " + selectedZone.Name + "...");
+			g_Game.pvez_Zones.staticZones.RemoveItem(selectedZone);
+			GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.UPDATE_ZONES, new Param1<array<ref PVEZ_Zone>>(g_Game.pvez_Zones.staticZones), true);
+			UpdateZonesList();
 			return true;
+		}
+		if (w == btnAirdropZonesSetup) {
+			UpdateDynamicZonesSettingsPanel(PVEZ_ZONE_TYPE_AIRDROP);
+		}
+		if (w == btnFlagZonesSetup) {
+			UpdateDynamicZonesSettingsPanel(PVEZ_ZONE_TYPE_TERRITORYFLAG);
+		}
+		if (w == btnDynamicZoneApply) {
+			if (dynamicZonesTypeSelected == PVEZ_ZONE_TYPE_AIRDROP) {
+				g_Game.pvez_Config.AIRDROP_ZONES.Name = dynamicZoneNameValue.GetText();
+				g_Game.pvez_Config.AIRDROP_ZONES.Radius = dynamicZoneRadiusValue.GetText().ToInt();
+				g_Game.pvez_Config.AIRDROP_ZONES.ShowNameOnMap = dynamicZoneShowNameValue.IsChecked();
+				g_Game.pvez_Config.AIRDROP_ZONES.ShowBorderOnMap = dynamicZoneShowBorderValue.IsChecked();
+				g_Game.pvez_Config.AIRDROP_ZONES.Activity_Schedule.Days = dynamicZoneDaysValue.GetText();
+				g_Game.pvez_Config.AIRDROP_ZONES.Activity_Schedule.StartHour = dynamicZoneHourStartValue.GetText().ToInt();
+				g_Game.pvez_Config.AIRDROP_ZONES.Activity_Schedule.EndHour = dynamicZoneHourEndValue.GetText().ToInt();
+				g_Game.pvez_Config.GENERAL.Week_Starts_On_Sunday = dynamicZoneDaysModeValue.IsChecked();
+			}
+			else if (dynamicZonesTypeSelected == PVEZ_ZONE_TYPE_TERRITORYFLAG) {
+				g_Game.pvez_Config.TERRITORYFLAG_ZONES.Name = dynamicZoneNameValue.GetText();
+				g_Game.pvez_Config.TERRITORYFLAG_ZONES.Radius = dynamicZoneRadiusValue.GetText().ToInt();
+				g_Game.pvez_Config.TERRITORYFLAG_ZONES.ShowNameOnMap = dynamicZoneShowNameValue.IsChecked();
+				g_Game.pvez_Config.TERRITORYFLAG_ZONES.ShowBorderOnMap = dynamicZoneShowBorderValue.IsChecked();
+				g_Game.pvez_Config.TERRITORYFLAG_ZONES.Activity_Schedule.Days = dynamicZoneDaysValue.GetText();
+				g_Game.pvez_Config.TERRITORYFLAG_ZONES.Activity_Schedule.StartHour = dynamicZoneHourStartValue.GetText().ToInt();
+				g_Game.pvez_Config.TERRITORYFLAG_ZONES.Activity_Schedule.EndHour = dynamicZoneHourEndValue.GetText().ToInt();
+				g_Game.pvez_Config.TERRITORYFLAG_ZONES.OnlyWhenFlagIsRaised = dynamicZoneFlagRaisedValue.IsChecked();
+				g_Game.pvez_Config.GENERAL.Week_Starts_On_Sunday = dynamicZoneDaysModeValue.IsChecked();
+			}
+			DynamicZoneSettingsPanel.Show(false);
+			GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.UPDATE_CONFIG, new Param1<PVEZ_Config>(g_Game.pvez_Config), true);
 		}
 		if (w == lbPlayersList) {
 			int selectedLBRow = lbPlayersList.GetSelectedRow();
@@ -479,18 +661,19 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 
 	void UpdateZonesList() {
 		zonesList.ClearItems();
-		for (int i = 0; i < g_Game.pvez_Zones.allZones.Count(); i++) {
-			ref PVEZ_Zone zone = g_Game.pvez_Zones.allZones.Get(i);
+		for (int i = 0; i < g_Game.pvez_Zones.staticZones.Count(); i++) {
+			ref PVEZ_Zone zone = g_Game.pvez_Zones.staticZones.Get(i);
 			Param1<ref PVEZ_Zone> data = new Param1<ref PVEZ_Zone>(zone);
-			zonesList.AddItem((i + 1).ToString() + ". " + g_Game.pvez_Zones.allZones[i].Name, data, 0, i);
+			zonesList.AddItem((i + 1).ToString() + ". " + g_Game.pvez_Zones.staticZones[i].Name, data, 0, i);
 		}
-		if (g_Game.pvez_Zones.allZones.Find(selectedZone) < 0)
+		if (g_Game.pvez_Zones.staticZones.Find(selectedZone) < 0)
 			ZoneSettingsPanel.Show(false);
 	}
 
 	void OnZoneSelected(PVEZ_Zone selectedZone) {
-		if (!ZoneSettingsPanel.IsVisible())
-			ZoneSettingsPanel.Show(true);
+		DynamicZoneSettingsPanel.Show(false);
+		ZoneSettingsPanel.Show(true);
+		
 		zoneNameValue.SetText(selectedZone.Name);
 		zoneCoordXValue.SetText(selectedZone.X.ToString());
 		zoneCoordZValue.SetText(selectedZone.Z.ToString());
@@ -546,13 +729,128 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 			}
 		}
 	}
-	/*
-The mode:
-PVP zones - the zones are PvP areas, the rest of the map is PvE.
-PVE zones - the zones are PvE safe zones, the rest of the map is PvP area.
-PVE - the whole map is PvE area, PvP is not allowed (except Airdrop zones if you use one of the Airdrop(Upgraded)+PVEZAirdropZones or DayZ-Expansion+PVEZExpansionPlugin.)
-PVP - just like the vanilla game, PvP works anywwhere, but you can use the zones to show your players where PvP is legal.
-*/
+
+	void UpdateBountiesAllItemsList() {
+		bountyAllItemsList.ClearItems();
+
+		TStringArray configs = new TStringArray;
+		configs.Insert( CFG_VEHICLESPATH );
+		configs.Insert( CFG_WEAPONSPATH );
+		configs.Insert( CFG_MAGAZINESPATH );
+
+		string strSearch = bountySearchValue.GetText();
+		strSearch.ToLower();
+
+		for ( int nConfig = 0; nConfig < configs.Count(); ++nConfig ) {
+			string strConfigPath = configs.Get( nConfig );
+
+			int nClasses = g_Game.ConfigGetChildrenCount( strConfigPath );
+
+			for ( int nClass = 0; nClass < nClasses; ++nClass ) {
+				string strName;
+
+				g_Game.ConfigGetChildName( strConfigPath, nClass, strName );
+
+				string displayName;
+				g_Game.ConfigGetText( strConfigPath + " " + strName + " displayName", displayName );
+				int scope = g_Game.ConfigGetInt( strConfigPath + " " + strName + " scope" );
+
+				if ( scope == 0 ) continue;
+
+				string strNameLower = strName;
+				string displayNameLower = displayName;
+
+				strNameLower.ToLower();
+				displayNameLower.ToLower();
+
+				if (strSearch != "" && !(strNameLower.Contains(strSearch) || displayNameLower.Contains(strSearch))) continue;
+
+				bountyAllItemsList.AddItem(strName + " [" + displayName + "]", new Param3<string, string, int>(strName, displayName, 1), 0, nClasses);
+			}
+		}
+	}
+
+	void UpdateBountiesPage(ref PVEZ_Bounties data) {
+		bountyCheckboxValue.SetChecked(data.Enabled);
+		bountySelectedItemsList.ClearItems();
+		for (int i = 0; i < data.Items.Count(); i++) {
+			string className = data.Items[i].className;
+			string displayName = data.Items[i].displayName;
+			int amount = data.Items[i].amount;
+			bountySelectedItemsList.AddItem(displayName + " x" + amount, new Param3<string, string, int>(className, displayName, amount), 0, i);
+		}
+	}
+
+	void AddToBountySelectedItemsList(string className, string displayName) {
+		Param3<string, string, int> p = new Param3<string, string, int>("", "", 1);
+		bool alreadyInList;
+
+		for (int i = 0; i < bountySelectedItemsList.GetNumItems(); i++) {
+			alreadyInList = false;
+			bountySelectedItemsList.GetItemData(i, 0, p);
+			if (p.param1 == className) {
+				alreadyInList = true;
+				p.param3++;
+				bountySelectedItemsList.SetItem(i, p.param2 + " x" + p.param3, p, 0);
+				break;
+			}
+		}
+		if (!alreadyInList) {
+			p = new Param3<string, string, int>(className, displayName, 1);
+			bountySelectedItemsList.AddItem(displayName + " x1", p, 0, bountySelectedItemsList.GetNumItems() + 1);
+		}
+	}
+
+	void RemoveFromBountySelectedItemsList(int row) {
+		if (row < 0)
+			return;
+
+		Param3<string, string, int> p = new Param3<string, string, int>("", "", -1);
+		bountySelectedItemsList.GetItemData(row, 0, p);
+		p.param3--;
+		if (p.param3 > 0)
+			bountySelectedItemsList.SetItem(row, p.param1 + "[" + p.param2 + "] x" + p.param3, p, 0);
+		else {
+			bountySelectedItemsList.RemoveRow(row);
+			if (bountySelectedItemsList.GetNumItems() > 0)
+				bountySelectedItemsList.SelectRow(0);
+			else
+				bountySelectedItemsList.ClearItems();
+		}
+	}
+
+	void UpdateDynamicZonesSettingsPanel(int type) {
+		ZoneSettingsPanel.Show(false);
+		DynamicZoneSettingsPanel.Show(true);
+			
+		dynamicZonesTypeSelected = type;
+		
+		if (type == PVEZ_ZONE_TYPE_AIRDROP) {
+			dynamicZoneTitle.SetText("Airdrop zones settings:");
+			dynamicZoneNameValue.SetText(g_Game.pvez_Config.AIRDROP_ZONES.Name);
+			dynamicZoneRadiusValue.SetText(g_Game.pvez_Config.AIRDROP_ZONES.Radius.ToString());
+			dynamicZoneShowNameValue.SetChecked(g_Game.pvez_Config.AIRDROP_ZONES.ShowNameOnMap);
+			dynamicZoneShowBorderValue.SetChecked(g_Game.pvez_Config.AIRDROP_ZONES.ShowBorderOnMap);
+			dynamicZoneDaysValue.SetText(g_Game.pvez_Config.AIRDROP_ZONES.Activity_Schedule.Days);
+			dynamicZoneHourStartValue.SetText(g_Game.pvez_Config.AIRDROP_ZONES.Activity_Schedule.StartHour.ToString());
+			dynamicZoneHourEndValue.SetText(g_Game.pvez_Config.AIRDROP_ZONES.Activity_Schedule.EndHour.ToString());
+			dynamicZoneFlagRaisedPanel.Show(false);
+			dynamicZoneDaysModeValue.SetChecked(g_Game.pvez_Config.GENERAL.Week_Starts_On_Sunday);
+		}
+		else if (type == PVEZ_ZONE_TYPE_TERRITORYFLAG) {
+			dynamicZoneTitle.SetText("Territory flag zones settings:");
+			dynamicZoneNameValue.SetText(g_Game.pvez_Config.TERRITORYFLAG_ZONES.Name);
+			dynamicZoneRadiusValue.SetText(g_Game.pvez_Config.TERRITORYFLAG_ZONES.Radius.ToString());
+			dynamicZoneShowNameValue.SetChecked(g_Game.pvez_Config.TERRITORYFLAG_ZONES.ShowNameOnMap);
+			dynamicZoneShowBorderValue.SetChecked(g_Game.pvez_Config.TERRITORYFLAG_ZONES.ShowBorderOnMap);
+			dynamicZoneDaysValue.SetText(g_Game.pvez_Config.TERRITORYFLAG_ZONES.Activity_Schedule.Days);
+			dynamicZoneHourStartValue.SetText(g_Game.pvez_Config.TERRITORYFLAG_ZONES.Activity_Schedule.StartHour.ToString());
+			dynamicZoneHourEndValue.SetText(g_Game.pvez_Config.TERRITORYFLAG_ZONES.Activity_Schedule.EndHour.ToString());
+			dynamicZoneFlagRaisedPanel.Show(true);
+			dynamicZoneFlagRaisedValue.SetChecked(g_Game.pvez_Config.TERRITORYFLAG_ZONES.OnlyWhenFlagIsRaised);
+			dynamicZoneDaysModeValue.SetChecked(g_Game.pvez_Config.GENERAL.Week_Starts_On_Sunday);
+		}
+	}
 
 	override bool OnMouseEnter(Widget w, int x, int y) {
 		if (w.GetTypeName() == "EditBoxWidget") {
@@ -561,134 +859,120 @@ PVP - just like the vanilla game, PvP works anywwhere, but you can use the zones
 		
 		switch (w.GetParent()) {
 			case modePanel:
-				descriptionTitle.SetText("The mode:\n* PVP zones: the zones are PvP areas, the rest of the map is PvE.\n* PVE zones: the zones are PvE safe zones, the rest of the map is PvP area.\n* PVE: the whole map is PvE area, PvP is not allowed (except Airdrop zones if you use one of the Airdrop(Upgraded)+PVEZAirdropZones or DayZ-Expansion+PVEZExpansionPlugin.)\n* PVP: just like the vanilla game, PvP works anywwhere, but you can use the zones to show your players where PvP is legal.");
-				ResizeDescriptionWidget();
+				descriptionTitle.SetText("#pvez_aui_desc_mode");
 				descriptionFrame.Show(true);
 				return true;
 			case freqPanel:
-				descriptionTitle.SetText("Update frequency.\nThe period in seconds that determines how often the mod will check players current positions to update their PvP status (is the player in a zone or not).");
-				ResizeDescriptionWidget();
+				descriptionTitle.SetText("#pvez_aui_desc_updatefreq");
 				descriptionFrame.Show(true);
 				return true;
 			case showNotifsPanel:
-				descriptionTitle.SetText("Show notifications to players when they enter or leave a zone.");
-				ResizeDescriptionWidget();
+				descriptionTitle.SetText("#pvez_aui_desc_shownotifs");
 				descriptionFrame.Show(true);
 				return true;
 			case showUIPanel:
-				descriptionTitle.SetText("Use GUI notifications. When this is OFF, players will receive chat messages on entering and leaving zones.");
-				ResizeDescriptionWidget();
+				descriptionTitle.SetText("#pvez_aui_desc_useuinotifs");
 				descriptionFrame.Show(true);
 				return true;
 			case showNameInNotifsPanel:
-				descriptionTitle.SetText("Show the zone name in notifications.");
-				ResizeDescriptionWidget();
+				descriptionTitle.SetText("#pvez_aui_desc_zonenameinnotifs");
 				descriptionFrame.Show(true);
 				return true;
 			case exitDelayPanel:
-				descriptionTitle.SetText("Countdown in seconds before leaving a zone. When player leaves a zone, their status will be changed only after the countdown is over.");
-				ResizeDescriptionWidget();
+				descriptionTitle.SetText("#pvez_aui_desc_exitdelay");
 				descriptionFrame.Show(true);
 				return true;
 			case customMsgEnterPanel:
-				descriptionTitle.SetText("Print your own text here and it will be shown in notifications replacing the localized text.\nBy default it's the localized text that is determined by the selected Mode.\nIf the mode is 'PvP zones' or 'PvP', then it will be localized variations of 'You entered the open fire zone'.\nIf the Mode is 'PvE zones', the message will be 'You entered the armistice zone'.");
-				ResizeDescriptionWidget();
+				descriptionTitle.SetText("#pvez_aui_desc_custommsgenter");
 				descriptionFrame.Show(true);
 				return true;
 			case customMsgExitPanel:
-				descriptionTitle.SetText("Print your own text here and it will be shown in notifications replacing the localized text.\nBy default it's the localized text that is determined by the selected Mode.\nIf the mode is 'PvP zones' or 'PvP', then it will be localized variations of 'You left the open fire zone'.\nIf the Mode is 'PvE zones', the message will be 'You left the armistice zone'.");
-				ResizeDescriptionWidget();
+				descriptionTitle.SetText("#pvez_aui_desc_custommsgexit");
 				descriptionFrame.Show(true);
 				return true;
 			case customMsgExitCountdownPanel:
-				descriptionTitle.SetText("Print your own text here and it will be shown in notifications replacing the localized text.\nBy default it's the localized text that is determined by the selected Mode.\nIf the mode is 'PvP zones' or 'PvP', then it will be localized variations of 'You will leave the open fire zone in' followed by the countdown timer.\nIf the Mode is 'PvE zones', the message will be 'You will leave the armistice zone in' followed by the countdown timer.");
-				ResizeDescriptionWidget();
+				descriptionTitle.SetText("#pvez_aui_desc_custommsgcntdwn");
 				descriptionFrame.Show(true);
 				return true;
 			case healTargetPanel:
-				descriptionTitle.SetText("Heal target.\nRestore the health of the player that has been hit by another player in PvE area.\nNOTE: as mentioned in the mod description, we can't disable damage to players completely, the mod just restores the health that is lost after the hit. So, it still won't protect from headshots and grenades.");
-				ResizeDescriptionWidget();
+				descriptionTitle.SetText("#pvez_aui_desc_healtarget");
 				descriptionFrame.Show(true);
 				return true;
 			case healCargoPanel:
-				descriptionTitle.SetText("Restore the 'health' of the players clothing and inventory when they get hit by another player in PvE area.");
-				ResizeDescriptionWidget();
+				descriptionTitle.SetText("#pvez_aui_desc_healcargo");
 				descriptionFrame.Show(true);
 				return true;
 			case allowDmgBeyondZonePanel:
-				descriptionTitle.SetText("Allow damage between PvP & PvE.\nWhen this is ON, a player inside a PvP zone will be able and allowed to kill a player outside the zone. When OFF, both players have to be within the zone, otherwise the killer will be considered a lawbreaker if they kill the player that is outside.");
-				ResizeDescriptionWidget();
+				descriptionTitle.SetText("#pvez_aui_desc_allowdmgbeyond");
 				descriptionFrame.Show(true);
 				return true;
 			case reflectDmgPanel:
-				descriptionTitle.SetText("Types of damage that will be reflected back to the attacker when they attack a player in PvE area.");
-				ResizeDescriptionWidget();
+				descriptionTitle.SetText("#pvez_aui_desc_reflecttypes");
 				descriptionFrame.Show(true);
 				return true;
 			case lbKillTypesPanel:
-				descriptionTitle.SetText("Determines the cases when the player that has killed another one in PvE area should be treated as a lawbreaker.\nNOTE: any item in hands is treated as weapon (even a bandage), therefore it falls into the 1st category.");
-				ResizeDescriptionWidget();
+				descriptionTitle.SetText("#pvez_aui_desc_lbcases");
 				descriptionFrame.Show(true);
 				return true;
 			case lbServerMessagePanel:
-				descriptionTitle.SetText("Inform all the players on the server about a lawful kill.");
-				ResizeDescriptionWidget();
+				descriptionTitle.SetText("#pvez_aui_desc_lbserverwide");
 				descriptionFrame.Show(true);
 				return true;
 			case lbAutoclearPanel:
-				descriptionTitle.SetText("Clear the lawbreaker data automatically after a certain amount of time from their last murder.");
-				ResizeDescriptionWidget();
+				descriptionTitle.SetText("#pvez_aui_desc_lbautoclear");
 				descriptionFrame.Show(true);
 				return true;
 			case lbAutoclearPeriodPanel:
-				descriptionTitle.SetText("How long a lawbreaker data should be stored. Does nothing if the Autoclear is OFF.");
-				ResizeDescriptionWidget();
+				descriptionTitle.SetText("#pvez_aui_desc_lbautoclearperiod");
 				descriptionFrame.Show(true);
 				return true;
 			case lbAttackAnywherePanel:
-				descriptionTitle.SetText("When someone becomes a lawbreaker, other players will be able to kill the lawbreaker without any consiquences. And they are allowed to attack him even in a PvE zone. So, you might want to allow the lawbreaker to be able to fight back. Otherwise, if you have target healing ON or damage reflection ON, the lawbreaker won't be able to fight against the headhunters.");
-				ResizeDescriptionWidget();
+				descriptionTitle.SetText("#pvez_aui_desc_lbattackanywhere");
 				descriptionFrame.Show(true);
 				return true;
 			case lbPardonOnAnyDeathPanel:
-				descriptionTitle.SetText("The lawbreakers get their status OFF when they die. With this setting you can determine when you want to forgive them.\nWhen this is ON, the lawbreaker will be forgiven even if they commit a suicide at their own base, for example.\nWhen OFF, they will be forgiven only when they have been killed by another player who has no lawbreaker status.");
-				ResizeDescriptionWidget();
+				descriptionTitle.SetText("#pvez_aui_desc_lbpardonanydeath");
 				descriptionFrame.Show(true);
 				return true;
 			case customMsgLbServerWidePanel:
-				string msg = "By default the format of the message that is showwn to all players on the server looks like this:\n1 killed 2. Weapon: 3.\nThe 1 will be replaced with the killer name, 2 - victim name, 3 - weapon.";
+				string msg = "#pvez_aui_desc_lbswcustom";
 				descriptionTitle.SetText(msg);
-				ResizeDescriptionWidget();
 				descriptionFrame.Show(true);
 				return true;
 			case customMsgLbPersonalPanel:
-				descriptionTitle.SetText("Your custom message for the player who kills someone, this will replace the localized text.");
-				ResizeDescriptionWidget();
+				descriptionTitle.SetText("#pvez_aui_desc_lbpersonalmsg");
+				descriptionFrame.Show(true);
+				return true;
+			case mapPlayerMarkerPanel:
+				descriptionTitle.SetText("#pvez_aui_desc_mapplayermarker");
+				descriptionFrame.Show(true);
+				return true;
+			case mapPlayerMarkerCustomTextPanel:
+				descriptionTitle.SetText("#pvez_aui_desc_mapplayermarkercustom");
+				descriptionFrame.Show(true);
+				return true;
+			case mapZoneBorderColorPanel:
+				descriptionTitle.SetText("#pvez_aui_desc_mapzonecolor");
 				descriptionFrame.Show(true);
 				return true;
 			case mapShowLbMarkersPanel:
-				descriptionTitle.SetText("Show lawbreaker's position marker on the map that is visible for all players on the server");
-				ResizeDescriptionWidget();
+				descriptionTitle.SetText("#pvez_aui_desc_lbshowmarkers");
 				descriptionFrame.Show(true);
 				return true;
 			case mapLbMarkersUpdateFreqPanel:
-				descriptionTitle.SetText("How often lawbreakers markers will be updated on the map. In seconds.");
-				ResizeDescriptionWidget();
+				descriptionTitle.SetText("#pvez_aui_desc_lbmarkerupdatefreq");
 				descriptionFrame.Show(true);
 				return true;
 			case mapLbMarkersUseApproximatePanel:
-				descriptionTitle.SetText("Use an approximate lawwbreaker's position for the marker instead of the exact point.");
-				ResizeDescriptionWidget();
+				descriptionTitle.SetText("#pvez_aui_desc_lbapproximate");
 				descriptionFrame.Show(true);
 				return true;
 			case mapLbMarkersApproximateOffsetPanel:
-				descriptionTitle.SetText("Max approximity offset from the exact lawbreaker position in meters. On every LB markers update the position for the marker will be set somewhere within this radius from the exact point.");
-				ResizeDescriptionWidget();
+				descriptionTitle.SetText("#pvez_aui_desc_lbapproximate_offset");
 				descriptionFrame.Show(true);
 				return true;
 			case mapLbCanSeeTheirOwnMarkerPanel:
-				descriptionTitle.SetText("Allow a lawbreaker to see their own LB marker.");
-				ResizeDescriptionWidget();
+				descriptionTitle.SetText("#pvez_aui_desc_lbcanseethemselves");
 				descriptionFrame.Show(true);
 				return true;
 		}
@@ -701,11 +985,5 @@ PVP - just like the vanilla game, PvP works anywwhere, but you can use the zones
 		}
 		descriptionFrame.Show(false);
 		return true;
-	}
-
-	void ResizeDescriptionWidget() {
-		float vsize = (descriptionTitle.GetNumLines() * 20) + 5;
-		if (vsize < 25) vsize = 25;
-		descriptionFrame.SetSize(0.48, vsize);
 	}
 }

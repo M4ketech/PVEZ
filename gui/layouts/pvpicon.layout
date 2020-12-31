@@ -4,8 +4,10 @@ FrameWidgetClass Frame {
  inheritalpha 0
  ignorepointer 1
  color 0 0 0 0
- position 0 0.00043
+ position 0 0
  size 1 1
+ halign right_ref
+ valign bottom_ref
  hexactpos 0
  vexactpos 0
  hexactsize 0
@@ -78,64 +80,50 @@ FrameWidgetClass Frame {
     }
    }
   }
-  FrameWidgetClass NotificationWidget {
+  GridSpacerWidgetClass NotificationWidget {
    visible 1
-   disabled 0
-   clipchildren 0
-   inheritalpha 0
+   clipchildren 1
    ignorepointer 1
-   keepsafezone 0
-   color 0 0 0 1
-   position 45 120
-   size 0.14 40
+   color 0 0 0 0.902
+   position 65 120
+   size 0.15 1
    halign right_ref
    valign bottom_ref
    hexactpos 1
    vexactpos 1
-   hexactsize 0
    vexactsize 1
+   style DayZDefaultPanelSides
+   Padding 1
+   Margin 5
+   "Size To Content V" 1
+   Columns 1
+   Rows 1
    {
-    PanelWidgetClass Background {
+    RichTextWidgetClass NotificationTitle {
      visible 1
      ignorepointer 1
-     color 0 0 0 0.65
-     position 0 0
-     size 1 1
+     size 0.95 0.98
      halign center_ref
      valign bottom_ref
-     hexactpos 0
+     hexactpos 1
      vexactpos 1
-     hexactsize 0
-     vexactsize 0
-     style rover_sim_colorable
-     {
-      RichTextWidgetClass NotificationTitle {
-       disabled 0
-       clipchildren 1
-       inheritalpha 0
-       ignorepointer 1
-       keepsafezone 0
-       position 0 0
-       size 0.9 0.8
-       halign center_ref
-       valign center_ref
-       hexactpos 1
-       vexactpos 1
-       hexactsize 0
-       vexactsize 0
-       style DayZNormal
-       text "You'll leave PVP zone in"\
-       "5 seconds."
-       font "gui/fonts/sdf_MetronLight72"
-       "exact text" 1
-       "exact text size" 15
-       "size to text h" 0
-       "size to text v" 0
-       "text halign" center
-       "text valign" center
-       wrap 1
-      }
-     }
+     text "You have broken the law. Other players could see your position on the map. Maybe someone is already trying to hunt you down."
+     font "gui/fonts/sdf_MetronLight72"
+     "exact text" 1
+     "exact text size" 15
+     "size to text v" 1
+     "text halign" center
+     "text valign" center
+     wrap 1
+     "condense whitespace" 1
+    }
+    PanelWidgetClass NotificationPanel {
+     ignorepointer 1
+     color 0 0 0 0.7843
+     halign center_ref
+     valign center_ref
+     vexactpos 1
+     style DayZDefaultPanel
     }
    }
   }

@@ -4,21 +4,17 @@ modded class DayZGame extends CGame {
 	autoptr PVEZ_Zones pvez_Zones;
 	autoptr PVEZ_LawbreakersMarkers pvez_LawbreakersMarkers;
 	autoptr PVEZ_LawbreakersRoster pvez_LawbreakersRoster;
-
-	override void OnAfterCreate() {
-		super.OnAfterCreate();
-
-		GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(this.PVEZ_Init, 5000, false);
-	}
+	autoptr PVEZ_Bounties pvez_Bounties;
 
 	void PVEZ_Init() {
 		pvez_Config = new PVEZ_Config;
 		pvez_Zones = new PVEZ_Zones;
 		pvez_LawbreakersMarkers = new PVEZ_LawbreakersMarkers;
 		pvez_LawbreakersRoster = new PVEZ_LawbreakersRoster(pvez_Config);
-
+		
 		if (IsServer()) {
 			pvez_Zones.Init();
+			pvez_Bounties = new PVEZ_Bounties;
 		}
 	}
 
@@ -27,9 +23,9 @@ modded class DayZGame extends CGame {
 			// Send PVEZ config to the client via RPC
 			Param1<ref PVEZ_Config> configData = new Param1<ref PVEZ_Config>(pvez_Config);
 			if (dzp)
-				RPCSingleParam(dzp, PVEZ_RPC.UPDATE_CONFIG_ON_CLIENT, configData, true, dzp.GetIdentity()); // to the given player
+				RPCSingleParam(dzp, PVEZ_RPC.UPDATE_CONFIG, configData, true, dzp.GetIdentity()); // to the given player
 			else
-				PVEZ_RPCForAllClients(PVEZ_RPC.UPDATE_CONFIG_ON_CLIENT, configData); // to all players
+				PVEZ_RPCForAllClients(PVEZ_RPC.UPDATE_CONFIG, configData); // to all players
 		}
 	}
 
@@ -37,9 +33,9 @@ modded class DayZGame extends CGame {
 		if (IsServer()) {
 			Param1<array<ref PVEZ_Zone>> zonesData = new Param1<array<ref PVEZ_Zone>>(pvez_Zones.activeZones);
 			if (dzp)
-				RPCSingleParam(dzp, PVEZ_RPC.UPDATE_ZONES_ON_CLIENT, zonesData, true, dzp.GetIdentity());
+				RPCSingleParam(dzp, PVEZ_RPC.UPDATE_ZONES, zonesData, true, dzp.GetIdentity());
 			else
-				PVEZ_RPCForAllClients(PVEZ_RPC.UPDATE_ZONES_ON_CLIENT, zonesData);
+				PVEZ_RPCForAllClients(PVEZ_RPC.UPDATE_ZONES, zonesData);
 		}
 	}
 
@@ -80,52 +76,72 @@ modded class DayZGame extends CGame {
 
 		if (IsClient()) {
 			switch (rpc_type) {
-				case PVEZ_RPC.UPDATE_MARKERS_ON_CLIENT:
+				case PVEZ_RPC.UPDATE_LAWBREAKERS_MARKERS:
 					// Assign markers array with the new data sent by server.
 					Param1<array<ref PVEZ_LawbreakerMarker>> data2 = new Param1<array<ref PVEZ_LawbreakerMarker>>(NULL);
-					ctx.Read(data2);
+					if (!ctx.Read(data2)) break;
 					pvez_LawbreakersMarkers.Sync(data2.param1);
 					break;
 			}
 		}
 		else {
 			switch (rpc_type) {
-				case PVEZ_RPC.ADMIN_UPDATE_CONFIG_ON_SERVER:
+				case PVEZ_RPC.UPDATE_CONFIG:
 					Param1<ref PVEZ_Config> data4 = new Param1<ref PVEZ_Config>(NULL);
-					ctx.Read(data4);
+					if (!ctx.Read(data4)) {
+						Print(PVEZ_ERROR_PREFIX + "DayZGame.OnRPC() - Failed to read new config.");
+						break;
+					}
 					pvez_Config = data4.param1;
 					pvez_Config.SaveToJson();
 					pvez_Zones.Init(); // Re-init zones to reactivate them if the week mode setting has been changed
 					PVEZ_SendConfigToClient();
 					break;
-				case PVEZ_RPC.UPDATE_ZONES_ON_SERVER:
+				case PVEZ_RPC.UPDATE_ZONES:
 					Param1<array<ref PVEZ_Zone>> data5 = new Param1<array<ref PVEZ_Zone>>(NULL);
-					ctx.Read(data5);
-					pvez_Zones.allZones = data5.param1;
+					if (!ctx.Read(data5)) {
+						Print(PVEZ_ERROR_PREFIX + "DayZGame.OnRPC() - Failed to read new zones.");
+						break;
+					}
+					pvez_Zones.staticZones = data5.param1;
 					pvez_Zones.SaveToJson();
 					pvez_Zones.Init();
 					break;
+				case PVEZ_RPC.UPDATE_BOUNTIES:
+					Param2<bool, array<ref PVEZ_BountyItemData>> data6 = new Param2<bool, array<ref PVEZ_BountyItemData>>(false, NULL);
+					if (!ctx.Read(data6)) {
+						Print(PVEZ_ERROR_PREFIX + "DayZGame.OnRPC() - Failed to read new bounties.");
+						break;
+					}
+					pvez_Bounties.Enabled = data6.param1;
+					pvez_Bounties.Items = data6.param2;
+					pvez_Bounties.SaveToJson();
+					break;				
 				case PVEZ_RPC.ADMIN_ZONES_DATA_REQUEST:
-					Param1<array<ref PVEZ_Zone>> data6 = new Param1<array<ref PVEZ_Zone>>(pvez_Zones.allZones);
-					RPCSingleParam(DayZPlayer.Cast(target), PVEZ_RPC.ADMIN_ZONES_DATA_REQUEST, data6, true, DayZPlayer.Cast(target).GetIdentity());
+					Param1<array<ref PVEZ_Zone>> data7 = new Param1<array<ref PVEZ_Zone>>(pvez_Zones.staticZones);
+					RPCSingleParam(DayZPlayer.Cast(target), PVEZ_RPC.ADMIN_ZONES_DATA_REQUEST, data7, true, DayZPlayer.Cast(target).GetIdentity());
 					break;
 				case PVEZ_RPC.ADMIN_LAWBREAKERS_DATA_REQUEST:
 					autoptr array<Man> players = new array<Man>;
 					GetGame().GetWorld().GetPlayerList(players);
-					Param2<array<ref PVEZ_Lawbreaker>, array<Man>> data7 = new Param2<array<ref PVEZ_Lawbreaker>, array<Man>>(pvez_LawbreakersRoster.lbDataBase, players);
-					RPCSingleParam(DayZPlayer.Cast(target), PVEZ_RPC.ADMIN_LAWBREAKERS_DATA_REQUEST, data7, true, DayZPlayer.Cast(target).GetIdentity());
+					Param2<array<ref PVEZ_Lawbreaker>, array<Man>> data8 = new Param2<array<ref PVEZ_Lawbreaker>, array<Man>>(pvez_LawbreakersRoster.lbDataBase, players);
+					RPCSingleParam(DayZPlayer.Cast(target), PVEZ_RPC.ADMIN_LAWBREAKERS_DATA_REQUEST, data8, true, DayZPlayer.Cast(target).GetIdentity());
+					break;
+				case PVEZ_RPC.ADMIN_BOUNTIES_DATA_REQUEST:
+					Param1<ref PVEZ_Bounties> data9 = new Param1<ref PVEZ_Bounties>(pvez_Bounties);
+					RPCSingleParam(DayZPlayer.Cast(target), PVEZ_RPC.ADMIN_BOUNTIES_DATA_REQUEST, data9, true, DayZPlayer.Cast(target).GetIdentity());
 					break;
 				case PVEZ_RPC.ADMIN_UPDATE_LAWBREAKERS_ON_SERVER:
-					Param1<array<ref PVEZ_Lawbreaker>> data8 = new Param1<array<ref PVEZ_Lawbreaker>>(NULL);
-					ctx.Read(data8);
-					pvez_LawbreakersRoster.lbDataBase = data8.param1;
+					Param1<array<ref PVEZ_Lawbreaker>> data10 = new Param1<array<ref PVEZ_Lawbreaker>>(NULL);
+					if (!ctx.Read(data10)) break;
+					pvez_LawbreakersRoster.lbDataBase = data10.param1;
 					pvez_LawbreakersRoster.SaveToJson();
 					pvez_LawbreakersRoster = new PVEZ_LawbreakersRoster(pvez_Config);
 					// Send updated database back to admin client (the sender of this RPC call):
 					autoptr array<Man> players2 = new array<Man>;
 					GetGame().GetWorld().GetPlayerList(players2);
-					Param2<array<ref PVEZ_Lawbreaker>, array<Man>> data9 = new Param2<array<ref PVEZ_Lawbreaker>, array<Man>>(pvez_LawbreakersRoster.lbDataBase, players2);
-					RPCSingleParam(DayZPlayer.Cast(target), PVEZ_RPC.ADMIN_LAWBREAKERS_DATA_REQUEST, data9, true, DayZPlayer.Cast(target).GetIdentity());
+					Param2<array<ref PVEZ_Lawbreaker>, array<Man>> data11 = new Param2<array<ref PVEZ_Lawbreaker>, array<Man>>(pvez_LawbreakersRoster.lbDataBase, players2);
+					RPCSingleParam(DayZPlayer.Cast(target), PVEZ_RPC.ADMIN_LAWBREAKERS_DATA_REQUEST, data11, true, DayZPlayer.Cast(target).GetIdentity());
 					break;
 			}
 		}

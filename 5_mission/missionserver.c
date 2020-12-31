@@ -27,8 +27,12 @@ modded class MissionServer extends MissionBase {
 	float PVEZ_OneMinuteTimer;
 	bool PVEZNeedUpdate;
 
+	void MissionServer() {
+		g_Game.PVEZ_Init();
+	}
+
 	void ~MissionServer() {
-		Print("[PVEZ] :: Printing lawbreakers roster to the json.");
+		Print("PVEZ :: Printing lawbreakers roster to the json.");
 		g_Game.pvez_LawbreakersRoster.SaveToJson();
 	}
 
@@ -56,12 +60,12 @@ modded class MissionServer extends MissionBase {
 			PVEZ_ZonesUpdateTimer += timeslice;
 			PVEZ_LBMarkersUpdateTimer += timeslice;
 
-			if (PVEZ_ZonesUpdateTimer >= g_Game.pvez_Config.GENERAL.Update_Frequency) {
+			if (g_Game.pvez_Config.GENERAL.Update_Frequency > 0 && PVEZ_ZonesUpdateTimer >= g_Game.pvez_Config.GENERAL.Update_Frequency) {
 				PVEZ_UpdatePlayersZoneStatus();
 				PVEZ_ZonesUpdateTimer = 0;
 			}
 
-			if (PVEZ_LBMarkersUpdateTimer >= g_Game.pvez_Config.MAP.Lawbreakers_Markers.Update_Frequency) {
+			if (g_Game.pvez_Config.MAP.Lawbreakers_Markers.Update_Frequency > 0 && PVEZ_LBMarkersUpdateTimer >= g_Game.pvez_Config.MAP.Lawbreakers_Markers.Update_Frequency) {
 				PVEZ_UpdateLBMarkers();
 				PVEZ_LBMarkersUpdateTimer = 0;
 			}

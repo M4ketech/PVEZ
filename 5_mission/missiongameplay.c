@@ -1,5 +1,9 @@
 modded class MissionGameplay {
 
+	void MissionGameplay() {
+		g_Game.PVEZ_Init();
+	}
+
 	override void OnUpdate(float timeslice) {
 		super.OnUpdate(timeslice);
 
