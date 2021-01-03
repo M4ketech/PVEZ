@@ -28,7 +28,9 @@ class PVEZ_LawbreakersMarkers : Managed {
 	}
 
 	private void AddMarker(EntityAI lbEntity) {
-		string id = PVEZ_StaticFunctions.GetEntityId(lbEntity);
+		string id;
+		string name;
+		PVEZ_StaticFunctions.GetEntityIdAndName(lbEntity, id, name);
 		
 		bool markerFound = false;
 		for (int i = 0; i < markers.Count(); i++) {
@@ -46,7 +48,9 @@ class PVEZ_LawbreakersMarkers : Managed {
 	}
 
 	private void RemoveMarker(EntityAI lbEntity) {
-		string id = PVEZ_StaticFunctions.GetEntityId(lbEntity);
+		string id;
+		string name;
+		PVEZ_StaticFunctions.GetEntityIdAndName(lbEntity, id, name);
 
 		for (int i = 0; i < markers.Count(); i++) {
 			if (markers[i].Id == id) {

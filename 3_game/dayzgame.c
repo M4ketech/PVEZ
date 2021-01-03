@@ -42,12 +42,15 @@ modded class DayZGame extends CGame {
 	void PVEZ_GetAdminStatus(DayZPlayer dzp) {
 		if (IsServer()) {
 			bool isAdmin = false;
-			string uid = dzp.GetIdentity().GetId();
+			// 44 signs hashed Steam ID
+			string hashId = dzp.GetIdentity().GetId();
+			// decimal SteamID 64 (account ID)
+			string id = dzp.GetIdentity().GetPlainId();
 
 			FileHandle file_handle = OpenFile(PVEZ_ADMINS_TXT, FileMode.READ);
 			string line_content;
 			while (FGets(file_handle, line_content) > 0) {
-				if (line_content == uid) {
+				if (line_content == hashId || line_content == id) {
 					isAdmin = true;
 					break;
 				}

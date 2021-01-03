@@ -108,7 +108,9 @@ class PVEZ_LawbreakersRoster : Managed {
 		if (!lbDataBase)
 			LoadFromJson();
 		
-		string murdererId = PVEZ_StaticFunctions.GetEntityId(lbEntity);
+		string murdererId;
+		string murdererName;
+		PVEZ_StaticFunctions.GetEntityIdAndName(lbEntity, murdererId, murdererName);
 
 		// Looking for the murderer in the roster
 		autoptr PVEZ_Lawbreaker lb;
@@ -121,7 +123,7 @@ class PVEZ_LawbreakersRoster : Managed {
 				// Checking if the murderer's current character name is already stored in roster
 				bool nameAlreadyKnown;
 				for (int j = 0; j < lb.Recent_Character_Names.Count(); j++) {
-					if (lb.Recent_Character_Names[j] == lbEntity.GetDisplayName()) {
+					if (lb.Recent_Character_Names[j] == murdererName) {
 						nameAlreadyKnown = true;
 						break;
 					}
@@ -130,10 +132,10 @@ class PVEZ_LawbreakersRoster : Managed {
 				if (!nameAlreadyKnown) {
 					// Putting new name in the murderer's data (only 3 the most recent names are stored)
 					if (lb.Recent_Character_Names.Count() < 3)
-						lb.Recent_Character_Names.Insert(lbEntity.GetDisplayName());
+						lb.Recent_Character_Names.Insert(murdererName);
 					else {
 						lb.Recent_Character_Names.Remove(0);
-						lb.Recent_Character_Names.Insert(lbEntity.GetDisplayName());
+						lb.Recent_Character_Names.Insert(murdererName);
 					}
 				}
 				if (time) {
@@ -148,7 +150,7 @@ class PVEZ_LawbreakersRoster : Managed {
 		}
 		if (!lawbreakerFound && isLawbreaker) {
 			// Adding new lawbreaker data to the roster
-			lbDataBase.Insert(new ref PVEZ_Lawbreaker(murdererId, lbEntity.GetDisplayName(), 1, true, time));
+			lbDataBase.Insert(new ref PVEZ_Lawbreaker(murdererId, murdererName, 1, true, time));
 			lbEntities.Insert(murdererId, lbEntity);
 		}
 	}
@@ -161,7 +163,9 @@ class PVEZ_LawbreakersRoster : Managed {
 		if (lbDataBase.Count() == 0)
 			return false;
 		
-		string id = PVEZ_StaticFunctions.GetEntityId(entity);
+		string id;
+		string name;
+		PVEZ_StaticFunctions.GetEntityIdAndName(entity, id, name);
 
 		foreach (PVEZ_Lawbreaker lb : lbDataBase) {
 			if (lb.Id == id) {
