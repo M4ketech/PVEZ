@@ -32,13 +32,16 @@ modded class PlayerBase extends ManBase {
 		super.OnPlayerLoaded();
 
 		// Check if identity != NULL. Somehow this code runs twice and at first run player's identity is NULL.
-		if (GetIdentity() && GetGame().IsServer()) {
+		if (GetGame().IsServer() && GetGame().IsMultiplayer()) {
 			g_Game.PVEZ_SendConfigToClient(this);
 			g_Game.PVEZ_SendActiveZonesToClient(this);
 			g_Game.PVEZ_GetAdminStatus(this);
 			pvez_PlayerStatus = new PVEZ_PlayerStatus(this);
-			if (pvez_PlayerStatus.GetIsLawbreaker())
-				g_Game.pvez_LawbreakersMarkers.AddMarker(GetPosition(), GetIdentity());
+			pvez_DamageRedistributor = new PVEZ_DamageRedistributor(this);
+		}
+		else if (!GetGame().IsMultiplayer()) {
+			isPVEZAdmin = true;
+			pvez_PlayerStatus = new PVEZ_PlayerStatus(this);
 			pvez_DamageRedistributor = new PVEZ_DamageRedistributor(this);
 		}
 	}
@@ -49,7 +52,7 @@ modded class PlayerBase extends ManBase {
 		
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 
-		if (GetGame().IsServer()) {
+		if (GetGame().IsServer() || !GetGame().IsMultiplayer()) {
 			if (!IsAlive() || g_Game.pvez_Config.GENERAL.Mode == PVEZ_MODE_PVP)
 				return;
 
@@ -71,14 +74,16 @@ modded class PlayerBase extends ManBase {
 	override void OnBleedingSourceRemoved() {
 		super.OnBleedingSourceRemoved();
 
-		if (IsAlive() && m_BleedingSourceCount == 0)
+		// Seems like sometimes this could be called very early when the DamageRedistributor is not ready yet,
+		// so have check if it's ready
+		if (IsAlive() && m_BleedingSourceCount == 0 && pvez_DamageRedistributor)
 			pvez_DamageRedistributor.OnAllBleedingSourcesRemoved();
 	}
 
 	override void EEKilled(Object killer) {
 		super.EEKilled(killer);
 
-		if (GetGame().IsServer()) {
+		if (GetGame().IsServer() || !GetGame().IsMultiplayer()) {
 			if (!pvez_PlayerStatus) {
 				Print(PVEZ_ERROR_PREFIX + "No PlayerStatus on death!");
 				return;
@@ -87,8 +92,6 @@ modded class PlayerBase extends ManBase {
 			pvez_DamageRedistributor.RegisterDeath(this, EntityAI.Cast(killer), weaponType);
 			if (PVEZ_ShouldBePardonedOnDeath())
 				pvez_PlayerStatus.SetLawbreaker(false);
-			if (GetIdentity())
-				g_Game.pvez_LawbreakersMarkers.RemoveMarker(GetIdentity().GetId());
 		}
 	}
 
@@ -120,13 +123,10 @@ modded class PlayerBase extends ManBase {
 				case PVEZ_RPC.UPDATE_CONFIG:
 					Param1<ref PVEZ_Config> data1 = new Param1<ref PVEZ_Config>(NULL);
 					if (!ctx.Read(data1)) {
-						MessageStatus(PVEZ_ERROR_PREFIX + "Failed to get config from server.");
-						Print(PVEZ_ERROR_PREFIX + "PlayerBase.OnRPC. Failed to read config data.");
+						MessageStatus("PVEZ: Failed to get config from server.");
 						break;
 					}
 					g_Game.pvez_Config = data1.param1;
-					if (isPVEZAdmin && GetPVEZAdminMenu().GetLayoutRoot().IsVisible())
-						MessageStatus("PVEZ: Config has been updated on server.");
 					break;
 				case PVEZ_RPC.UPDATE_ZONES:
 					Param1<array<ref PVEZ_Zone>> data2 = new Param1<array<ref PVEZ_Zone>>(NULL);
@@ -135,27 +135,33 @@ modded class PlayerBase extends ManBase {
 					break;
 				case PVEZ_RPC.ADMIN_ZONES_DATA_REQUEST:
 					if (isPVEZAdmin && GetPVEZAdminMenu().GetLayoutRoot().IsVisible()) {
-						MessageStatus("PVEZ: received zones list from server.");
 						Param1<array<ref PVEZ_Zone>> dataAZ = new Param1<array<ref PVEZ_Zone>>(NULL);
-						if (!ctx.Read(dataAZ)) break;
+						if (!ctx.Read(dataAZ)) {
+							MessageStatus("PVEZ: Failed to get zones list from server.");
+							break;
+						}
 						g_Game.pvez_Zones.staticZones = dataAZ.param1;
 						GetPVEZAdminMenu().UpdateZonesList();
 					}
 					break;
 				case PVEZ_RPC.ADMIN_LAWBREAKERS_DATA_REQUEST:
 					if (isPVEZAdmin && GetPVEZAdminMenu().GetLayoutRoot().IsVisible()) {
-						MessageStatus("PVEZ: Received lawbreakers data from server.");
 						Param2<array<ref PVEZ_Lawbreaker>, array<Man>> data3 = new Param2<array<ref PVEZ_Lawbreaker>, array<Man>>(NULL, NULL);
-						if (!ctx.Read(data3)) break;
+						if (!ctx.Read(data3)) {
+							MessageStatus("PVEZ: Failed to get lawbreakers data from server.");
+							break;
+						}
 						g_Game.pvez_LawbreakersRoster.lbDataBase = data3.param1;
 						GetPVEZAdminMenu().UpdateLawbreakersList(data3.param2);
 					}
 					break;
 				case PVEZ_RPC.ADMIN_BOUNTIES_DATA_REQUEST:
 					if (isPVEZAdmin && GetPVEZAdminMenu().GetLayoutRoot().IsVisible()) {
-						MessageStatus("PVEZ: Received bounties data from server.");
 						Param1<ref PVEZ_Bounties> data4 = new Param1<ref PVEZ_Bounties>(NULL);
-						if (!ctx.Read(data4)) break;
+						if (!ctx.Read(data4)) {
+							MessageStatus("PVEZ: Failed to get bounties data from server.");
+							break;
+						}
 						GetPVEZAdminMenu().UpdateBountiesPage(data4.param1);
 					}
 					break;
@@ -180,6 +186,8 @@ modded class PlayerBase extends ManBase {
 					Param1<bool> data8 = new Param1<bool>(false);
 					if (!ctx.Read(data8)) break;
 					isPVEZAdmin = data8.param1;
+					if (isPVEZAdmin)
+						MessageStatus("PVEZ: You've got PVEZ Admin status.");
 					break;
 			}
 		}

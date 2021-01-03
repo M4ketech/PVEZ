@@ -17,7 +17,7 @@ class PVEZ_Config : Managed {
 		if (!FileExist(PVEZ_CONFIG_FOLDER) && FileExist(PVEZ_CONFIG_FOLDER_OLD))
 			RenameOldConfigFiles();
 
-		if (GetGame().IsServer()) {
+		if (GetGame().IsServer() || !GetGame().IsMultiplayer()) {
 			Init();
 			LoadFromJson();
 		}

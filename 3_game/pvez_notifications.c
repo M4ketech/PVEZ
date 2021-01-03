@@ -2,12 +2,16 @@ class PVEZ_Notifications : Managed {
 
 //////////////////////////////////////////////////////////////////////////
 ////                            ON SERVER                             ////
-	static void PersonalNotificationServer(DayZPlayer recipient, int type, int duration, bool isCountdown, string msg = "") {
-		Param4<int, int, bool, string> data = new Param4<int, int, bool, string>(type, duration, isCountdown, msg);
-		GetGame().RPCSingleParam(recipient, PVEZ_RPC.NOTIFICATION_PERSONAL, data, true, recipient.GetIdentity());
+	static void PersonalNotification(DayZPlayer recipient, int type, int duration, bool isCountdown, string msg = "") {
+		if (GetGame().IsMultiplayer()) {
+			Param4<int, int, bool, string> data = new Param4<int, int, bool, string>(type, duration, isCountdown, msg);
+			GetGame().RPCSingleParam(recipient, PVEZ_RPC.NOTIFICATION_PERSONAL, data, true, recipient.GetIdentity());
+		}
+		else
+			NotificationFromType(type, duration, isCountdown, msg);
 	}
 
-	static void ServerWideNotificationServer(EntityAI killer, EntityAI victim, EntityAI weapon) {
+	static void NotificationToAll(EntityAI killer, EntityAI victim, EntityAI weapon) {
 		if (!g_Game.pvez_Config.LAWBREAKERS_SYSTEM.Server_Wide_Message_About_Lawbreaker)
 			return;
 		
@@ -16,7 +20,7 @@ class PVEZ_Notifications : Managed {
 			weaponDisplayName = "#pvez_bare_hands";
 		else
 			weaponDisplayName = weapon.GetDisplayName();
-		string serverMessage = FormatMessage(PVEZ_NotificationType.NOTIF_LB_SERVERWIDE, DayZPlayer.Cast(killer).GetIdentity().GetName(), victim.GetDisplayName(), weaponDisplayName);
+		string serverMessage = FormatMessage(PVEZ_NotificationType.NOTIF_LB_SERVERWIDE, killer.GetDisplayName(), victim.GetDisplayName(), weaponDisplayName);
 
 		if (GetGame().GetWorld()) {
 			autoptr ref array<Man> players = new array<Man>;
@@ -34,6 +38,13 @@ class PVEZ_Notifications : Managed {
 			}
 			delete players;
 		}
+	}
+
+	static void IconUpdate(DayZPlayer player, bool isInPVP, bool isLawbreaker, int zone) {
+		if (GetGame().IsMultiplayer())
+			GetGame().RPCSingleParam(player, PVEZ_RPC.UPDATE_ICON_ON_CLIENT, new Param3<bool, bool, int>(isInPVP, isLawbreaker, zone), true, player.GetIdentity());
+		else
+			GetGame().GetMission().GetHud().UpdatePVEZIcon(isInPVP, isLawbreaker, zone);
 	}
 ////___________________________________________________________________////
 
@@ -151,10 +162,6 @@ class PVEZ_Notifications : Managed {
 				break;
 		}
 		return result;
-	}
-
-	static void IconUpdate(DayZPlayer player, bool isInPVP, bool isLawbreaker, int zone) {
-		GetGame().RPCSingleParam(player, PVEZ_RPC.UPDATE_ICON_ON_CLIENT, new Param3<bool, bool, int>(isInPVP, isLawbreaker, zone), true, player.GetIdentity());
 	}
 ////__________________________________________________________________////
 }

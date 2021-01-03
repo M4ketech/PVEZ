@@ -1,11 +1,14 @@
 const string PVEZ_ERROR_PREFIX = "PVEZ ERROR :: ";
 
 string PVEZ_CONFIG_FOLDER = "$profile:\\PVEZ";
+const string PVEZ_ADMINS_TXT = PVEZ_CONFIG_FOLDER + "\\Admins.txt";
 const string PVEZ_CONFIG_JSON = PVEZ_CONFIG_FOLDER + "\\Config.json";
 const string PVEZ_LAWBREAKERS_ROSTER_JSON = PVEZ_CONFIG_FOLDER + "\\Lawbreakers.json";
 const string PVEZ_BOUNTIES_JSON = PVEZ_CONFIG_FOLDER + "\\Bounties.json";
 const string PVEZ_ZONES_JSON = PVEZ_CONFIG_FOLDER + "\\Zones.json";
-const string PVEZ_ADMINS_TXT = PVEZ_CONFIG_FOLDER + "\\Admins.txt";
+const string PVEZ_ZONES_CHERNARUS_JSON = PVEZ_CONFIG_FOLDER + "\\Zones_Chernarus.json";
+const string PVEZ_ZONES_LIVONIA_JSON = PVEZ_CONFIG_FOLDER + "\\Zones_Livonia.json";
+const string PVEZ_ZONES_NAMALSK_JSON = PVEZ_CONFIG_FOLDER + "\\Zones_Namalsk.json";
 
 const string PVEZ_CONFIG_FOLDER_OLD = "$profile:\\PVEZ_Config";
 const string PVEZ_CONFIG_JSON_OLD = PVEZ_CONFIG_FOLDER_OLD + "\\PVEZ_Config.json";

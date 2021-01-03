@@ -17,7 +17,7 @@ class PVEZ_MapMarkersDrawer : Managed {
 		zoneCirclePoints = new array<vector>;
 		// Get color from config
 		auto color = ARGB(
-				200, //g_Game.pvez_Config.MAP.Zones_Border_Color.A,
+				255,
 				g_Game.pvez_Config.MAP.Zones_Border_Color.R,
 				g_Game.pvez_Config.MAP.Zones_Border_Color.G,
 				g_Game.pvez_Config.MAP.Zones_Border_Color.B);
@@ -49,7 +49,7 @@ class PVEZ_MapMarkersDrawer : Managed {
 				label = Widget.TranslateString("#pvez_lb_map_label");
 
 			for (int i = 0; i < markers.Count(); i++) {
-				mapWidget.AddUserMark(markers[i].Position, label + " " + markers[i].LBName, ARGB(255, 255, 90, 0), "\\PVEZ\\GUI\\Textures\\skull_ca.paa");
+				mapWidget.AddUserMark(markers[i].Position, label + " " + markers[i].Name, ARGB(255, 255, 90, 0), "\\PVEZ\\GUI\\Textures\\skull_ca.paa");
 			}
 		}
 	}

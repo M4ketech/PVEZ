@@ -12,7 +12,7 @@ modded class DayZGame extends CGame {
 		pvez_LawbreakersMarkers = new PVEZ_LawbreakersMarkers;
 		pvez_LawbreakersRoster = new PVEZ_LawbreakersRoster(pvez_Config);
 		
-		if (IsServer()) {
+		if (IsServer() || !IsMultiplayer()) {
 			pvez_Zones.Init();
 			pvez_Bounties = new PVEZ_Bounties;
 		}
@@ -89,7 +89,8 @@ modded class DayZGame extends CGame {
 				case PVEZ_RPC.UPDATE_CONFIG:
 					Param1<ref PVEZ_Config> data4 = new Param1<ref PVEZ_Config>(NULL);
 					if (!ctx.Read(data4)) {
-						Print(PVEZ_ERROR_PREFIX + "DayZGame.OnRPC() - Failed to read new config.");
+						RPCSingleParam(DayZPlayer.Cast(target), ERPCs.RPC_USER_ACTION_MESSAGE, new Param1<string>("PVEZ: failed to apply new config."), true, DayZPlayer.Cast(target).GetIdentity());
+						PVEZ_SendConfigToClient(DayZPlayer.Cast(target));
 						break;
 					}
 					pvez_Config = data4.param1;
@@ -100,7 +101,8 @@ modded class DayZGame extends CGame {
 				case PVEZ_RPC.UPDATE_ZONES:
 					Param1<array<ref PVEZ_Zone>> data5 = new Param1<array<ref PVEZ_Zone>>(NULL);
 					if (!ctx.Read(data5)) {
-						Print(PVEZ_ERROR_PREFIX + "DayZGame.OnRPC() - Failed to read new zones.");
+						RPCSingleParam(DayZPlayer.Cast(target), ERPCs.RPC_USER_ACTION_MESSAGE, new Param1<string>("PVEZ: failed to apply new zones data."), true, DayZPlayer.Cast(target).GetIdentity());
+						PVEZ_SendActiveZonesToClient(DayZPlayer.Cast(target));
 						break;
 					}
 					pvez_Zones.staticZones = data5.param1;
@@ -131,7 +133,7 @@ modded class DayZGame extends CGame {
 					Param1<ref PVEZ_Bounties> data9 = new Param1<ref PVEZ_Bounties>(pvez_Bounties);
 					RPCSingleParam(DayZPlayer.Cast(target), PVEZ_RPC.ADMIN_BOUNTIES_DATA_REQUEST, data9, true, DayZPlayer.Cast(target).GetIdentity());
 					break;
-				case PVEZ_RPC.ADMIN_UPDATE_LAWBREAKERS_ON_SERVER:
+				case PVEZ_RPC.ADMIN_UPDATE_LAWBREAKERS:
 					Param1<array<ref PVEZ_Lawbreaker>> data10 = new Param1<array<ref PVEZ_Lawbreaker>>(NULL);
 					if (!ctx.Read(data10)) break;
 					pvez_LawbreakersRoster.lbDataBase = data10.param1;

@@ -1,5 +1,8 @@
-modded class MissionBase extends MissionBaseWorld {
-	void PVEZEvent(PVEZ_RPC type, Param params);
+modded class MissionBase {
+	float PVEZ_ZonesUpdateTimer;
+	float PVEZ_LBMarkersUpdateTimer;
+	float PVEZ_OneMinuteTimer;
+	bool PVEZNeedUpdate;
 }
 
 modded class MissionServer extends MissionBase {
@@ -22,60 +25,55 @@ modded class MissionServer extends MissionBase {
 	}
 	*/
 
-	float PVEZ_ZonesUpdateTimer;
-	float PVEZ_LBMarkersUpdateTimer;
-	float PVEZ_OneMinuteTimer;
-	bool PVEZNeedUpdate;
-
 	void MissionServer() {
 		g_Game.PVEZ_Init();
 	}
 
 	void ~MissionServer() {
-		Print("PVEZ :: Printing lawbreakers roster to the json.");
 		g_Game.pvez_LawbreakersRoster.SaveToJson();
 	}
 
 	override void OnUpdate(float timeslice) {
 		super.OnUpdate(timeslice);
 
-		PVEZ_OneMinuteTimer += timeslice;
-		if (PVEZ_OneMinuteTimer >= 59) {
-			PVEZ_OneMinuteTimer = 0;
+		if (GetGame().IsMultiplayer()) {
+			PVEZ_OneMinuteTimer += timeslice;
+			if (PVEZ_OneMinuteTimer >= 59) {
+				PVEZ_OneMinuteTimer = 0;
 			
-			// Reinit zones every hour to enable/disable them based on their schedule:
-			PVEZ_UpdateZonesActivity();
-			
-			// Check if lawbreakers have been reinitialized (when someone gets their flag off)
-			if (g_Game.pvez_LawbreakersRoster.updated && m_Players.Count() > 0) {
-				foreach (Man p : m_Players) {
-					bool isLB = g_Game.pvez_LawbreakersRoster.Check(p.GetIdentity().GetId());
-					PlayerBase.Cast(p).pvez_PlayerStatus.SetLawbreaker(isLB);
+				// Reinit zones every hour to enable/disable them based on their schedule:
+				PVEZ_UpdateZonesActivity();
+
+				g_Game.pvez_LawbreakersRoster.RemoveOutdated(g_Game.pvez_Config);
+				// Check if lawbreakers have been reinitialized (when someone gets their flag off)
+				if (g_Game.pvez_LawbreakersRoster.updated && m_Players.Count() > 0) {
+					foreach (Man p : m_Players) {
+						bool isLB = g_Game.pvez_LawbreakersRoster.Check(p);
+						PlayerBase.Cast(p).pvez_PlayerStatus.SetLawbreaker(isLB);
+					}
+					g_Game.pvez_LawbreakersRoster.updated = false;
 				}
-				g_Game.pvez_LawbreakersRoster.updated = false;
-			}
-		}
-
-		if (m_Players.Count() > 0) {
-			PVEZ_ZonesUpdateTimer += timeslice;
-			PVEZ_LBMarkersUpdateTimer += timeslice;
-
-			if (g_Game.pvez_Config.GENERAL.Update_Frequency > 0 && PVEZ_ZonesUpdateTimer >= g_Game.pvez_Config.GENERAL.Update_Frequency) {
-				PVEZ_UpdatePlayersZoneStatus();
-				PVEZ_ZonesUpdateTimer = 0;
 			}
 
-			if (g_Game.pvez_Config.MAP.Lawbreakers_Markers.Update_Frequency > 0 && PVEZ_LBMarkersUpdateTimer >= g_Game.pvez_Config.MAP.Lawbreakers_Markers.Update_Frequency) {
-				PVEZ_UpdateLBMarkers();
-				PVEZ_LBMarkersUpdateTimer = 0;
-			}
+			//if (m_Players.Count() > 0) {
+				PVEZ_ZonesUpdateTimer += timeslice;
+				PVEZ_LBMarkersUpdateTimer += timeslice;
+
+				if (g_Game.pvez_Config.GENERAL.Update_Frequency > 0 && PVEZ_ZonesUpdateTimer >= g_Game.pvez_Config.GENERAL.Update_Frequency) {
+					PVEZ_UpdatePlayersZoneStatus();
+					PVEZ_ZonesUpdateTimer = 0;
+				}
+
+				if (g_Game.pvez_Config.MAP.Lawbreakers_Markers.Update_Frequency > 0 && PVEZ_LBMarkersUpdateTimer >= g_Game.pvez_Config.MAP.Lawbreakers_Markers.Update_Frequency) {
+					PVEZ_UpdateLBMarkers();
+					PVEZ_LBMarkersUpdateTimer = 0;
+				}
+			//}
 		}
 	}
 
-	override void PlayerDisconnected(PlayerBase player, PlayerIdentity identity, string uid) {	
-		bool isLB = g_Game.pvez_LawbreakersRoster.Check(uid);
-		if (isLB)
-			g_Game.pvez_LawbreakersRoster.Update(uid, isLB);
+	override void PlayerDisconnected(PlayerBase player, PlayerIdentity identity, string uid) {
+		g_Game.pvez_LawbreakersMarkers.Update(player, false);
 		
 		super.PlayerDisconnected(player, identity, uid);
 	}
@@ -96,7 +94,7 @@ modded class MissionServer extends MissionBase {
 	}
 
 	void PVEZ_UpdateLBMarkers() {
-		g_Game.pvez_LawbreakersMarkers.UpdateMarkersPositions(m_Players);
+		g_Game.pvez_LawbreakersMarkers.UpdateMarkersPositions();
 	}
 
 	void PVEZ_UpdateZonesActivity() {

@@ -12,9 +12,50 @@ modded class ZombieBase extends DayZInfected {
 	private EntityAI weapon;
 	
 	private bool IsInPVP = false;
-	
+	private bool IsLawbreaker = false;
+	private EntityAI DmgInitiator; //root entity (player, infected, animal) of the previous damage source
+	private int weaponType;	
+	private bool death;
+	private autoptr PVEZ_DamageRedistributor pvez_DamageRedistributor;
+
+	override void Init() {
+		super.Init();
+		pvez_DamageRedistributor = new PVEZ_DamageRedistributor(this);
+	}
+
+	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef) {
+		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+
+		if (GetGame().IsServer() || !GetGame().IsMultiplayer()) {
+			if (!IsAlive() || g_Game.pvez_Config.GENERAL.Mode == PVEZ_MODE_PVP)
+				return;
+
+			pvez_DamageRedistributor.RegisterHitZ(this, source, weaponType, false);
+			if (!pvez_DamageRedistributor.LastHitWasAllowed() && damageResult) {
+				if (g_Game.pvez_Config.DAMAGE.Restore_Target_Health) {
+					pvez_DamageRedistributor.HealDamageReceived(this, damageResult, dmgZone, false);
+				}
+				pvez_DamageRedistributor.ReflectDamageBack(weaponType, damageResult.GetDamage("", ""));
+			}
+		}
+	}
+
+	override bool EvaluateDeathAnimation(EntityAI pSource, string pComponent, string pAmmoType, out int pAnimType, out float pAnimHitDir) {
+		bool result = super.EvaluateDeathAnimation(pSource, pComponent, pAmmoType, pAnimType, pAnimHitDir);
+
+		if (GetGame().IsServer() || !GetGame().IsMultiplayer()) {
+			if (!IsAlive() && !death) {
+				EntityAI killerEntity = pSource;
+				pvez_DamageRedistributor.RegisterDeath(this, killerEntity, weaponType);
+				SetLawbreaker(false);
+			}
+		}
+		death = true;
+		return true;
+	}
+
 	bool GetIsInPVP() {
-		if (GetGame().IsServer()) {
+		if (GetGame().IsServer() || !GetGame().IsMultiplayer()) {
 			int zoneIndex = g_Game.pvez_Zones.GetPlayerZoneIndex(GetPosition());
 			switch (g_Game.pvez_Config.GENERAL.Mode) {
 				case PVEZ_MODE_PVP:
@@ -36,43 +77,12 @@ modded class ZombieBase extends DayZInfected {
 		return IsInPVP;
 	}
 
-	private bool IsLawbreaker = false;
-	private EntityAI DmgInitiator; //root entity (player, infected, animal) of the previous damage source
-	private int weaponType;	
-	private bool death;
-	private autoptr PVEZ_DamageRedistributor pvez_DamageRedistributor;
-
-	override void Init() {
-		super.Init();
-		pvez_DamageRedistributor = new PVEZ_DamageRedistributor(this);
-	}
-
-	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef) {
-		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
-
-		if (GetGame().IsServer()) {
-			if (!IsAlive() || g_Game.pvez_Config.GENERAL.Mode == PVEZ_MODE_PVP)
-				return;
-
-			pvez_DamageRedistributor.RegisterHitZ(this, source, weaponType, false);
-			if (!pvez_DamageRedistributor.LastHitWasAllowed() && damageResult) {
-				if (g_Game.pvez_Config.DAMAGE.Restore_Target_Health) {
-					pvez_DamageRedistributor.HealDamageReceived(this, damageResult, dmgZone, false);
-				}
-				pvez_DamageRedistributor.ReflectDamageBack(weaponType, damageResult.GetDamage("", ""));
-			}
+	void SetLawbreaker(bool value) {
+		if (GetGame().IsServer() || !GetGame().IsMultiplayer()) {
+			g_Game.pvez_LawbreakersRoster.Update(this, value, PVEZ_Date.Now());
+			g_Game.pvez_LawbreakersMarkers.Update(this, value);
+			IsLawbreaker = value;
 		}
-	}
-
-	override bool EvaluateDeathAnimation(EntityAI pSource, string pComponent, string pAmmoType, out int pAnimType, out float pAnimHitDir) {
-		bool result = super.EvaluateDeathAnimation(pSource, pComponent, pAmmoType, pAnimType, pAnimHitDir);
-
-		if (GetGame().IsServer() && !IsAlive() && !death) {
-			EntityAI killerEntity = pSource;
-			pvez_DamageRedistributor.RegisterDeath(this, killerEntity, weaponType);
-		}
-		death = true;
-		return true;
 	}
 
 	bool PVEZ_IsPvpAttackAllowed() {

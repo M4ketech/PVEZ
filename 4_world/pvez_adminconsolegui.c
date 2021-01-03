@@ -154,7 +154,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 	// selected LB side panel
 	protected Widget lbDataPanel;
 	protected RichTextWidget lbUIDValue;
-	protected RichTextWidget lbNamesValue;
+	protected RichTextWidget NamesValue;
 	protected TextWidget lbCountValue;
 	protected TextWidget lbLatestMurderTimeValue;
 	protected CheckBoxWidget lbStatusValue;
@@ -313,7 +313,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 		lbDataPanel = Widget.Cast(layoutRoot.FindAnyWidget("lbDataPanel"));
 		lbDataPanel.Show(false);
 		lbUIDValue = RichTextWidget.Cast(layoutRoot.FindAnyWidget("lbUIDValue"));
-		lbNamesValue = RichTextWidget.Cast(layoutRoot.FindAnyWidget("lbNamesValue"));
+		NamesValue = RichTextWidget.Cast(layoutRoot.FindAnyWidget("NamesValue"));
 		lbCountValue = TextWidget.Cast(layoutRoot.FindAnyWidget("lbCountValue"));
 		lbLatestMurderTimeValue = TextWidget.Cast(layoutRoot.FindAnyWidget("lbLatestMurderTimeValue"));
 		lbStatusValue = CheckBoxWidget.Cast(layoutRoot.FindAnyWidget("lbStatusValue"));
@@ -434,7 +434,10 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 			LawbreakersRootPanel.Show(false);
 			lbDataPanel.Show(false);
 			BountySettingsRootPanel.Show(false);
-			GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.ADMIN_ZONES_DATA_REQUEST, NULL, true);
+			if (GetGame().IsMultiplayer())
+				GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.ADMIN_ZONES_DATA_REQUEST, NULL, true);
+			else
+				UpdateZonesList();
 			return true;
 		}
 		if (w == btnLawbreakers) {
@@ -443,7 +446,10 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 			LawbreakersRootPanel.Show(true);
 			lbDataPanel.Show(false);
 			BountySettingsRootPanel.Show(false);
-			GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.ADMIN_LAWBREAKERS_DATA_REQUEST, NULL, true);
+			if (GetGame().IsMultiplayer())
+				GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.ADMIN_LAWBREAKERS_DATA_REQUEST, NULL, true);
+			else
+				UpdateLawbreakersList(NULL);
 			return true;
 		}
 		if (w == btnBounties) {
@@ -452,8 +458,11 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 			LawbreakersRootPanel.Show(false);
 			lbDataPanel.Show(false);
 			BountySettingsRootPanel.Show(true);
-			GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.ADMIN_BOUNTIES_DATA_REQUEST, NULL, true);
 			UpdateBountiesAllItemsList();
+			if (GetGame().IsMultiplayer())
+				GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.ADMIN_BOUNTIES_DATA_REQUEST, NULL, true);
+			else
+				UpdateBountiesPage(g_Game.pvez_Bounties);
 			return true;
 		}
 		if (w == btnSettingsApply) {
@@ -499,37 +508,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 			g_Game.pvez_Config.MAP.Lawbreakers_Markers.Approximate_Location = mapLbMarkersUseApproximateValue.IsChecked();
 			g_Game.pvez_Config.MAP.Lawbreakers_Markers.Approximate_Location_Max_Offset = mapLbMarkersApproximateOffsetValue.GetText().ToInt();
 			g_Game.pvez_Config.MAP.Lawbreakers_Markers.Lawbreakers_Can_See_Their_Own_Markers = mapLbCanSeeTheirOwnMarkerValue.IsChecked();
-			//PlayerBase.Cast(GetGame().GetPlayer()).MessageStatus("PVEZ: Applying changes to config");
-			GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.UPDATE_CONFIG, new Param1<PVEZ_Config>(g_Game.pvez_Config), true);
-			// If the mode has been changed, then reinit the zones
-			return true;
-		}
-		if (w == bountyAddButton) {
-			int itemRow = bountyAllItemsList.GetSelectedRow();
-			if (itemRow == -1) return true;
-
-			Param2<string, string> itemParam = new Param2<string, string>("", "");
-			bountyAllItemsList.GetItemData(itemRow, 0, itemParam);
-			AddToBountySelectedItemsList(itemParam.param1, itemParam.param2);
-			return true;
-		}
-		if (w == bountyRemoveButton) {
-			RemoveFromBountySelectedItemsList(bountySelectedItemsList.GetSelectedRow());
-			return true;
-		}
-		if (w == bountyApplyButton) {
-			autoptr array<ref PVEZ_BountyItemData> newBountiesList = new array<ref PVEZ_BountyItemData>;
-			for (int i = 0; i < bountySelectedItemsList.GetNumItems(); i++) {
-				Param3<string, string, int> selectedItemParam = new Param3<string, string, int>("", "", -1);
-				bountySelectedItemsList.GetItemData(i, 0, selectedItemParam);
-				string className = selectedItemParam.param1;
-				string displayName = selectedItemParam.param2;
-				int amount = selectedItemParam.param3;
-				ref PVEZ_BountyItemData itemData = new PVEZ_BountyItemData(className, displayName, amount);
-				newBountiesList.Insert(itemData);
-			}
-			Param2<bool, array<ref PVEZ_BountyItemData>> newBountiesSettings = new Param2<bool, array<ref PVEZ_BountyItemData>>(bountyCheckboxValue.IsChecked(), newBountiesList);
-			GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.UPDATE_BOUNTIES, newBountiesSettings, true);
+			ApplySettings(PVEZ_RPC.UPDATE_CONFIG);
 			return true;
 		}
 		if (w == zonesList) {
@@ -560,11 +539,9 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 		if (w == btnZoneApply) {
 			int zoneindex = g_Game.pvez_Zones.staticZones.Find(selectedZone);
 			if (zoneindex >= 0) {
-				//PlayerBase.Cast(GetGame().GetPlayer()).MessageStatus("PVEZ: Applying changes to the zone " + selectedZone.Name);
 				selectedZone = g_Game.pvez_Zones.staticZones[zoneindex];
 			}
 			else {
-				//PlayerBase.Cast(GetGame().GetPlayer()).MessageStatus("PVEZ: Creating a new zone...");
 				g_Game.pvez_Zones.staticZones.Insert(selectedZone);
 			}
 			selectedZone.Name = zoneNameValue.GetText();
@@ -576,19 +553,18 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 			selectedZone.Activity_Schedule.Days = zoneDaysValue.GetText();
 			selectedZone.Activity_Schedule.StartHour = zoneHourStartValue.GetText().ToInt();
 			selectedZone.Activity_Schedule.EndHour = zoneHourEndValue.GetText().ToInt();
-			GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.UPDATE_ZONES, new Param1<array<ref PVEZ_Zone>>(g_Game.pvez_Zones.staticZones), true);
+			ApplySettings(PVEZ_RPC.UPDATE_ZONES);
 			// If the week mode has been toggled, then push new config update to server
 			if (zoneDaysModeValue.IsChecked() != g_Game.pvez_Config.GENERAL.Week_Starts_On_Sunday) {
 				g_Game.pvez_Config.GENERAL.Week_Starts_On_Sunday = zoneDaysModeValue.IsChecked();
-				GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.UPDATE_CONFIG, new Param1<PVEZ_Config>(g_Game.pvez_Config), true);
+				ApplySettings(PVEZ_RPC.UPDATE_CONFIG);
 			}
 			UpdateZonesList();
 			return true;
 		}
 		if (w == btnZoneDelete) {
-			//PlayerBase.Cast(GetGame().GetPlayer()).MessageStatus("PVEZ: Removing the zone " + selectedZone.Name + "...");
 			g_Game.pvez_Zones.staticZones.RemoveItem(selectedZone);
-			GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.UPDATE_ZONES, new Param1<array<ref PVEZ_Zone>>(g_Game.pvez_Zones.staticZones), true);
+			ApplySettings(PVEZ_RPC.UPDATE_ZONES);
 			UpdateZonesList();
 			return true;
 		}
@@ -621,7 +597,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 				g_Game.pvez_Config.GENERAL.Week_Starts_On_Sunday = dynamicZoneDaysModeValue.IsChecked();
 			}
 			DynamicZoneSettingsPanel.Show(false);
-			GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.UPDATE_CONFIG, new Param1<PVEZ_Config>(g_Game.pvez_Config), true);
+			ApplySettings(PVEZ_RPC.UPDATE_CONFIG);
 		}
 		if (w == lbPlayersList) {
 			int selectedLBRow = lbPlayersList.GetSelectedRow();
@@ -634,7 +610,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 			if (selectedLawbreaker)
 				OnLawbreakerSelected(selectedLawbreaker);
 			else
-				lbNamesValue.SetText("No data");
+				NamesValue.SetText("No data");
 			return true;
 		}
 		if (w == btnLbApply) {
@@ -647,16 +623,78 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 			}
 			PlayerBase.Cast(GetGame().GetPlayer()).MessageStatus("PVEZ: Changing the lawbreaker status. The player need to wait a minute.");
 			selectedLawbreaker.Is_Currently_Outlaw = lbStatusValue.IsChecked();
-			GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.ADMIN_UPDATE_LAWBREAKERS_ON_SERVER, new Param1<array<ref PVEZ_Lawbreaker>>(g_Game.pvez_LawbreakersRoster.lbDataBase), true);
+			ApplySettings(PVEZ_RPC.ADMIN_UPDATE_LAWBREAKERS);
 			return true;
 		}
 		if (w == btnLbDelete) {
 			PlayerBase.Cast(GetGame().GetPlayer()).MessageStatus("PVEZ: Deleting the lawbreaker data. The player need to wait a minute.");
 			g_Game.pvez_LawbreakersRoster.lbDataBase.RemoveItem(selectedLawbreaker);
-			GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.ADMIN_UPDATE_LAWBREAKERS_ON_SERVER, new Param1<array<ref PVEZ_Lawbreaker>>(g_Game.pvez_LawbreakersRoster.lbDataBase), true);
+			ApplySettings(PVEZ_RPC.ADMIN_UPDATE_LAWBREAKERS);
+			return true;
+		}
+		if (w == bountyAddButton) {
+			int itemRow = bountyAllItemsList.GetSelectedRow();
+			if (itemRow == -1) return true;
+			Param2<string, string> itemParam = new Param2<string, string>("", "");
+			bountyAllItemsList.GetItemData(itemRow, 0, itemParam);
+			AddToBountySelectedItemsList(itemParam.param1, itemParam.param2);
+			return true;
+		}
+		if (w == bountyRemoveButton) {
+			RemoveFromBountySelectedItemsList(bountySelectedItemsList.GetSelectedRow());
+			return true;
+		}
+		if (w == bountyApplyButton) {
+			autoptr array<ref PVEZ_BountyItemData> newBountiesList = new array<ref PVEZ_BountyItemData>;
+			for (int i = 0; i < bountySelectedItemsList.GetNumItems(); i++) {
+				Param3<string, string, int> selectedItemParam = new Param3<string, string, int>("", "", -1);
+				bountySelectedItemsList.GetItemData(i, 0, selectedItemParam);
+				string className = selectedItemParam.param1;
+				string displayName = selectedItemParam.param2;
+				int amount = selectedItemParam.param3;
+				ref PVEZ_BountyItemData itemData = new PVEZ_BountyItemData(className, displayName, amount);
+				newBountiesList.Insert(itemData);
+			}
+			Param2<bool, array<ref PVEZ_BountyItemData>> newBountiesSettings = new Param2<bool, array<ref PVEZ_BountyItemData>>(bountyCheckboxValue.IsChecked(), newBountiesList);
+			if (GetGame().IsMultiplayer())
+				GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.UPDATE_BOUNTIES, newBountiesSettings, true);
+			else {
+				g_Game.pvez_Bounties.Enabled = bountyCheckboxValue.IsChecked();
+				g_Game.pvez_Bounties.Items = newBountiesList;
+				g_Game.pvez_Bounties.SaveToJson();
+			}
 			return true;
 		}
 		return false;
+	}
+
+	void ApplySettings(int type) {
+		switch (type) {
+			case PVEZ_RPC.UPDATE_CONFIG:
+				if (GetGame().IsMultiplayer())
+					GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.UPDATE_CONFIG, new Param1<PVEZ_Config>(g_Game.pvez_Config), true);
+				else {
+					g_Game.pvez_Config.SaveToJson();
+					g_Game.pvez_Zones.Init();
+				}
+				break;
+			case PVEZ_RPC.UPDATE_ZONES:
+				if (GetGame().IsMultiplayer())
+					GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.UPDATE_ZONES, new Param1<array<ref PVEZ_Zone>>(g_Game.pvez_Zones.staticZones), true);
+				else {
+					g_Game.pvez_Zones.SaveToJson();
+					g_Game.pvez_Zones.Init();
+				}
+				break;
+			case PVEZ_RPC.ADMIN_UPDATE_LAWBREAKERS:
+				if (GetGame().IsMultiplayer())
+					GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.ADMIN_UPDATE_LAWBREAKERS, new Param1<array<ref PVEZ_Lawbreaker>>(g_Game.pvez_LawbreakersRoster.lbDataBase), true);
+				else {
+					g_Game.pvez_LawbreakersRoster.SaveToJson();
+					g_Game.pvez_LawbreakersRoster = new PVEZ_LawbreakersRoster(g_Game.pvez_Config);
+				}
+				break;
+		}
 	}
 
 	void UpdateZonesList() {
@@ -687,7 +725,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 		// Display server time
 		int day, hour, min, sec;
 		GetHourMinuteSecond(hour, min, sec);
-		day = PVEZ_TimeHelper.GetDayOfWeek(g_Game.pvez_Config.GENERAL.Week_Starts_On_Sunday);
+		day = PVEZ_StaticFunctions.GetDayOfWeek(g_Game.pvez_Config.GENERAL.Week_Starts_On_Sunday);
 		serverTimeValue.SetText("[Day]" + day.ToString() + ", [Time]" + hour.ToString() + ":" + min.ToString());
 	}
 
@@ -696,10 +734,10 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 		lbPlayersList.ClearItems();
 		for (int i = 0; i < g_Game.pvez_LawbreakersRoster.lbDataBase.Count(); i++) {
 			ref PVEZ_Lawbreaker lb = g_Game.pvez_LawbreakersRoster.lbDataBase.Get(i);
-			string uid = lb.UID;
+			string id = lb.Id;
 			string name = lb.Recent_Character_Names[0];
 			Param1<ref PVEZ_Lawbreaker> data = new Param1<ref PVEZ_Lawbreaker>(lb);
-			lbPlayersList.AddItem((i + 1).ToString() + ". " + name + " (" + uid + ")", data, 0, i);
+			lbPlayersList.AddItem((i + 1).ToString() + ". " + name + " (" + id + ")", data, 0, i);
 		}
 		if (g_Game.pvez_LawbreakersRoster.lbDataBase.Find(selectedLawbreaker) < 0)
 			lbDataPanel.Show(false);
@@ -708,25 +746,36 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 	void OnLawbreakerSelected(PVEZ_Lawbreaker selectedLawbreaker) {
 		if (!lbDataPanel.IsVisible())
 			lbDataPanel.Show(true);
-		lbUIDValue.SetText(selectedLawbreaker.UID);
+		lbUIDValue.SetText(selectedLawbreaker.Id);
 		string names = "";
 		for (int i = 0; i < selectedLawbreaker.Recent_Character_Names.Count(); i++) {
 			names = names + selectedLawbreaker.Recent_Character_Names[i] + ", ";
 		}
-		lbNamesValue.SetText(names);
+		NamesValue.SetText(names);
 		lbCountValue.SetText(selectedLawbreaker.Murder_Count.ToString());
-		lbLatestMurderTimeValue.SetText(PVEZ_TimeHelper.GetFormattedDateTimeFromPVEZ_DateTime(selectedLawbreaker.Latest_Murder_Time));
+		lbLatestMurderTimeValue.SetText(PVEZ_StaticFunctions.GetFormattedDateTimeFromPVEZ_Date(selectedLawbreaker.Latest_Murder_Time));
 		lbStatusValue.SetChecked(selectedLawbreaker.Is_Currently_Outlaw);
 
 		if (playersOnServer && playersOnServer.Count() > 0) {
 			foreach (Man p : playersOnServer) {
-				if (p.GetIdentity().GetId() == selectedLawbreaker.UID) {
+				if (p.GetIdentity().GetId() == selectedLawbreaker.Id) {
 					lbPreview.SetPlayer(DayZPlayer.Cast(p));
 					lbPreview.SetModelPosition( "0 0 0.605" );
 					lbPreview.SetSize( 0.5, 0.5 );  // default scale
 					break;
 				}
 			}
+		}
+	}
+
+	void UpdateBountiesPage(ref PVEZ_Bounties data) {
+		bountyCheckboxValue.SetChecked(data.Enabled);
+		bountySelectedItemsList.ClearItems();
+		for (int i = 0; i < data.Items.Count(); i++) {
+			string className = data.Items[i].className;
+			string displayName = data.Items[i].displayName;
+			int amount = data.Items[i].amount;
+			bountySelectedItemsList.AddItem(displayName + " x" + amount, new Param3<string, string, int>(className, displayName, amount), 0, i);
 		}
 	}
 
@@ -743,23 +792,19 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 
 		for ( int nConfig = 0; nConfig < configs.Count(); ++nConfig ) {
 			string strConfigPath = configs.Get( nConfig );
-
 			int nClasses = g_Game.ConfigGetChildrenCount( strConfigPath );
 
 			for ( int nClass = 0; nClass < nClasses; ++nClass ) {
 				string strName;
-
 				g_Game.ConfigGetChildName( strConfigPath, nClass, strName );
-
 				string displayName;
 				g_Game.ConfigGetText( strConfigPath + " " + strName + " displayName", displayName );
+				
 				int scope = g_Game.ConfigGetInt( strConfigPath + " " + strName + " scope" );
-
 				if ( scope == 0 ) continue;
 
 				string strNameLower = strName;
 				string displayNameLower = displayName;
-
 				strNameLower.ToLower();
 				displayNameLower.ToLower();
 
@@ -767,17 +812,6 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 
 				bountyAllItemsList.AddItem(strName + " [" + displayName + "]", new Param3<string, string, int>(strName, displayName, 1), 0, nClasses);
 			}
-		}
-	}
-
-	void UpdateBountiesPage(ref PVEZ_Bounties data) {
-		bountyCheckboxValue.SetChecked(data.Enabled);
-		bountySelectedItemsList.ClearItems();
-		for (int i = 0; i < data.Items.Count(); i++) {
-			string className = data.Items[i].className;
-			string displayName = data.Items[i].displayName;
-			int amount = data.Items[i].amount;
-			bountySelectedItemsList.AddItem(displayName + " x" + amount, new Param3<string, string, int>(className, displayName, amount), 0, i);
 		}
 	}
 

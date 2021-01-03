@@ -1,13 +1,13 @@
 class PVEZ_LawbreakerMarker : Managed {
 	vector Position;
-	string GUID;
-	string LBName;
+	string Id;
+	string Name;
 
-	void PVEZ_LawbreakerMarker(vector pos, PlayerIdentity identity, bool showName) {
+	void PVEZ_LawbreakerMarker(vector pos, string id, string name, bool showName) {
 		Position = pos;
-		GUID = identity.GetId();
+		Id = id;
 		if (showName) {
-			LBName = identity.GetName();
+			Name = name;
 		}
 	}
 }
@@ -19,69 +19,59 @@ class PVEZ_LawbreakersMarkers : Managed {
 		markers = new array<ref PVEZ_LawbreakerMarker>;
 	}
 
-	void Get(out array<ref PVEZ_LawbreakerMarker> result) {
-		result = markers;
-	}
-
-	void AddMarker(vector position, PlayerIdentity identity) {
-		if (g_Game.pvez_Config.MAP.Lawbreakers_Markers.Update_Frequency == 0)
-			return;
-		
-		autoptr PVEZ_LawbreakerMarker newMarker = new PVEZ_LawbreakerMarker(
-			position,
-			identity,
-			g_Game.pvez_Config.MAP.Lawbreakers_Markers.Show_Name);
-
-		if (markers.Count() == 0) {
-			markers.Insert(newMarker);
-		}
-		else {
-			// Check if marker for the given player ID already exist. If so, just update its position.
-			bool found = false;
-			foreach (PVEZ_LawbreakerMarker marker : markers) {
-				if (marker.GUID == newMarker.GUID) {
-					found = true;
-					marker.Position = newMarker.Position;
-					break;
-				}
-			}
-			if (!found) {
-				markers.Insert(newMarker);
-			}
-		}
+	void Update(EntityAI lbEntity, bool isLawbreaker) {
+		if (isLawbreaker)
+			AddMarker(lbEntity);
+		else
+			RemoveMarker(lbEntity);
 		Sync();
 	}
 
-	void RemoveMarker(string uid) {
-		if (markers.Count() == 0)
-			return;
+	private void AddMarker(EntityAI lbEntity) {
+		string id = PVEZ_StaticFunctions.GetEntityId(lbEntity);
 		
+		bool markerFound = false;
 		for (int i = 0; i < markers.Count(); i++) {
-			if (markers[i].GUID == uid) {
+			if (markers[i].Id == id) {
+				markerFound = true;
+				markers[i].Position = lbEntity.GetPosition();
+				break;
+			}
+		}
+		if (!markerFound) {
+			autoptr PVEZ_LawbreakerMarker newMarker = new PVEZ_LawbreakerMarker(
+				lbEntity.GetPosition(), id, lbEntity.GetDisplayName(), g_Game.pvez_Config.MAP.Lawbreakers_Markers.Show_Name);
+			markers.Insert(newMarker);
+		}
+	}
+
+	private void RemoveMarker(EntityAI lbEntity) {
+		string id = PVEZ_StaticFunctions.GetEntityId(lbEntity);
+
+		for (int i = 0; i < markers.Count(); i++) {
+			if (markers[i].Id == id) {
 				markers.Remove(i);
 				break;
 			}
 		}
-		Sync();
 	}
 
-	void UpdateMarkersPositions(array<Man> activePlayers) {
-		if (markers.Count() == 0 || activePlayers.Count() == 0)
+	void UpdateMarkersPositions() {
+		if (markers.Count() == 0)
 			return;
 		
-		foreach (Man man : activePlayers) {
-			foreach (PVEZ_LawbreakerMarker marker : markers) {
-				if (marker.GUID == man.GetIdentity().GetId()) {
-					float x = man.GetPosition()[0];
-					float z = man.GetPosition()[2];
-					if (g_Game.pvez_Config.MAP.Lawbreakers_Markers.Approximate_Location) {
-						// Add approximate offset for the marker position:
-						int maxOffset = g_Game.pvez_Config.MAP.Lawbreakers_Markers.Approximate_Location_Max_Offset;
-						x += Math.RandomInt(-maxOffset, maxOffset);
-						z += Math.RandomInt(-maxOffset, maxOffset);
-					}
-					marker.Position = Vector(x, 0, z);
+		foreach (PVEZ_LawbreakerMarker marker : markers) {
+			EntityAI lbEntity = g_Game.pvez_LawbreakersRoster.GetEntity(marker.Id);
+			if (lbEntity) {
+				float x = lbEntity.GetPosition()[0];
+				float z = lbEntity.GetPosition()[2];
+				if (g_Game.pvez_Config.MAP.Lawbreakers_Markers.Approximate_Location) {
+					// Add approximate offset for the marker position:
+					int maxOffset = g_Game.pvez_Config.MAP.Lawbreakers_Markers.Approximate_Location_Max_Offset;
+					x += Math.RandomInt(-maxOffset, maxOffset);
+					z += Math.RandomInt(-maxOffset, maxOffset);
 				}
+				marker.Position = Vector(x, 0, z);
 			}
 		}
 		Sync();
@@ -99,7 +89,7 @@ class PVEZ_LawbreakersMarkers : Managed {
 				if (!g_Game.pvez_Config.MAP.Lawbreakers_Markers.Lawbreakers_Can_See_Their_Own_Markers) {
 					string id = GetGame().GetPlayer().GetIdentity().GetId();
 					for (int i = 0; i < markers.Count(); i++) {
-						if (markers[i].GUID == id) {
+						if (markers[i].Id == id) {
 							markers.Remove(i);
 							break;
 						}

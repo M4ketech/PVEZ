@@ -15,10 +15,11 @@ class PVEZ_PlayerStatus : Managed {
 	void PVEZ_PlayerStatus(PlayerBase p) {
 		player = p;
 
-		if (GetGame().IsServer()) {
+		if (GetGame().IsServer() || !GetGame().IsMultiplayer()) {
 			// Get and update player's lawbreaker status
-			if (g_Game.pvez_LawbreakersRoster.Check(player.GetIdentity().GetId())) {
+			if (g_Game.pvez_LawbreakersRoster.Check(player)) {
 				SetLawbreaker(true);
+				g_Game.pvez_LawbreakersMarkers.Update(player, IsLawbreaker);
 			}
 			// Set status by checking zone and mode
 			else {
@@ -34,7 +35,7 @@ class PVEZ_PlayerStatus : Managed {
 		if (IsLawbreaker) // for a lawbreaker it doesn't matter, they're in PVP all the time
 			return;
 		
-		if (GetGame().IsClient())
+		if (GetGame().IsMultiplayer() && !GetGame().IsServer())
 			return;
 		
 		if (zone < 0 && !forceUpdate) {
@@ -43,10 +44,10 @@ class PVEZ_PlayerStatus : Managed {
 		}
 
 		if (SetByMode(zone)) {
-			PVEZ_Notifications.PersonalNotificationServer(player, PVEZ_NotificationType.NOTIF_ZONE_ENTER, 5, false, zone.ToString());
+			PVEZ_Notifications.PersonalNotification(player, PVEZ_NotificationType.NOTIF_ZONE_ENTER, 5, false, zone.ToString());
 		}
 		else if (exitDelayed) {
-			PVEZ_Notifications.PersonalNotificationServer(player, PVEZ_NotificationType.NOTIF_ZONE_EXIT, 5, false);
+			PVEZ_Notifications.PersonalNotification(player, PVEZ_NotificationType.NOTIF_ZONE_EXIT, 5, false);
 		}
 		PVEZ_Notifications.IconUpdate(player, IsInPVP, IsLawbreaker, zone);
 		exitDelayed = false;
@@ -92,13 +93,13 @@ class PVEZ_PlayerStatus : Managed {
 		if (g_Game.pvez_Config.GENERAL.Exit_Zone_Countdown > 0) {
 			exitDelayed = true;
 			// RPC call to client to show UI countdown notification
-			PVEZ_Notifications.PersonalNotificationServer(player, PVEZ_NotificationType.NOTIF_EXIT_COUNTDOWN, g_Game.pvez_Config.GENERAL.Exit_Zone_Countdown, true);
+			PVEZ_Notifications.PersonalNotification(player, PVEZ_NotificationType.NOTIF_EXIT_COUNTDOWN, g_Game.pvez_Config.GENERAL.Exit_Zone_Countdown, true);
 			
 			// WRNG! The following approach doesn't work correctly after a long server life time (more than 4-5 hours without a restart).
 			// Had to change it to a trigger update call from OnScheduledTick() in PlayerBase class.
 			/*
 			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(Update, g_Game.pvez_Config.GENERAL.Exit_Zone_Countdown * 1000, false, -1, true);
-			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(PVEZ_Notifications.PersonalNotificationServer, g_Game.pvez_Config.GENERAL.Exit_Zone_Countdown * 1000, false, player, PVEZ_NotificationType.NOTIF_ZONE_EXIT, g_Game.pvez_Config.GENERAL.Exit_Zone_Countdown, true);
+			GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(PVEZ_Notifications.PersonalNotification, g_Game.pvez_Config.GENERAL.Exit_Zone_Countdown * 1000, false, player, PVEZ_NotificationType.NOTIF_ZONE_EXIT, g_Game.pvez_Config.GENERAL.Exit_Zone_Countdown, true);
 			*/
 		}
 		else {
@@ -118,20 +119,17 @@ class PVEZ_PlayerStatus : Managed {
 	}
 
 	void SetLawbreaker(bool value) {
-		if (GetGame().IsServer()) {
-			if (value) {
-				// If the player is not in LB status yet, inform them
-				if (IsLawbreaker != value) {
-					PVEZ_Notifications.PersonalNotificationServer(player, PVEZ_NotificationType.NOTIF_LB_PERSONAL, 10, false);
-				}
+		if (GetGame().IsServer() || !GetGame().IsMultiplayer()) {
+			g_Game.pvez_LawbreakersRoster.Update(player, value, PVEZ_Date.Now());
+			g_Game.pvez_LawbreakersMarkers.Update(player, value);
+			// If the player is not in LB status yet, inform them
+			if (value && IsLawbreaker != value) {
+				PVEZ_Notifications.PersonalNotification(player, PVEZ_NotificationType.NOTIF_LB_PERSONAL, 10, false);
 			}
-			g_Game.pvez_LawbreakersRoster.Update(player.GetIdentity().GetId(), value);
-			if (!value)
-				g_Game.pvez_LawbreakersMarkers.RemoveMarker(player.GetIdentity().GetId());
 			IsLawbreaker = value;
-			
 			// Update UI icon image & visibility on client
-			GetGame().RPCSingleParam(player, PVEZ_RPC.UPDATE_ICON_ON_CLIENT, new Param3<bool, bool, PVEZ_Zone>(IsInPVP, value, NULL), true, player.GetIdentity());
+			PVEZ_Notifications.IconUpdate(player, IsInPVP, IsLawbreaker, -1);
+			//GetGame().RPCSingleParam(player, PVEZ_RPC.UPDATE_ICON_ON_CLIENT, new Param3<bool, bool, PVEZ_Zone>(IsInPVP, value, NULL), true, player.GetIdentity());
 		}
 	}
 
