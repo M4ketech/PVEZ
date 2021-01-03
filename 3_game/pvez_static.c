@@ -19,7 +19,7 @@ class PVEZ_Date : Managed {
 
 class PVEZ_StaticFunctions : Managed {
 
-	static void GetEntityIdAndNameAndName(EntityAI entity, out id, out name) {
+	static void GetEntityIdAndName(EntityAI entity, out string id, out string name) {
 		if (!entity)
 			return;
 

@@ -191,9 +191,6 @@ class PVEZ_Zones : Managed {
 	}
 
 	void SaveToJson() {
-		string worldName = GetGame().GetWorldName();
-		worldName.ToLower();
-
 		JsonFileLoader<array<ref PVEZ_Zone>>.JsonSaveFile(PVEZ_ZONES_JSON, staticZones);
 	}
 

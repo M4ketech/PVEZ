@@ -154,7 +154,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 	// selected LB side panel
 	protected Widget lbDataPanel;
 	protected RichTextWidget lbUIDValue;
-	protected RichTextWidget NamesValue;
+	protected RichTextWidget lbNamesValue;
 	protected TextWidget lbCountValue;
 	protected TextWidget lbLatestMurderTimeValue;
 	protected CheckBoxWidget lbStatusValue;
@@ -313,7 +313,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 		lbDataPanel = Widget.Cast(layoutRoot.FindAnyWidget("lbDataPanel"));
 		lbDataPanel.Show(false);
 		lbUIDValue = RichTextWidget.Cast(layoutRoot.FindAnyWidget("lbUIDValue"));
-		NamesValue = RichTextWidget.Cast(layoutRoot.FindAnyWidget("NamesValue"));
+		lbNamesValue = RichTextWidget.Cast(layoutRoot.FindAnyWidget("lbNamesValue"));
 		lbCountValue = TextWidget.Cast(layoutRoot.FindAnyWidget("lbCountValue"));
 		lbLatestMurderTimeValue = TextWidget.Cast(layoutRoot.FindAnyWidget("lbLatestMurderTimeValue"));
 		lbStatusValue = CheckBoxWidget.Cast(layoutRoot.FindAnyWidget("lbStatusValue"));
@@ -610,7 +610,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 			if (selectedLawbreaker)
 				OnLawbreakerSelected(selectedLawbreaker);
 			else
-				NamesValue.SetText("No data");
+				lbNamesValue.SetText("No data");
 			return true;
 		}
 		if (w == btnLbApply) {
@@ -751,7 +751,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 		for (int i = 0; i < selectedLawbreaker.Recent_Character_Names.Count(); i++) {
 			names = names + selectedLawbreaker.Recent_Character_Names[i] + ", ";
 		}
-		NamesValue.SetText(names);
+		lbNamesValue.SetText(names);
 		lbCountValue.SetText(selectedLawbreaker.Murder_Count.ToString());
 		lbLatestMurderTimeValue.SetText(PVEZ_StaticFunctions.GetFormattedDateTimeFromPVEZ_Date(selectedLawbreaker.Latest_Murder_Time));
 		lbStatusValue.SetChecked(selectedLawbreaker.Is_Currently_Outlaw);

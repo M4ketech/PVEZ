@@ -45,7 +45,7 @@ modded class MissionGameplay {
 			
 				// Check if lawbreakers have been reinitialized (when someone gets their flag off)
 				if (g_Game.pvez_LawbreakersRoster.updated) {
-					PlayerBase player = GetGame().GetPlayer();
+					PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
 					bool isLB = g_Game.pvez_LawbreakersRoster.Check(player);
 					player.pvez_PlayerStatus.SetLawbreaker(isLB);
 					g_Game.pvez_LawbreakersRoster.updated = false;
@@ -68,7 +68,7 @@ modded class MissionGameplay {
 	}
 
 	void PVEZ_UpdatePlayersZoneStatus() {
-		PlayerBase player = GetGame().GetPlayer();
+		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
 		if (player && player.pvez_PlayerStatus) {
 			int zone = g_Game.pvez_Zones.GetPlayerZoneIndex(player.GetPosition());
 			player.pvez_PlayerStatus.Update(zone, false);

@@ -1574,7 +1574,7 @@ FrameWidgetClass rootFrame {
       }
      }
     }
-    PanelWidgetClass NamesPanel {
+    PanelWidgetClass lbNamesPanel {
      color 0 0 0 0.651
      position 0.02 105
      size 0.96 80
@@ -1582,14 +1582,14 @@ FrameWidgetClass rootFrame {
      vexactsize 1
      style DayZDefaultPanel
      {
-      TextWidgetClass NamesTitle {
+      TextWidgetClass lbNamesTitle {
        position 0.01 0
        size 0.98 0.48
        style Normal
        text "3 recently used names:"
        "text valign" center
       }
-      RichTextWidgetClass NamesValue {
+      RichTextWidgetClass lbNamesValue {
        position 0.01 0.5
        size 0.98 0.45
        style DayZNormal
