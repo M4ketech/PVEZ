@@ -19,24 +19,32 @@ class PVEZ_Date : Managed {
 
 class PVEZ_StaticFunctions : Managed {
 
-	static void GetEntityIdAndName(EntityAI entity, out string id, out string name) {
+	static string GetEntityId(EntityAI entity) {
 		if (!entity)
-			return;
+			return "";
 
 		if (entity.IsPlayer()) {
-			if (GetGame().IsMultiplayer()) {
-				id = DayZPlayer.Cast(entity).GetIdentity().GetId();
-				name = DayZPlayer.Cast(entity).GetIdentity().GetName();
-			}
-			else {
-				id = "Singleplayer";
-				name = DayZPlayer.Cast(entity).GetName();
-			}
+			if (GetGame().IsMultiplayer())
+				return DayZPlayer.Cast(entity).GetIdentity().GetId();
+			else
+				return "Singleplayer";
 		}
-		else {
-			id = entity.GetID().ToString();
-			name = entity.GetDisplayName();
+		else
+			return entity.GetID().ToString();
+	}
+
+	static string GetEntityName(EntityAI entity) {
+		if (!entity)
+			return "";
+
+		if (entity.IsPlayer()) {
+			if (GetGame().IsMultiplayer())
+				return DayZPlayer.Cast(entity).GetIdentity().GetName();
+			else
+				return DayZPlayer.Cast(entity).GetName();
 		}
+		else
+			return entity.GetDisplayName();
 	}
 
 	// Returns current date+time (real world) in format: "January 1, 21:10:02"

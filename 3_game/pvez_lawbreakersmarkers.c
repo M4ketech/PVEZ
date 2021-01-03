@@ -28,9 +28,7 @@ class PVEZ_LawbreakersMarkers : Managed {
 	}
 
 	private void AddMarker(EntityAI lbEntity) {
-		string id;
-		string name;
-		PVEZ_StaticFunctions.GetEntityIdAndName(lbEntity, id, name);
+		string id = PVEZ_StaticFunctions.GetEntityId(lbEntity);
 		
 		bool markerFound = false;
 		for (int i = 0; i < markers.Count(); i++) {
@@ -41,16 +39,15 @@ class PVEZ_LawbreakersMarkers : Managed {
 			}
 		}
 		if (!markerFound) {
+			string name = PVEZ_StaticFunctions.GetEntityName(lbEntity);
 			autoptr PVEZ_LawbreakerMarker newMarker = new PVEZ_LawbreakerMarker(
-				lbEntity.GetPosition(), id, lbEntity.GetDisplayName(), g_Game.pvez_Config.MAP.Lawbreakers_Markers.Show_Name);
+				lbEntity.GetPosition(), id, name, g_Game.pvez_Config.MAP.Lawbreakers_Markers.Show_Name);
 			markers.Insert(newMarker);
 		}
 	}
 
 	private void RemoveMarker(EntityAI lbEntity) {
-		string id;
-		string name;
-		PVEZ_StaticFunctions.GetEntityIdAndName(lbEntity, id, name);
+		string id = PVEZ_StaticFunctions.GetEntityId(lbEntity);
 
 		for (int i = 0; i < markers.Count(); i++) {
 			if (markers[i].Id == id) {

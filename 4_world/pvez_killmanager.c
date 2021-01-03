@@ -14,8 +14,10 @@ class PVEZ_KillManager : Managed {
 
 		if (killedInLaw) {
 			if (g_Game.pvez_Bounties.Enabled) {
-				if (victim.pvez_PlayerStatus.GetIsLawbreaker() && !PlayerBase.Cast(killer).pvez_PlayerStatus.GetIsLawbreaker())
-					g_Game.pvez_Bounties.RewardPlayer(Man.Cast(killer), victim.GetDisplayName());
+				if (victim.pvez_PlayerStatus.GetIsLawbreaker() && !PlayerBase.Cast(killer).pvez_PlayerStatus.GetIsLawbreaker()) {
+					string victimName = PVEZ_StaticFunctions.GetEntityName(victim);
+					g_Game.pvez_Bounties.RewardPlayer(Man.Cast(killer), victimName);
+				}
 			}
 			return;
 		}
@@ -67,9 +69,11 @@ class PVEZ_KillManager : Managed {
 		}
 #endif
 		// Show server wide notification
-		string crimeNotificationText = "Killer:" + killerEntity.GetDisplayName() + " has killed player " + victimEntity.GetDisplayName() + ". Weapon: " + weapon.GetDisplayName();
 		PVEZ_Notifications.NotificationToAll(killerEntity, victimEntity, weapon);
 		// and print in server logs (with addition of date & time)
+		string killerName = PVEZ_StaticFunctions.GetEntityName(killerEntity);
+		string victimName = PVEZ_StaticFunctions.GetEntityName(victimEntity);
+		string crimeNotificationText = "Killer:" + killerName + " has killed player " + victimName + ". Weapon: " + weapon.GetDisplayName();
 		string time = " (" + PVEZ_StaticFunctions.GetFormattedDateTime() + ").";
 		Print("PVEZ :: " + crimeNotificationText + time);
 	}

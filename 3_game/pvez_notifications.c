@@ -15,12 +15,14 @@ class PVEZ_Notifications : Managed {
 		if (!g_Game.pvez_Config.LAWBREAKERS_SYSTEM.Server_Wide_Message_About_Lawbreaker)
 			return;
 		
+		string killerName = PVEZ_StaticFunctions.GetEntityName(killer);
+		string victimName = PVEZ_StaticFunctions.GetEntityName(victim);
 		string weaponDisplayName;
 		if (weapon == killer)
 			weaponDisplayName = "#pvez_bare_hands";
 		else
 			weaponDisplayName = weapon.GetDisplayName();
-		string serverMessage = FormatMessage(PVEZ_NotificationType.NOTIF_LB_SERVERWIDE, killer.GetDisplayName(), victim.GetDisplayName(), weaponDisplayName);
+		string serverMessage = FormatMessage(PVEZ_NotificationType.NOTIF_LB_SERVERWIDE, killerName, victimName, weaponDisplayName);
 
 		if (GetGame().GetWorld()) {
 			autoptr ref array<Man> players = new array<Man>;

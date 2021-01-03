@@ -108,9 +108,8 @@ class PVEZ_LawbreakersRoster : Managed {
 		if (!lbDataBase)
 			LoadFromJson();
 		
-		string murdererId;
-		string murdererName;
-		PVEZ_StaticFunctions.GetEntityIdAndName(lbEntity, murdererId, murdererName);
+		string murdererId = PVEZ_StaticFunctions.GetEntityId(lbEntity);
+		string murdererName = PVEZ_StaticFunctions.GetEntityName(lbEntity);
 
 		// Looking for the murderer in the roster
 		autoptr PVEZ_Lawbreaker lb;
@@ -163,9 +162,7 @@ class PVEZ_LawbreakersRoster : Managed {
 		if (lbDataBase.Count() == 0)
 			return false;
 		
-		string id;
-		string name;
-		PVEZ_StaticFunctions.GetEntityIdAndName(entity, id, name);
+		string id = PVEZ_StaticFunctions.GetEntityId(entity);
 
 		foreach (PVEZ_Lawbreaker lb : lbDataBase) {
 			if (lb.Id == id) {
