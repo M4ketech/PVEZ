@@ -15,6 +15,7 @@ modded class PlayerBase extends ManBase {
 	protected autoptr PVEZ_AdminConsoleGUI pvez_AdminConsoleGUI;
 
 	autoptr PVEZ_PlayerStatus pvez_PlayerStatus;
+	autoptr PVEZ_BountiesSpawner pvez_BountiesSpawner;
 
 	// Used to decide whether the damage should be reflected back depending on config settings.
 	protected int weaponType;
@@ -37,11 +38,13 @@ modded class PlayerBase extends ManBase {
 			g_Game.PVEZ_SendActiveZonesToClient(this);
 			g_Game.PVEZ_GetAdminStatus(this);
 			pvez_PlayerStatus = new PVEZ_PlayerStatus(this);
+			pvez_BountiesSpawner = new PVEZ_BountiesSpawner(this);
 			pvez_DamageRedistributor = new PVEZ_DamageRedistributor(this);
 		}
 		else if (!GetGame().IsMultiplayer()) {
 			isPVEZAdmin = true;
 			pvez_PlayerStatus = new PVEZ_PlayerStatus(this);
+			pvez_BountiesSpawner = new PVEZ_BountiesSpawner(this);
 			pvez_DamageRedistributor = new PVEZ_DamageRedistributor(this);
 		}
 	}
