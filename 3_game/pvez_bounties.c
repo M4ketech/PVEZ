@@ -31,24 +31,4 @@ class PVEZ_Bounties : Managed {
 	void SaveToJson() {
 		JsonFileLoader<PVEZ_Bounties>.JsonSaveFile(PVEZ_BOUNTIES_JSON, this);
 	}
-
-	void RewardPlayer(Man player, string Name) {
-		EntityAI item;
-		bool failedToPutInInventory;
-		string msg = "#pvez_bnty_msg1" + " " + Name + " " + "#pvez_bnty_msg2";
-
-		for (int i = 0; i < Items.Count(); i++) {
-			msg = msg + "\n" + Items[i].displayName + " x" + Items[i].amount;
-			for (int j = 0; j < Items[i].amount; j++) {
-				item = player.GetInventory().CreateInInventory(Items[i].className);
-				if (!item) {
-					failedToPutInInventory = true;
-					player.SpawnEntityOnGroundPos(Items[i].className, player.GetPosition());
-				}
-			}
-		}
-		if (failedToPutInInventory)
-			msg = msg + "\n" + "#pvez_bnty_msg3";
-		PVEZ_Notifications.PersonalNotification(DayZPlayer.Cast(player), PVEZ_NotificationType.NOTIF_GENERIC, 15, false, msg);
-	}
 }
