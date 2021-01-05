@@ -843,7 +843,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 		bountySelectedItemsList.GetItemData(row, 0, p);
 		p.param3--;
 		if (p.param3 > 0)
-			bountySelectedItemsList.SetItem(row, p.param1 + "[" + p.param2 + "] x" + p.param3, p, 0);
+			bountySelectedItemsList.SetItem(row, p.param2 + " x" + p.param3, p, 0);
 		else {
 			bountySelectedItemsList.RemoveRow(row);
 			if (bountySelectedItemsList.GetNumItems() > 0)
