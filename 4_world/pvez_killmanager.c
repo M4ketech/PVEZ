@@ -5,7 +5,6 @@
 //_________________________________________________________________________________________________//
 #define pvezdebug;
 
-
 class PVEZ_KillManager : Managed {
 
 	static void OnPlayerKilled(PlayerBase victim, EntityAI killer, EntityAI weapon, int weaponType, bool killedInLaw) {
@@ -16,7 +15,7 @@ class PVEZ_KillManager : Managed {
 			if (g_Game.pvez_Bounties.Enabled) {
 				if (victim.pvez_PlayerStatus.GetIsLawbreaker() && !PlayerBase.Cast(killer).pvez_PlayerStatus.GetIsLawbreaker()) {
 					string victimName = PVEZ_StaticFunctions.GetEntityName(victim);
-					g_Game.pvez_Bounties.RewardPlayer(Man.Cast(killer), victimName);
+					PlayerBase.Cast(killer).pvez_BountiesSpawner.SpawnRewards(g_Game.pvez_Bounties.Items, victimName);
 				}
 			}
 			return;
@@ -82,7 +81,7 @@ class PVEZ_KillManager : Managed {
 	static void OnZombieKilled(ZombieBase victim, EntityAI killer, EntityAI weapon, int weaponType, bool killedInLaw) {
 		
 		//if (killedInLaw)
-		//	g_Game.pvez_Bounties.RewardPlayer(Man.Cast(killer), victim.GetDisplayName());
+		PlayerBase.Cast(killer).pvez_BountiesSpawner.SpawnRewards(g_Game.pvez_Bounties.Items, victim.GetDisplayName());
 
 		switch (weaponType) {
 			case PVEZ_DAMAGE_SOURCE_TYPE_EXPLOSIVE:
