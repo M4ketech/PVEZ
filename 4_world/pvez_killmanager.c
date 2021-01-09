@@ -3,7 +3,7 @@
 //                          If <#define pvezdebug is uncommented,                                  //
 //           player will be flagged as a lawbreaker on killing zombies in PvE area                 //
 //_________________________________________________________________________________________________//
-#define pvezdebug;
+//#define pvezdebug;
 
 class PVEZ_KillManager : Managed {
 
