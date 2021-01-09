@@ -620,15 +620,17 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 		}
 		if (w == btnLbApply) {
 			int lbindex = g_Game.pvez_LawbreakersRoster.lbDataBase.Find(selectedLawbreaker);
-			if (lbindex >= 0)
+			if (lbindex >= 0) {
 				selectedLawbreaker.Is_Currently_Outlaw = lbStatusValue.IsChecked();
+				PlayerBase.Cast(GetGame().GetPlayer()).MessageStatus("PVEZ: Changing the lawbreaker status. The player need to wait a minute.");
+			}
 			else if (lbindex < 0 && lbStatusValue.IsChecked()) {
 				// If the LB in not in the roster yet and admin wants to flag him as LB
 				selectedLawbreaker.Is_Currently_Outlaw = lbStatusValue.IsChecked();
 				selectedLawbreaker.Murder_Count = 1;
 				g_Game.pvez_LawbreakersRoster.lbDataBase.Insert(selectedLawbreaker);
+				PlayerBase.Cast(GetGame().GetPlayer()).MessageStatus("PVEZ: Changing the lawbreaker status. The player need to wait a minute.");
 			}
-			PlayerBase.Cast(GetGame().GetPlayer()).MessageStatus("PVEZ: Changing the lawbreaker status. The player need to wait a minute.");
 			ApplySettings(PVEZ_RPC.ADMIN_UPDATE_LAWBREAKERS);
 			lbDataPanel.Show(false);
 			return true;
