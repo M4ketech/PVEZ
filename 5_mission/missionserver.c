@@ -55,7 +55,7 @@ modded class MissionServer extends MissionBase {
 				}
 			}
 
-			//if (m_Players.Count() > 0) {
+			if (m_Players.Count() > 0) {
 				PVEZ_ZonesUpdateTimer += timeslice;
 				PVEZ_LBMarkersUpdateTimer += timeslice;
 
@@ -68,12 +68,16 @@ modded class MissionServer extends MissionBase {
 					PVEZ_UpdateLBMarkers();
 					PVEZ_LBMarkersUpdateTimer = 0;
 				}
-			//}
+			}
 		}
 	}
 
 	override void PlayerDisconnected(PlayerBase player, PlayerIdentity identity, string uid) {
-		g_Game.pvez_LawbreakersMarkers.Update(player, false);
+		// <player> might be NULL
+		if (player)
+			g_Game.pvez_LawbreakersMarkers.Update(player, false);
+		else
+			g_Game.pvez_LawbreakersMarkers.RemoveMarker(uid);
 		
 		super.PlayerDisconnected(player, identity, uid);
 	}
