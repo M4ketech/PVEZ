@@ -20,7 +20,7 @@ class PVEZ_LawbreakersRoster : Managed {
 	autoptr array<ref PVEZ_Lawbreaker> lbDataBase;
 	autoptr map<string, EntityAI> lbEntities;
 
-	// This flag is monitored by <MissionServer> to update labreaker statuses on players when this roster is getting re-initialized.
+	// This flag is monitored by <MissionServer> to update lawbreaker statuses on players when this roster is getting re-initialized.
 	bool updated;
 
 	void PVEZ_LawbreakersRoster(PVEZ_Config c) {
@@ -81,6 +81,16 @@ class PVEZ_LawbreakersRoster : Managed {
 			}
 		}
 		updated = true;
+	}
+
+	PVEZ_Lawbreaker GetById(string idToFind) {
+		for (int i = 0; i < lbDataBase.Count(); i++) {
+			string id = lbDataBase[i].Id;
+			if (idToFind == id) {
+				return lbDataBase[i];
+			}
+		}
+		return NULL;
 	}
 
 	EntityAI GetEntity(string idToFind) {
