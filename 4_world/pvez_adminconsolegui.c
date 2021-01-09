@@ -150,6 +150,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 
 	/// LAWBREAKERS page
 	protected Widget LawbreakersRootPanel;
+	protected TextListboxWidget lbRosterList;
 	protected TextListboxWidget lbPlayersList;
 	// selected LB side panel
 	protected Widget lbDataPanel;
@@ -161,6 +162,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 	protected PlayerPreviewWidget lbPreview;
 	protected ButtonWidget btnLbApply;
 	protected ButtonWidget btnLbDelete;
+	protected ImageWidget btnLbDeleteBackground;
 
 	bool IsTypingText() {
 		return isTypingText;
@@ -308,6 +310,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 		LawbreakersRootPanel = Widget.Cast(layoutRoot.FindAnyWidget("LawbreakersRootPanel"));
 		LawbreakersRootPanel.Show(false);
 		// list of LBs
+		lbRosterList = TextListboxWidget.Cast(layoutRoot.FindAnyWidget("lbRosterList"));
 		lbPlayersList = TextListboxWidget.Cast(layoutRoot.FindAnyWidget("lbPlayersList"));
 		// selected LB side panel
 		lbDataPanel = Widget.Cast(layoutRoot.FindAnyWidget("lbDataPanel"));
@@ -321,6 +324,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 		// selected LB actions
 		btnLbApply = ButtonWidget.Cast(layoutRoot.FindAnyWidget("btnLbApply"));
 		btnLbDelete = ButtonWidget.Cast(layoutRoot.FindAnyWidget("btnLbDelete"));
+		btnLbDeleteBackground = ImageWidget.Cast(layoutRoot.FindAnyWidget("btnLbDeleteBackground"));
 
 		// BOUNTIES page
 		BountySettingsRootPanel = Widget.Cast(layoutRoot.FindAnyWidget("BountySettingsRootPanel"));
@@ -599,37 +603,41 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 			DynamicZoneSettingsPanel.Show(false);
 			ApplySettings(PVEZ_RPC.UPDATE_CONFIG);
 		}
-		if (w == lbPlayersList) {
-			int selectedLBRow = lbPlayersList.GetSelectedRow();
+		if (w == lbRosterList || w == lbPlayersList) {
+			int selectedLBRow = TextListboxWidget.Cast(w).GetSelectedRow();
 			if (selectedLBRow == -1) return true;
 
-			Param1<ref PVEZ_Lawbreaker> selectedLBParam = new Param1<ref PVEZ_Lawbreaker>(NULL);
-			lbPlayersList.GetItemData(selectedLBRow, 0, selectedLBParam);
-			selectedLawbreaker = selectedLBParam.param1;
+			Param2<string, string> selectedLBParams = new Param2<string, string>("", "");
+			TextListboxWidget.Cast(w).GetItemData(selectedLBRow, 0, selectedLBParams);
+			string id = selectedLBParams.param1;
+			string name = selectedLBParams.param2;
 
-			if (selectedLawbreaker)
-				OnLawbreakerSelected(selectedLawbreaker);
-			else
-				lbNamesValue.SetText("No data");
+			selectedLawbreaker = g_Game.pvez_LawbreakersRoster.GetById(id);
+			if (!selectedLawbreaker)
+				selectedLawbreaker = new ref PVEZ_Lawbreaker(id, name, 0, false, PVEZ_Date.Now());
+			OnLawbreakerSelected(selectedLawbreaker);
 			return true;
 		}
 		if (w == btnLbApply) {
 			int lbindex = g_Game.pvez_LawbreakersRoster.lbDataBase.Find(selectedLawbreaker);
 			if (lbindex >= 0)
-				selectedLawbreaker = g_Game.pvez_LawbreakersRoster.lbDataBase[lbindex];
-			else {
-				PlayerBase.Cast(GetGame().GetPlayer()).MessageStatus("PVEZ: Can't find the lawbreaker's data. Try to re-open this page.");
-				return true;
+				selectedLawbreaker.Is_Currently_Outlaw = lbStatusValue.IsChecked();
+			else if (lbindex < 0 && lbStatusValue.IsChecked()) {
+				// If the LB in not in the roster yet and admin wants to flag him as LB
+				selectedLawbreaker.Is_Currently_Outlaw = lbStatusValue.IsChecked();
+				selectedLawbreaker.Murder_Count = 1;
+				g_Game.pvez_LawbreakersRoster.lbDataBase.Insert(selectedLawbreaker);
 			}
 			PlayerBase.Cast(GetGame().GetPlayer()).MessageStatus("PVEZ: Changing the lawbreaker status. The player need to wait a minute.");
-			selectedLawbreaker.Is_Currently_Outlaw = lbStatusValue.IsChecked();
 			ApplySettings(PVEZ_RPC.ADMIN_UPDATE_LAWBREAKERS);
+			lbDataPanel.Show(false);
 			return true;
 		}
 		if (w == btnLbDelete) {
 			PlayerBase.Cast(GetGame().GetPlayer()).MessageStatus("PVEZ: Deleting the lawbreaker data. The player need to wait a minute.");
 			g_Game.pvez_LawbreakersRoster.lbDataBase.RemoveItem(selectedLawbreaker);
 			ApplySettings(PVEZ_RPC.ADMIN_UPDATE_LAWBREAKERS);
+			lbDataPanel.Show(false);
 			return true;
 		}
 		if (w == bountyAddButton) {
@@ -730,22 +738,50 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 	}
 
 	void UpdateLawbreakersList(array<Man> players) {
-		playersOnServer = players;
-		lbPlayersList.ClearItems();
-		for (int i = 0; i < g_Game.pvez_LawbreakersRoster.lbDataBase.Count(); i++) {
-			ref PVEZ_Lawbreaker lb = g_Game.pvez_LawbreakersRoster.lbDataBase.Get(i);
-			string id = lb.Id;
-			string name = lb.Recent_Character_Names[0];
-			Param1<ref PVEZ_Lawbreaker> data = new Param1<ref PVEZ_Lawbreaker>(lb);
-			lbPlayersList.AddItem((i + 1).ToString() + ". " + name + " (" + id + ")", data, 0, i);
+		if (!players && !GetGame().IsMultiplayer()) {
+			playersOnServer = new array<Man>;
+			playersOnServer.Insert(GetGame().GetPlayer());
 		}
-		if (g_Game.pvez_LawbreakersRoster.lbDataBase.Find(selectedLawbreaker) < 0)
-			lbDataPanel.Show(false);
+		else
+			playersOnServer = players;
+		
+		lbRosterList.ClearItems();
+		lbPlayersList.ClearItems();
+
+		string id;
+		string name;
+		PVEZ_Lawbreaker lb;
+		Param2<string, string> data;
+		
+		// Lawbreakers in the roster
+		for (int i = 0; i < g_Game.pvez_LawbreakersRoster.lbDataBase.Count(); i++) {
+			lb = g_Game.pvez_LawbreakersRoster.lbDataBase.Get(i);
+			id = lb.Id;
+			name = lb.Recent_Character_Names[0];
+			data = new Param2<string, string>(id, name);
+			lbRosterList.AddItem((i + 1).ToString() + ". " + name + " (" + id + ")", data, 0, i);
+		}
+
+		// Other players who are not in the roster
+		for (int j = 0; j < playersOnServer.Count(); j++) {
+			id = PVEZ_StaticFunctions.GetEntityId(playersOnServer[j]);
+			lb = g_Game.pvez_LawbreakersRoster.GetById(id);
+			if (!lb) {
+				name = PVEZ_StaticFunctions.GetEntityName(playersOnServer[j]);
+				data = new Param2<string, string>(id, name);
+				lbPlayersList.AddItem((j + 1).ToString() + ". " + name + " (" + id + ")", data, 0, j);
+			}
+		}
+		//if (g_Game.pvez_LawbreakersRoster.lbDataBase.Find(selectedLawbreaker) < 0)
+		lbDataPanel.Show(false);
 	}
 
 	void OnLawbreakerSelected(PVEZ_Lawbreaker selectedLawbreaker) {
 		if (!lbDataPanel.IsVisible())
 			lbDataPanel.Show(true);
+		// Fake lawbreaker (a player who's not in the LB roster yet) has murder count 0.
+		// Disable "Delete" button if the selected player is a fake LB.
+		btnLbDeleteBackground.Show(selectedLawbreaker.Murder_Count > 0);
 		lbUIDValue.SetText(selectedLawbreaker.Id);
 		string names = "";
 		for (int i = 0; i < selectedLawbreaker.Recent_Character_Names.Count(); i++) {
@@ -758,10 +794,10 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 
 		if (playersOnServer && playersOnServer.Count() > 0) {
 			foreach (Man p : playersOnServer) {
-				if (p.GetIdentity().GetId() == selectedLawbreaker.Id) {
+				if (PVEZ_StaticFunctions.GetEntityId(p) == selectedLawbreaker.Id) {
 					lbPreview.SetPlayer(DayZPlayer.Cast(p));
 					lbPreview.SetModelPosition( "0 0 0.605" );
-					lbPreview.SetSize( 0.5, 0.5 );  // default scale
+					lbPreview.SetSize( 0.5, 0.5 );
 					break;
 				}
 			}
