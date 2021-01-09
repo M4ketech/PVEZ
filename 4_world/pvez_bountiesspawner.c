@@ -36,13 +36,14 @@ class PVEZ_BountiesSpawner : Managed {
 	// and if the amount is more the item's max stack size, the method will set the out int amountNotGiven to (amountToSpawn - maxQuantity)
 	// and start itself again to create a new stack.
 	void PutInInventory(string className, int amountToGive, out int amountNotGiven) {
-		ItemBase item = player.GetInventory().CreateInInventory(className);
+		ItemBase item = ItemBase.Cast(player.GetInventory().CreateInInventory(className));
 		// if there was a free space in inventory
 		if (item) {
 			FillStack(item, amountToGive, amountNotGiven);
-			if (amountNotGiven > 0)
+			if (amountNotGiven > 0) {
 				// Items didn't fit into the stack, spawn another stack
 				PutInInventory(className, amountNotGiven, amountNotGiven);
+			}
 		}
 		// if no free space
 		else {
@@ -51,7 +52,7 @@ class PVEZ_BountiesSpawner : Managed {
 	}
 
 	void PutOnGround(string className, int amountToGive) {
-		ItemBase item = player.SpawnEntityOnGroundPos(className, player.GetPosition());
+		ItemBase item = ItemBase.Cast(player.SpawnEntityOnGroundPos(className, player.GetPosition()));
 		int amountNotGiven = 0;
 		if (item) {
 			FillStack(item, amountToGive, amountNotGiven);
@@ -63,6 +64,9 @@ class PVEZ_BountiesSpawner : Managed {
 
 	void FillStack(ItemBase item, int amountToGive, out int amountNotGiven) {
 		int maxQnt = item.GetQuantityMax();
+		// Some mod items don't have neither "varStackMax" nor "varQuantityMax" in there class config,
+		// and item.GetQuantityMax() will return 0 in this case. Set it to 1 then.
+		if (maxQnt == 0) maxQnt = 1;
 		if (amountToGive <= maxQnt) {
 			item.SetQuantity(amountToGive);
 			amountNotGiven = 0;
