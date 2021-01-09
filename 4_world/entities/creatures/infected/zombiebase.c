@@ -4,7 +4,7 @@
 //                 To test PvP damage and lawbreakers system on infected.                          //
 //          They are treated as players if the <#define pvezdebug> is uncommented.                 //
 //_________________________________________________________________________________________________//
-#define pvezdebug;
+//#define pvezdebug;
 
 
 #ifdef pvezdebug
