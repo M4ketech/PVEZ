@@ -3,7 +3,7 @@
 //                     If the <#define pvezdebug> is uncommented,                                  //
 //                attacks from zombies will be treated as some player's attacks.                   //
 //_________________________________________________________________________________________________//
-#define pvezdebug;
+//#define pvezdebug;
 
 modded class PlayerBase extends ManBase {
 
@@ -32,8 +32,9 @@ modded class PlayerBase extends ManBase {
 	override void OnPlayerLoaded() {
 		super.OnPlayerLoaded();
 
-		// Check if identity != NULL. Somehow this code runs twice and at first run player's identity is NULL.
-		if (GetGame().IsServer() && GetGame().IsMultiplayer()) {
+		// Check if identity != NULL. This code runs twice, in main menu and then in-game.
+		// At first run player's identity is NULL and IsMultiplayer() is false.
+		if (GetIdentity() && GetGame().IsServer() && GetGame().IsMultiplayer()) {
 			g_Game.PVEZ_SendConfigToClient(this);
 			g_Game.PVEZ_SendActiveZonesToClient(this);
 			g_Game.PVEZ_GetAdminStatus(this);
@@ -42,10 +43,13 @@ modded class PlayerBase extends ManBase {
 			pvez_DamageRedistributor = new PVEZ_DamageRedistributor(this);
 		}
 		else if (!GetGame().IsMultiplayer()) {
-			isPVEZAdmin = true;
-			pvez_PlayerStatus = new PVEZ_PlayerStatus(this);
-			pvez_BountiesSpawner = new PVEZ_BountiesSpawner(this);
-			pvez_DamageRedistributor = new PVEZ_DamageRedistributor(this);
+			// Hud will be initialized in-game, in main menu this should be skipped to prevent client side error on PVEZ icon update.
+			if (m_Hud && IsControlledPlayer()) {
+				isPVEZAdmin = true;
+				pvez_PlayerStatus = new PVEZ_PlayerStatus(this);
+				pvez_BountiesSpawner = new PVEZ_BountiesSpawner(this);
+				pvez_DamageRedistributor = new PVEZ_DamageRedistributor(this);
+			}
 		}
 	}
 
