@@ -49,7 +49,7 @@ FrameWidgetClass rootFrame {
    }
   }
   PanelWidgetClass SettingsRootPanel {
-   visible 1
+   visible 0
    color 0 0 0 0.5882
    size 0.5 0.9
    valign bottom_ref
@@ -1512,7 +1512,7 @@ FrameWidgetClass rootFrame {
    }
   }
   PanelWidgetClass LawbreakersRootPanel {
-   visible 0
+   visible 1
    color 0 0 0 0.7843
    position 0 0.1
    size 0.5 0.9
@@ -1522,21 +1522,37 @@ FrameWidgetClass rootFrame {
      position 0.01 0.02
      size 0.98 0.96
      {
-      TextWidgetClass lbPlayersListTitle {
+      TextWidgetClass lbRosterListTitle {
        position 0.01 0
        size 0.98 40
        vexactpos 1
        vexactsize 1
-       text "Lawbreakers:"
+       text "Lawbreakers in roster:"
       }
-      TextListboxWidgetClass lbPlayersList {
+      TextListboxWidgetClass lbRosterList {
        position 0 50
-       size 1 695
+       size 1 300
        vexactpos 1
        vexactsize 1
        style Default
        "title visible" 0
-       lines 25
+       lines 15
+      }
+      TextWidgetClass lbPlayersListTitle {
+       position 0.01 370
+       size 0.98 40
+       vexactpos 1
+       vexactsize 1
+       text "Other players online:"
+      }
+      TextListboxWidgetClass lbPlayersList {
+       position 0 420
+       size 1 320
+       vexactpos 1
+       vexactsize 1
+       style Default
+       "title visible" 0
+       lines 15
       }
      }
     }
