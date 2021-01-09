@@ -3,7 +3,7 @@
 //          Infected are treated as players when they get hit by a player                          //
 //                      if the <#define pvezdebug> is uncommented.                                 //
 //_________________________________________________________________________________________________//
-#define pvezdebug;
+//#define pvezdebug;
 
 
 class PVEZ_DamageRedistributor : Managed {
@@ -93,6 +93,7 @@ class PVEZ_DamageRedistributor : Managed {
 		}
 	}
 
+#ifdef pvezdebug
 	void RegisterHitZ(ZombieBase victim, EntityAI source, out int wpnType, bool gotBleeding) {
 		
 		DirectDmgInitiator = GetDamageInitiator(source, wpnType);
@@ -108,6 +109,7 @@ class PVEZ_DamageRedistributor : Managed {
 			lastHitWasAllowed = victim.PVEZ_IsPvpAttackAllowed();
 		}
 	}
+#endif
 
 	void RegisterDeath(EntityAI victim, EntityAI source, out int wpnType) {
 		DirectDmgInitiator = GetDamageInitiator(source, wpnType);
