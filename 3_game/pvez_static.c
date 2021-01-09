@@ -59,6 +59,8 @@ class PVEZ_StaticFunctions : Managed {
 
 	// Convert PVEZ_Date to string with the following format: "January 1, 21:10:02"
 	static string GetFormattedDateTimeFromPVEZ_Date(PVEZ_Date dt) {
+		if (!dt)
+			return "";
 		string monthNames[12] = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
 		string monthName = monthNames[dt.Month - 1];
 		return monthName + " " + dt.Day.ToString() + ", " + dt.Hour.ToStringLen(2) + ":" + dt.Minute.ToStringLen(2);
