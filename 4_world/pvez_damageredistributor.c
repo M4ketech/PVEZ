@@ -1,11 +1,3 @@
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                   DEBUG STUFF:                                                  //
-//          Infected are treated as players when they get hit by a player                          //
-//                      if the <#define pvezdebug> is uncommented.                                 //
-//_________________________________________________________________________________________________//
-//#define pvezdebug;
-
-
 class PVEZ_DamageRedistributor : Managed {
 
 	EntityAI entity;
@@ -37,9 +29,12 @@ class PVEZ_DamageRedistributor : Managed {
 	}
 
 	bool IsHitByAnotherPlayer() {
-#ifdef pvezdebug
+#ifdef PVEZ_DEBUGMODE
 		// If the source is an infected (in debug mode)
 		if (DirectDmgInitiator && DirectDmgInitiator.IsInherited(DayZInfected)) {
+			return true;
+		}
+		if (DirectDmgInitiator && DirectDmgInitiator.IsPlayer() && DirectDmgInitiator == entity) {
 			return true;
 		}
 #endif
@@ -54,7 +49,7 @@ class PVEZ_DamageRedistributor : Managed {
 	}
 
 	bool IsKilledByAnotherPlayer() {
-#ifdef pvezdebug
+#ifdef PVEZ_DEBUGMODE
 		// If the source is an infected (in debug mode)
 		if (DirectDmgInitiator && DirectDmgInitiator.IsInherited(DayZInfected)) {
 			return true;
@@ -77,8 +72,7 @@ class PVEZ_DamageRedistributor : Managed {
 		}
 	}
 
-	void RegisterHit(PlayerBase victim, EntityAI source, out int wpnType, bool gotBleeding) {
-		
+	void RegisterHit(EntityAI victim, EntityAI source, out int wpnType, bool gotBleeding) {
 		DirectDmgInitiator = GetDamageInitiator(source, wpnType);
 		if (gotBleeding) {
 			if (BleedingDmgInitiator == NULL || DirectDmgInitiator != entity) {
@@ -89,27 +83,14 @@ class PVEZ_DamageRedistributor : Managed {
 		lastHitWasAllowed = true;
 		
 		if (IsHitByAnotherPlayer()) {
-			lastHitWasAllowed = victim.pvez_PlayerStatus.PVEZ_IsPvpAttackAllowed(DirectDmgInitiator);
-		}
-	}
-
-#ifdef pvezdebug
-	void RegisterHitZ(ZombieBase victim, EntityAI source, out int wpnType, bool gotBleeding) {
-		
-		DirectDmgInitiator = GetDamageInitiator(source, wpnType);
-		if (gotBleeding) {
-			if (BleedingDmgInitiator == NULL || DirectDmgInitiator != entity) {
-				BleedingDmgInitiator = DirectDmgInitiator;
-			}
-		}
-
-		lastHitWasAllowed = true;
-		
-		if (IsHitByAnotherPlayer()) {
-			lastHitWasAllowed = victim.PVEZ_IsPvpAttackAllowed();
-		}
-	}
+#ifdef PVEZ_DEBUGMODE
+			if (ZombieBase.Cast(victim))
+				lastHitWasAllowed = ZombieBase.Cast(victim).PVEZ_IsPvpAttackAllowed();
+			else
 #endif
+			lastHitWasAllowed = PlayerBase.Cast(victim).pvez_PlayerStatus.PVEZ_IsPvpAttackAllowed(DirectDmgInitiator);
+		}
+	}
 
 	void RegisterDeath(EntityAI victim, EntityAI source, out int wpnType) {
 		DirectDmgInitiator = GetDamageInitiator(source, wpnType);
@@ -121,7 +102,7 @@ class PVEZ_DamageRedistributor : Managed {
 				killedInLaw = victimP.pvez_PlayerStatus.PVEZ_IsPvpAttackAllowed(GetKillerEntity());
 				PVEZ_KillManager.OnPlayerKilled(victimP, GetKillerEntity(), source, wpnType, killedInLaw);
 			}
-#ifdef pvezdebug
+#ifdef PVEZ_DEBUGMODE
 			else {
 				ZombieBase victimZ = ZombieBase.Cast(victim);
 				if (victimZ) {
@@ -178,25 +159,28 @@ class PVEZ_DamageRedistributor : Managed {
 		}
 	}
 
-	void HealDamageReceived(EntityAI entityToHeal, TotalDamageResult damageResult, string dmgZone, bool gotBleeding) {
+	void HealDamageReceived(TotalDamageResult damageResult, string dmgZone, bool gotBleeding) {
 		// Player might be dead already (e.g., one shot - one kill), in this case healing will break the respawn process -
 		// player is dead but gets health restored and there's no menu to respawn,
-		// let's check if player is alive before restoring any health:
-		if (entityToHeal.IsAlive()) {
+		// or the game will just reset health to 0 after healing.
+		// Because when player's health drops to 0, seems like the game puts the player to a deadmen list somewhere.
+		// I can't find any way to restore the player after that.
+		// So, let's check if player is alive before restoring any health:
+		if (entity.IsAlive()) {
 			if (gotBleeding) {
 				// Get bleeding sources and remove one of them
-				autoptr PlayerBase player = PlayerBase.Cast(entityToHeal);
+				autoptr PlayerBase player = PlayerBase.Cast(entity);
 				if (player)
 					player.GetBleedingManagerServer().RemoveMostSignificantBleedingSource();
 			}
 			
-			entityToHeal.AddHealth(dmgZone, "", damageResult.GetDamage(dmgZone, "")); //restore health of the damaged body part
-			entityToHeal.AddHealth("", "", damageResult.GetDamage("", "")); //restore global health
-			entityToHeal.AddHealth("", "Shock", damageResult.GetDamage("", "Shock")); //restore from shock
+			entity.AddHealth(dmgZone, "", damageResult.GetDamage(dmgZone, "")); //restore health of the damaged body part
+			entity.AddHealth("", "", damageResult.GetDamage("", "")); //restore global health
+			entity.AddHealth("", "Shock", damageResult.GetDamage("", "Shock")); //restore from shock
 		}
 	}
 	
-	void ReflectDamageBack(int wpnType, float healthDmgAmount) {
+	void ProcessDamageReflection(int wpnType, float healthDmgAmount) {
 		if (DirectDmgInitiator && DirectDmgInitiator.IsAlive()) {
 			if (ShouldReflectDamage(wpnType)) {
 				float dmg = healthDmgAmount;
