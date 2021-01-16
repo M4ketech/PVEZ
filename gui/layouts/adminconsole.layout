@@ -1277,7 +1277,7 @@ FrameWidgetClass rootFrame {
      }
     }
     PanelWidgetClass DynamicZoneSettingsPanel {
-     visible 1
+     visible 0
      color 0 0 0 0.7843
      position 0.51 0
      size 0.48 1
@@ -1512,7 +1512,7 @@ FrameWidgetClass rootFrame {
    }
   }
   PanelWidgetClass LawbreakersRootPanel {
-   visible 1
+   visible 0
    color 0 0 0 0.7843
    position 0 0.1
    size 0.5 0.9
@@ -1575,16 +1575,28 @@ FrameWidgetClass rootFrame {
      {
       TextWidgetClass lbUIDTitle {
        position 0.01 0
-       size 0.1 0.5
+       size 0.15 0.5
        style Normal
        text "UID:"
        "text valign" center
       }
+      ButtonWidgetClass btnUIDCopy {
+       color 0 0 0 0.9922
+       position 0.85 0.5
+       size 0.13 0.44
+       style Colorable
+       text "Copy"
+      }
       RichTextWidgetClass lbUIDValue {
+       visible 1
+       clipchildren 1
        position 0.01 0.5
-       size 0.97152 0.45
+       size 0.84 0.45
        style DayZNormal
        text "9NMVz7hwPYfSIeA5I7qEYxbMKrJD6SrGQl2E1XY8cXw="
+       font "gui/fonts/sdf_MetronLight72"
+       "exact text" 1
+       "exact text size" 16
        "text valign" center
        wrap 1
       }
