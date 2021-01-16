@@ -2,8 +2,6 @@ class CfgPatches
 {
 	class PVEZ
 	{
-		units[]={};
-		weapons[]={};
 		requiredVersion=0.1;
 		requiredAddons[]=
 		{
@@ -16,26 +14,38 @@ class CfgMods
 {
 	class PVEZ
 	{
-		dir="PVEZ";
 		extra=0;
 		type="mod";
 		name="PVEZ";
+		credits="Ermiq";
+		author="Ermiq";
 		inputs="PVEZ/data/inputs.xml";
 		overview="$STR_pvez_overview";
 		dependencies[]=
 		{
+			"GameLib",
 			"Game",
 			"World",
 			"Mission"
 		};
 		class defs
 		{
+			class gameLibScriptModule
+			{
+				value="";
+				files[]=
+				{
+					"PVEZ/Common"
+				};
+			};
 			class gameScriptModule
 			{
 				value="";
 				files[]=
 				{
-					"PVEZ/3_Game"
+					"PVEZ/Common",
+					"PVEZ/3_Game",
+					"PVEZ/Plugins/BasicMap/3_Game"
 				};
 			};
 			class worldScriptModule
@@ -43,7 +53,9 @@ class CfgMods
 				value="";
 				files[]=
 				{
-					"PVEZ/4_World"
+					"PVEZ/Common",
+					"PVEZ/4_World",
+					"PVEZ/Plugins/Expansion/4_World"
 				};
 			};
 			class missionScriptModule
@@ -51,7 +63,9 @@ class CfgMods
 				value="";
 				files[]=
 				{
-					"PVEZ/5_Mission"
+					"PVEZ/Common",
+					"PVEZ/5_Mission",
+					"PVEZ/Plugins/Expansion/5_Mission"
 				};
 			};
 		};
