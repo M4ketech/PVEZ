@@ -92,7 +92,7 @@ modded class DayZGame extends CGame {
 				case PVEZ_RPC.UPDATE_CONFIG:
 					Param1<ref PVEZ_Config> data4 = new Param1<ref PVEZ_Config>(NULL);
 					if (!ctx.Read(data4)) {
-						RPCSingleParam(DayZPlayer.Cast(target), ERPCs.RPC_USER_ACTION_MESSAGE, new Param1<string>("PVEZ: failed to apply new config."), true, DayZPlayer.Cast(target).GetIdentity());
+						RPCSingleParam(DayZPlayer.Cast(target), ERPCs.RPC_USER_ACTION_MESSAGE, new Param1<string>("PVEZ: ERROR. Failed to apply new settings."), true, DayZPlayer.Cast(target).GetIdentity());
 						PVEZ_SendConfigToClient(DayZPlayer.Cast(target));
 						break;
 					}
@@ -100,27 +100,30 @@ modded class DayZGame extends CGame {
 					pvez_Config.SaveToJson();
 					pvez_Zones.Init(); // Re-init zones to reactivate them if the week mode setting has been changed
 					PVEZ_SendConfigToClient();
+					RPCSingleParam(DayZPlayer.Cast(target), ERPCs.RPC_USER_ACTION_MESSAGE, new Param1<string>("PVEZ: Settings applied on server."), true, DayZPlayer.Cast(target).GetIdentity());
 					break;
 				case PVEZ_RPC.UPDATE_ZONES:
 					Param1<array<ref PVEZ_Zone>> data5 = new Param1<array<ref PVEZ_Zone>>(NULL);
 					if (!ctx.Read(data5)) {
-						RPCSingleParam(DayZPlayer.Cast(target), ERPCs.RPC_USER_ACTION_MESSAGE, new Param1<string>("PVEZ: failed to apply new zones data."), true, DayZPlayer.Cast(target).GetIdentity());
+						RPCSingleParam(DayZPlayer.Cast(target), ERPCs.RPC_USER_ACTION_MESSAGE, new Param1<string>("PVEZ: ERROR. Failed to apply new zones data."), true, DayZPlayer.Cast(target).GetIdentity());
 						PVEZ_SendActiveZonesToClient(DayZPlayer.Cast(target));
 						break;
 					}
 					pvez_Zones.staticZones = data5.param1;
 					pvez_Zones.SaveToJson();
 					pvez_Zones.Init();
+					RPCSingleParam(DayZPlayer.Cast(target), ERPCs.RPC_USER_ACTION_MESSAGE, new Param1<string>("PVEZ: New zones applied on server."), true, DayZPlayer.Cast(target).GetIdentity());
 					break;
 				case PVEZ_RPC.UPDATE_BOUNTIES:
 					Param2<bool, array<ref PVEZ_BountyItemData>> data6 = new Param2<bool, array<ref PVEZ_BountyItemData>>(false, NULL);
 					if (!ctx.Read(data6)) {
-						Print(PVEZ_ERROR_PREFIX + "DayZGame.OnRPC() - Failed to read new bounties.");
+						RPCSingleParam(DayZPlayer.Cast(target), ERPCs.RPC_USER_ACTION_MESSAGE, new Param1<string>("PVEZ: ERROR. Failed to read new bounties data."), true, DayZPlayer.Cast(target).GetIdentity());
 						break;
 					}
 					pvez_Bounties.Enabled = data6.param1;
 					pvez_Bounties.Items = data6.param2;
 					pvez_Bounties.SaveToJson();
+					RPCSingleParam(DayZPlayer.Cast(target), ERPCs.RPC_USER_ACTION_MESSAGE, new Param1<string>("PVEZ: Bounties settings applied on server."), true, DayZPlayer.Cast(target).GetIdentity());
 					break;				
 				case PVEZ_RPC.ADMIN_ZONES_DATA_REQUEST:
 					Param1<array<ref PVEZ_Zone>> data7 = new Param1<array<ref PVEZ_Zone>>(pvez_Zones.staticZones);
