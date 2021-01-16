@@ -1,10 +1,3 @@
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                      DEBUG STUFF.                                               //
-//                     If the <#define pvezdebug> is uncommented,                                  //
-//                attacks from zombies will be treated as some player's attacks.                   //
-//_________________________________________________________________________________________________//
-//#define pvezdebug;
-
 modded class PlayerBase extends ManBase {
 
 	protected bool isPVEZAdmin;
@@ -56,25 +49,25 @@ modded class PlayerBase extends ManBase {
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef) {
 		// In the base method the bleeding will be applied to the player. And we store the current bleeding count before the new one is applied.
 		bleedingSourceCountBeforeTheHit = m_BleedingSourceCount;
-		
+
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 
-		if (GetGame().IsServer() || !GetGame().IsMultiplayer()) {
-			if (!IsAlive() || g_Game.pvez_Config.GENERAL.Mode == PVEZ_MODE_PVP)
-				return;
+		if (!IsAlive() || g_Game.pvez_Config.GENERAL.Mode == PVEZ_MODE_PVP)
+			return;
+		
+		if (GetGame().IsMultiplayer() && !GetGame().IsServer())
+			return;
 
-			// Have the player got a new bleeding from the recent hit in base method?
-			bool gotNewBleeding = false;
-			if (m_BleedingSourceCount > bleedingSourceCountBeforeTheHit)
-				gotNewBleeding = true;
+		// Have the player got a new bleeding from the recent hit in base class method?
+		bool gotNewBleeding = false;
+		if (m_BleedingSourceCount > bleedingSourceCountBeforeTheHit)
+			gotNewBleeding = true;
 
-			pvez_DamageRedistributor.RegisterHit(this, source, weaponType, gotNewBleeding);
-			if (!pvez_DamageRedistributor.LastHitWasAllowed() && damageResult) {
-				if (g_Game.pvez_Config.DAMAGE.Restore_Target_Health) {
-					pvez_DamageRedistributor.HealDamageReceived(this, damageResult, dmgZone, gotNewBleeding);
-				}
-				pvez_DamageRedistributor.ReflectDamageBack(weaponType, damageResult.GetDamage("", ""));
-			}
+		pvez_DamageRedistributor.RegisterHit(this, source, weaponType, gotNewBleeding);
+		if (!pvez_DamageRedistributor.LastHitWasAllowed() && damageResult) {
+			if (g_Game.pvez_Config.DAMAGE.Restore_Target_Health)
+				pvez_DamageRedistributor.HealDamageReceived(damageResult, dmgZone, gotNewBleeding);
+			pvez_DamageRedistributor.ProcessDamageReflection(weaponType, damageResult.GetDamage("", ""));
 		}
 	}
 
@@ -111,12 +104,6 @@ modded class PlayerBase extends ManBase {
 			if (killerPlayer && !killerPlayer.pvez_PlayerStatus.GetIsLawbreaker()) {
 				return true;
 			}
-#ifdef pvezdebug
-			ZombieBase killerZ = ZombieBase.Cast(pvez_DamageRedistributor.GetKillerEntity());
-			if (killerZ) {
-				return true;
-			}
-#endif
 		}
 		return false;
 	}
@@ -144,7 +131,7 @@ modded class PlayerBase extends ManBase {
 					if (isPVEZAdmin && GetPVEZAdminMenu().GetLayoutRoot().IsVisible()) {
 						Param1<array<ref PVEZ_Zone>> dataAZ = new Param1<array<ref PVEZ_Zone>>(NULL);
 						if (!ctx.Read(dataAZ)) {
-							MessageStatus("PVEZ: Failed to get zones list from server.");
+							MessageStatus("PVEZ: Failed to get new zones settings from server.");
 							break;
 						}
 						g_Game.pvez_Zones.staticZones = dataAZ.param1;
