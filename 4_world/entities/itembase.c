@@ -43,7 +43,7 @@ modded class ItemBase extends InventoryItem {
 				pvez_DamageRedistributor.RegisterHit(pvez_owner, source, weaponType, false);
 				if (!pvez_DamageRedistributor.LastHitWasAllowed()) {
 					isDamageAllowed = false;
-					pvez_DamageRedistributor.ReflectDamageBack(weaponType, damageResult.GetDamage("", ""));
+					pvez_DamageRedistributor.ProcessDamageReflection(weaponType, damageResult.GetDamage("", ""));
 				}
 			}
 
