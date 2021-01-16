@@ -1,10 +1,3 @@
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                      DEBUG STUFF.                                               //
-//                          If <#define pvezdebug is uncommented,                                  //
-//           player will be flagged as a lawbreaker on killing zombies in PvE area                 //
-//_________________________________________________________________________________________________//
-//#define pvezdebug;
-
 class PVEZ_KillManager : Managed {
 
 	static void OnPlayerKilled(PlayerBase victim, EntityAI killer, EntityAI weapon, int weaponType, bool killedInLaw) {
@@ -42,7 +35,7 @@ class PVEZ_KillManager : Managed {
 				if (g_Game.pvez_Config.LAWBREAKERS_SYSTEM.Declare_a_Lawbreaker_When_Killed_a_Player_in_PVE_Area.On_Fist_Fight_Kill)
 					RegisterMurder(killer, victim, weapon);
 				break;
-#ifdef pvezdebug
+#ifdef PVEZ_DEBUGMODE
 			case PVEZ_DAMAGE_SOURCE_TYPE_CLAWS:
 				RegisterMurder(killer, victim, weapon);
 				break;
@@ -57,7 +50,7 @@ class PVEZ_KillManager : Managed {
 			if (victim)
 				killer.pvez_PlayerStatus.SetLawbreaker(true);
 		}
-#ifdef pvezdebug
+#ifdef PVEZ_DEBUGMODE
 		autoptr ZombieBase killerZ = ZombieBase.Cast(killerEntity);
 		if (killerZ)
 			killerZ.SetLawbreaker(true);
@@ -77,7 +70,7 @@ class PVEZ_KillManager : Managed {
 		Print("PVEZ :: " + crimeNotificationText + time);
 	}
 
-#ifdef pvezdebug
+#ifdef PVEZ_DEBUGMODE
 	static void OnZombieKilled(ZombieBase victim, EntityAI killer, EntityAI weapon, int weaponType, bool killedInLaw) {
 		
 		//if (killedInLaw)
