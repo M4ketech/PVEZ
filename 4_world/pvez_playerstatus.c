@@ -129,14 +129,13 @@ class PVEZ_PlayerStatus : Managed {
 			IsLawbreaker = value;
 			// Update UI icon image & visibility on client
 			PVEZ_Notifications.IconUpdate(player, IsInPVP, IsLawbreaker, -1);
-			//GetGame().RPCSingleParam(player, PVEZ_RPC.UPDATE_ICON_ON_CLIENT, new Param3<bool, bool, PVEZ_Zone>(IsInPVP, value, NULL), true, player.GetIdentity());
 		}
 	}
 
 	// @param EntityAI attacker - should be the root entity (player) returned from <PVEZ_DamageRedistributor.RegisterHit()>.
 	bool PVEZ_IsPvpAttackAllowed(EntityAI attacker) {
 
-#ifdef pvezdebug
+#ifdef PVEZ_DEBUGMODE
 		if (attacker && attacker.IsZombie()) {
 			if (GetIsLawbreaker())
 				return true;
