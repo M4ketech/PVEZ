@@ -1,13 +1,5 @@
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                 //
-//                                      DEBUG STUFF.                                               //
-//                 To test PvP damage and lawbreakers system on infected.                          //
-//          They are treated as players if the <#define pvezdebug> is uncommented.                 //
-//_________________________________________________________________________________________________//
-//#define pvezdebug;
+#ifdef PVEZ_DEBUGMODE
 
-
-#ifdef pvezdebug
 modded class ZombieBase extends DayZInfected {
 	private EntityAI weapon;
 	
@@ -30,12 +22,12 @@ modded class ZombieBase extends DayZInfected {
 			if (!IsAlive() || g_Game.pvez_Config.GENERAL.Mode == PVEZ_MODE_PVP)
 				return;
 
-			pvez_DamageRedistributor.RegisterHitZ(this, source, weaponType, false);
+			pvez_DamageRedistributor.RegisterHit(this, source, weaponType, false);
 			if (!pvez_DamageRedistributor.LastHitWasAllowed() && damageResult) {
 				if (g_Game.pvez_Config.DAMAGE.Restore_Target_Health) {
-					pvez_DamageRedistributor.HealDamageReceived(this, damageResult, dmgZone, false);
+					pvez_DamageRedistributor.HealDamageReceived(damageResult, dmgZone, false);
 				}
-				pvez_DamageRedistributor.ReflectDamageBack(weaponType, damageResult.GetDamage("", ""));
+				pvez_DamageRedistributor.ProcessDamageReflection(weaponType, damageResult.GetDamage("", ""));
 			}
 		}
 	}
