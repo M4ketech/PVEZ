@@ -27,6 +27,13 @@ modded class MissionServer extends MissionBase {
 
 	void MissionServer() {
 		g_Game.PVEZ_Init();
+
+#ifdef PVEZ_DEBUGMODE
+	Print("PVEZ :: Running in DEBUG mode.");
+#endif
+#ifdef EXPANSIONMOD
+	Print("PVEZ :: Expansion defined.");
+#endif
 	}
 
 	void ~MissionServer() {
@@ -73,11 +80,9 @@ modded class MissionServer extends MissionBase {
 	}
 
 	override void PlayerDisconnected(PlayerBase player, PlayerIdentity identity, string uid) {
-		// <player> might be NULL
-		if (player)
-			g_Game.pvez_LawbreakersMarkers.Update(player, false);
-		else
-			g_Game.pvez_LawbreakersMarkers.RemoveMarker(uid);
+		// Dont't rely on <player>. It might not be NULL but <player.GetIdentity()> still might return NULL, FFS!
+		// Removing marker by ID is the only way.
+		g_Game.pvez_LawbreakersMarkers.RemoveMarker(uid);
 		
 		super.PlayerDisconnected(player, identity, uid);
 	}
