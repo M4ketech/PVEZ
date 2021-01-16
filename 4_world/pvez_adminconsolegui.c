@@ -155,6 +155,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 	// selected LB side panel
 	protected Widget lbDataPanel;
 	protected RichTextWidget lbUIDValue;
+	protected ButtonWidget btnUIDCopy;
 	protected RichTextWidget lbNamesValue;
 	protected TextWidget lbCountValue;
 	protected TextWidget lbLatestMurderTimeValue;
@@ -315,6 +316,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 		// selected LB side panel
 		lbDataPanel = Widget.Cast(layoutRoot.FindAnyWidget("lbDataPanel"));
 		lbDataPanel.Show(false);
+		btnUIDCopy = ButtonWidget.Cast(layoutRoot.FindAnyWidget("btnUIDCopy"));
 		lbUIDValue = RichTextWidget.Cast(layoutRoot.FindAnyWidget("lbUIDValue"));
 		lbNamesValue = RichTextWidget.Cast(layoutRoot.FindAnyWidget("lbNamesValue"));
 		lbCountValue = TextWidget.Cast(layoutRoot.FindAnyWidget("lbCountValue"));
@@ -422,6 +424,10 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 	}
 
 	override bool OnClick( Widget w, int x, int y, int button ) {
+		if (w == btnUIDCopy) {
+			GetGame().CopyToClipboard(selectedLawbreaker.Id);
+			return true;			
+		}
 		if (w == btnGeneral) {
 			SettingsRootPanel.Show(true);
 			ZonesRootPanel.Show(false);
@@ -745,7 +751,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 			playersOnServer.Insert(GetGame().GetPlayer());
 		}
 		else
-			playersOnServer = players;
+			playersOnServer.Copy(players);
 		
 		lbRosterList.ClearItems();
 		lbPlayersList.ClearItems();
@@ -770,6 +776,9 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 			lb = g_Game.pvez_LawbreakersRoster.GetById(id);
 			if (!lb) {
 				name = PVEZ_StaticFunctions.GetEntityName(playersOnServer[j]);
+				if (id == "" || name == "") {
+					name = "Failed to get player name...";
+				}
 				data = new Param2<string, string>(id, name);
 				lbPlayersList.AddItem((j + 1).ToString() + ". " + name + " (" + id + ")", data, 0, j);
 			}
