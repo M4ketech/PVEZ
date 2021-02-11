@@ -32,6 +32,9 @@ class PVEZ_Zone : Managed {
 			case PVEZ_ZONE_TYPE_TERRITORYFLAG:
 				Activity_Schedule = g_Game.pvez_Config.TERRITORYFLAG_ZONES.Activity_Schedule;
 				break;
+			case PVEZ_ZONE_TYPE_HELICRASH:
+				Activity_Schedule = g_Game.pvez_Config.HELICRASH_ZONES.Activity_Schedule;
+				break;
 		}
 	}
 
@@ -82,7 +85,7 @@ class PVEZ_Zones : Managed {
 	}
 
 	void UpdateStaticZones() {
-		// Add those active at this time based on their schedule
+		// Add the zones that should be active at the moment based on their schedule
 		for (int i = 0; i < staticZones.Count(); i++) {
 			if (staticZones[i].GetIsActive()) {
 				activeZones.Insert(staticZones[i]);
@@ -106,6 +109,13 @@ class PVEZ_Zones : Managed {
 				dynamicZones[i].ShowBorderOnMap = g_Game.pvez_Config.TERRITORYFLAG_ZONES.ShowBorderOnMap;
 				dynamicZones[i].Activity_Schedule = g_Game.pvez_Config.TERRITORYFLAG_ZONES.Activity_Schedule;
 			}
+			else if (dynamicZones[i].Type == PVEZ_ZONE_TYPE_HELICRASH) {
+				dynamicZones[i].Name = g_Game.pvez_Config.HELICRASH_ZONES.Name;
+				dynamicZones[i].Radius = g_Game.pvez_Config.HELICRASH_ZONES.Radius;
+				dynamicZones[i].ShowNameOnMap = g_Game.pvez_Config.HELICRASH_ZONES.ShowNameOnMap;
+				dynamicZones[i].ShowBorderOnMap = g_Game.pvez_Config.HELICRASH_ZONES.ShowBorderOnMap;
+				dynamicZones[i].Activity_Schedule = g_Game.pvez_Config.HELICRASH_ZONES.Activity_Schedule;
+			}
 			if (dynamicZones[i].GetIsActive()) {
 				activeZones.Insert(dynamicZones[i]);
 			}
@@ -117,8 +127,8 @@ class PVEZ_Zones : Managed {
 		g_Game.PVEZ_RPCForAllClients(PVEZ_RPC.UPDATE_ZONES, zonesData);
 	}
 
-	// Check if the given player position is within a zone
-	int GetPlayerZoneIndex(vector playerPos) {
+	// Check if the given position is within some zone area
+	int GetZoneIndex(vector playerPos) {
 		if (activeZones.Count() == 0)
 			return -1;
 		
@@ -136,11 +146,10 @@ class PVEZ_Zones : Managed {
 			if (vector.DistanceSq(playerPos, zonePos) <= zone.Radius * zone.Radius) {
 				if (result == -1)
 					result = i;
-				else if (activeZones[i].Radius > activeZones[result].Radius)
+				else if (zone.Radius > activeZones[result].Radius)
 					result = i;
 			}
 		}
-		// When all zones are iterated through, if player is not within any of them:
 		zone = NULL;
 		return result;
 	}
@@ -152,9 +161,8 @@ class PVEZ_Zones : Managed {
 			return NULL;
 	}
 
-	// Used by Airdrop sub-mod
 	PVEZ_Zone AddZone(int type, float coordX, float coordZ, float radius, string name, bool showBorder = true, bool showName = false) {
-		if (GetGame().IsClient())
+		if (GetGame().IsClient() && GetGame().IsMultiplayer())
 			return NULL;
 		
 		autoptr ref PVEZ_Zone zone = new PVEZ_Zone(type, coordX, coordZ, name, radius, showBorder, showName);
@@ -167,11 +175,13 @@ class PVEZ_Zones : Managed {
 	}
 
 	void RemoveZone(PVEZ_Zone zone) {
-		if (GetGame().IsClient())
+		if (GetGame().IsClient() && GetGame().IsMultiplayer())
 			return;
 		
-		activeZones.RemoveItem(zone);
-		dynamicZones.RemoveItem(zone);
+		if (zone.Type == PVEZ_ZONE_TYPE_STATIC)
+			staticZones.RemoveItem(zone);
+		else
+			dynamicZones.RemoveItem(zone);
 		Init();
 	}
 
