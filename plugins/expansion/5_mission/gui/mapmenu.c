@@ -1,3 +1,6 @@
+// Expansion defines are not working. So, no built-in plugin so far.
+
+/*
 #ifdef EXPANSIONMOD
 modded class ExpansionMapMenu extends UIScriptedMenu {
 
@@ -16,3 +19,4 @@ modded class ExpansionMapMenu extends UIScriptedMenu {
 	}
 }
 #endif
+*/

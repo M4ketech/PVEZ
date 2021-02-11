@@ -1,3 +1,6 @@
+// Expansion defines are not working. So, no built-in plugin so far.
+
+/*
 #ifdef EXPANSIONMOD
 modded class ExpansionAirdropContainerBase extends Container_Base {
 
@@ -53,3 +56,4 @@ modded class ExpansionAirdropContainerBase extends Container_Base {
 	}
 }
 #endif
+*/
