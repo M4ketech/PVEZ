@@ -27,15 +27,19 @@ modded class PlayerBase extends ManBase {
 
 		// Check if identity != NULL. This code runs twice, in main menu and then in-game.
 		// At first run player's identity is NULL and IsMultiplayer() is false.
-		if (GetIdentity() && GetGame().IsServer() && GetGame().IsMultiplayer()) {
-			g_Game.PVEZ_SendConfigToClient(this);
-			g_Game.PVEZ_SendActiveZonesToClient(this);
-			g_Game.PVEZ_GetAdminStatus(this);
-			pvez_PlayerStatus = new PVEZ_PlayerStatus(this);
-			pvez_BountiesSpawner = new PVEZ_BountiesSpawner(this);
-			pvez_DamageRedistributor = new PVEZ_DamageRedistributor(this);
+		if (GetGame().IsMultiplayer()) {
+			if (GetGame().IsServer() && GetIdentity()) {
+				g_Game.PVEZ_SendConfigToClient(this);
+				g_Game.PVEZ_SendActiveZonesToClient(this);
+				g_Game.PVEZ_GetAdminStatus(this);
+				pvez_PlayerStatus = new PVEZ_PlayerStatus(this);
+				pvez_BountiesSpawner = new PVEZ_BountiesSpawner(this);
+				pvez_DamageRedistributor = new PVEZ_DamageRedistributor(this);
+			}
+			else if (GetGame().IsClient())
+				pvez_PlayerStatus = new PVEZ_PlayerStatus(this);
 		}
-		else if (!GetGame().IsMultiplayer()) {
+		else {
 			// Hud will be initialized in-game, in main menu this should be skipped to prevent client side error on PVEZ icon update.
 			if (m_Hud && IsControlledPlayer()) {
 				isPVEZAdmin = true;
@@ -56,6 +60,10 @@ modded class PlayerBase extends ManBase {
 			return;
 		
 		if (GetGame().IsMultiplayer() && !GetGame().IsServer())
+			return;
+
+		// Workaround for AI bots, they don't have PVEZ_DamageRedistributor
+		if (!pvez_DamageRedistributor)
 			return;
 
 		// Have the player got a new bleeding from the recent hit in base class method?
@@ -88,6 +96,10 @@ modded class PlayerBase extends ManBase {
 				Print(PVEZ_ERROR_PREFIX + "No PlayerStatus on death!");
 				return;
 			}
+
+			// Workaround for AI bots, they don't have PVEZ_DamageRedistributor
+			if (!pvez_DamageRedistributor)
+				return;
 
 			pvez_DamageRedistributor.RegisterDeath(this, EntityAI.Cast(killer), weaponType);
 			if (PVEZ_ShouldBePardonedOnDeath())
@@ -140,7 +152,7 @@ modded class PlayerBase extends ManBase {
 					break;
 				case PVEZ_RPC.ADMIN_LAWBREAKERS_DATA_REQUEST:
 					if (isPVEZAdmin && GetPVEZAdminMenu().GetLayoutRoot().IsVisible()) {
-						Param2<array<ref PVEZ_Lawbreaker>, array<Man>> data3 = new Param2<array<ref PVEZ_Lawbreaker>, array<Man>>(NULL, NULL);
+						Param2<array<ref PVEZ_Lawbreaker>, ref array<Man>> data3 = new Param2<array<ref PVEZ_Lawbreaker>, ref array<Man>>(NULL, NULL);
 						if (!ctx.Read(data3)) {
 							MessageStatus("PVEZ: Failed to get lawbreakers data from server.");
 							break;
@@ -159,10 +171,16 @@ modded class PlayerBase extends ManBase {
 						GetPVEZAdminMenu().UpdateBountiesPage(data4.param1);
 					}
 					break;
-				case PVEZ_RPC.UPDATE_ICON_ON_CLIENT:
+				case PVEZ_RPC.UPDATE_STATUS_ON_CLIENT:
 					// Here the params sent should contain 2 booleans: IsInPVP & IsLawbreaker, and the zone data (could be NULL if left a zone).
 					Param3<bool, bool, int> data5 = new Param3<bool, bool, int>(false, false, -1);
 					if (!ctx.Read(data5)) break;
+					pvez_PlayerStatus.IsInPVP = data5.param1;
+					if (pvez_PlayerStatus.IsInPVP && g_Game.pvez_Config.GENERAL.Force1stPersonInPVP) {
+						DayZPlayerImplement dzp = DayZPlayerImplement.Cast(this);
+						if (dzp)
+							dzp.m_Camera3rdPerson = false;
+					}
 					if (m_Hud)
 						m_Hud.UpdatePVEZIcon(data5.param1, data5.param2, data5.param3);
 					break;
