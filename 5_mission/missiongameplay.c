@@ -70,7 +70,7 @@ modded class MissionGameplay {
 	void PVEZ_UpdatePlayersZoneStatus() {
 		PlayerBase player = PlayerBase.Cast(GetGame().GetPlayer());
 		if (player && player.pvez_PlayerStatus) {
-			int zone = g_Game.pvez_Zones.GetPlayerZoneIndex(player.GetPosition());
+			int zone = g_Game.pvez_Zones.GetZoneIndex(player.GetPosition());
 			player.pvez_PlayerStatus.Update(zone, false);
 		}
 	}
