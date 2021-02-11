@@ -9,7 +9,8 @@ class PVEZ_Config : Managed {
 	autoptr ref PVEZ_MapSettings MAP;
 	autoptr ref PVEZ_AirdropZonesSettings AIRDROP_ZONES;
 	autoptr ref PVEZ_TerritoryFlagZonesSettings TERRITORYFLAG_ZONES;
-	int version = 1;
+	autoptr ref PVEZ_HeliCrashZonesSettings HELICRASH_ZONES;
+	int version = 113;
 	//__________________________________________________________________//
 
 	void PVEZ_Config() {
@@ -50,6 +51,7 @@ class PVEZ_Config : Managed {
 		MAP = new ref PVEZ_MapSettings;
 		AIRDROP_ZONES = new ref PVEZ_AirdropZonesSettings;
 		TERRITORYFLAG_ZONES = new ref PVEZ_TerritoryFlagZonesSettings;
+		HELICRASH_ZONES = new ref PVEZ_HeliCrashZonesSettings;
 	}
 
 	void LoadFromJson() {
@@ -77,6 +79,16 @@ class PVEZ_Config : Managed {
 			TERRITORYFLAG_ZONES.Activity_Schedule.Days = "";
 			TERRITORYFLAG_ZONES.Activity_Schedule.StartHour = 0;
 			TERRITORYFLAG_ZONES.Activity_Schedule.EndHour = 0;
+		}
+
+		if (version < 3) {
+			version = 113;
+			
+			HELICRASH_ZONES.Name = "Helicopter crash site";
+			HELICRASH_ZONES.Radius = 150;
+			HELICRASH_ZONES.ShowNameOnMap = false;
+			HELICRASH_ZONES.ShowBorderOnMap = false;
+			HELICRASH_ZONES.Activity_Schedule = new ref PVEZ_Zone_Schedule;
 		}
 
 		// Update the Json to add new properties to the config file.
