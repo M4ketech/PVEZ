@@ -124,15 +124,15 @@ modded class DayZGame extends CGame {
 					pvez_Bounties.Items = data6.param2;
 					pvez_Bounties.SaveToJson();
 					RPCSingleParam(DayZPlayer.Cast(target), ERPCs.RPC_USER_ACTION_MESSAGE, new Param1<string>("PVEZ: Bounties settings applied on server."), true, DayZPlayer.Cast(target).GetIdentity());
-					break;				
+					break;
 				case PVEZ_RPC.ADMIN_ZONES_DATA_REQUEST:
 					Param1<array<ref PVEZ_Zone>> data7 = new Param1<array<ref PVEZ_Zone>>(pvez_Zones.staticZones);
 					RPCSingleParam(DayZPlayer.Cast(target), PVEZ_RPC.ADMIN_ZONES_DATA_REQUEST, data7, true, DayZPlayer.Cast(target).GetIdentity());
 					break;
 				case PVEZ_RPC.ADMIN_LAWBREAKERS_DATA_REQUEST:
-					autoptr array<Man> players = new array<Man>;
-					GetGame().GetWorld().GetPlayerList(players);
-					Param2<array<ref PVEZ_Lawbreaker>, array<Man>> data8 = new Param2<array<ref PVEZ_Lawbreaker>, array<Man>>(pvez_LawbreakersRoster.lbDataBase, players);
+					autoptr ref array<Man> players = new ref array<Man>;
+					GetPlayers(players);
+					Param2<array<ref PVEZ_Lawbreaker>, ref array<Man>> data8 = new Param2<array<ref PVEZ_Lawbreaker>, ref array<Man>>(pvez_LawbreakersRoster.lbDataBase, players);
 					RPCSingleParam(DayZPlayer.Cast(target), PVEZ_RPC.ADMIN_LAWBREAKERS_DATA_REQUEST, data8, true, DayZPlayer.Cast(target).GetIdentity());
 					break;
 				case PVEZ_RPC.ADMIN_BOUNTIES_DATA_REQUEST:
@@ -147,7 +147,7 @@ modded class DayZGame extends CGame {
 					pvez_LawbreakersRoster = new PVEZ_LawbreakersRoster(pvez_Config);
 					// Send updated database back to admin client (the sender of this RPC call):
 					autoptr array<Man> players2 = new array<Man>;
-					GetGame().GetWorld().GetPlayerList(players2);
+					GetPlayers(players2);
 					Param2<array<ref PVEZ_Lawbreaker>, array<Man>> data11 = new Param2<array<ref PVEZ_Lawbreaker>, array<Man>>(pvez_LawbreakersRoster.lbDataBase, players2);
 					RPCSingleParam(DayZPlayer.Cast(target), PVEZ_RPC.ADMIN_LAWBREAKERS_DATA_REQUEST, data11, true, DayZPlayer.Cast(target).GetIdentity());
 					break;
