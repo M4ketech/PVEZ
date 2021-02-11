@@ -10,7 +10,7 @@
 */
 
 // In DEBUG mode infected are treated as players.
-#define PVEZ_DEBUGMODE
+//#define PVEZ_DEBUGMODE
 
 // For other mods to use, if they want to know whether PVEZ is loaded on the server or not.
 #define PVEZ
