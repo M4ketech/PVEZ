@@ -49,7 +49,7 @@ FrameWidgetClass rootFrame {
    }
   }
   PanelWidgetClass SettingsRootPanel {
-   visible 0
+   visible 1
    color 0 0 0 0.5882
    size 0.5 0.9
    valign bottom_ref
@@ -66,7 +66,7 @@ FrameWidgetClass rootFrame {
       PanelWidgetClass generalSettingsPanel {
        color 0 0 0 0.6549
        position 0 1
-       size 1 440
+       size 1 480
        vexactpos 1
        vexactsize 1
        style blank
@@ -201,10 +201,30 @@ FrameWidgetClass rootFrame {
           }
          }
         }
+        PanelWidgetClass force1stPersonPanel {
+         color 0 0 0 0.651
+         position 0 250
+         size 1 30
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass force1stPersonTitle {
+           size 0.94 1
+           text "Lock camera to 1st person mode while in PVP area"
+           "text valign" center
+          }
+          CheckBoxWidgetClass force1stPersonValue {
+           position 0.94 0
+           size 0.05 1
+           style Default
+          }
+         }
+        }
         PanelWidgetClass customMsgEnterPanel {
          visible 1
          color 0 0 0 0.651
-         position 0 250
+         position 0 285
          size 1 60
          vexactpos 1
          vexactsize 1
@@ -225,7 +245,7 @@ FrameWidgetClass rootFrame {
         PanelWidgetClass customMsgExitPanel {
          visible 1
          color 0 0 0 0.651
-         position 0 315
+         position 0 350
          size 1 60
          vexactpos 1
          vexactsize 1
@@ -246,7 +266,7 @@ FrameWidgetClass rootFrame {
         PanelWidgetClass customMsgExitCountdownPanel {
          visible 1
          color 0 0 0 0.651
-         position 0 380
+         position 0 415
          size 1 60
          vexactpos 1
          vexactsize 1
@@ -268,7 +288,7 @@ FrameWidgetClass rootFrame {
       }
       PanelWidgetClass damageSettingsPanel {
        color 0 0 0 0.651
-       position 0 460
+       position 0 490
        size 1 305
        vexactpos 1
        vexactsize 1
@@ -418,7 +438,7 @@ FrameWidgetClass rootFrame {
       PanelWidgetClass lawSettingsPanel {
        clipchildren 0
        color 0 0 0 0.651
-       position 0 790
+       position 0 810
        size 1 340
        vexactpos 1
        vexactsize 1
@@ -652,8 +672,8 @@ FrameWidgetClass rootFrame {
       }
       PanelWidgetClass mapSettingsPanel {
        color 0 0 0 0.651
-       position 0 1320
-       size 1 390
+       position 0 1330
+       size 1 500
        vexactpos 1
        vexactsize 1
        style blank
@@ -792,9 +812,51 @@ FrameWidgetClass rootFrame {
           }
          }
         }
-        PanelWidgetClass mapLbMarkersUpdateFreqPanel {
+        PanelWidgetClass mapShowLbNamePanel {
          color 0 0 0 0.651
          position 0 245
+         size 1 30
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass mapShowLbNameTitle {
+           position 0 0
+           size 0.94 1
+           text "Show lawbreaker's name on their marker"
+           "text valign" center
+          }
+          CheckBoxWidgetClass mapShowLbNameValue {
+           position 0.94 0
+           size 0.05 1
+           style Default
+          }
+         }
+        }
+        PanelWidgetClass mapLbCustomTextPanel {
+         color 0 0 0 0.651
+         position 0 280
+         size 1 60
+         vexactpos 1
+         vexactsize 1
+         style DayZDefaultPanel
+         {
+          TextWidgetClass mapLbCustomTextTitle {
+           position 0 0
+           size 0.99 0.5
+           text "Custom text label for a lawbreaker marker"
+           "text valign" center
+          }
+          EditBoxWidgetClass mapLbCustomTextValue {
+           position 0 0.5
+           size 0.99 0.5
+           style DefaultBorder
+          }
+         }
+        }
+        PanelWidgetClass mapLbMarkersUpdateFreqPanel {
+         color 0 0 0 0.651
+         position 0 345
          size 1 30
          vexactpos 1
          vexactsize 1
@@ -815,7 +877,7 @@ FrameWidgetClass rootFrame {
         }
         PanelWidgetClass mapLbMarkersUseApproximatePanel {
          color 0 0 0 0.651
-         position 0 280
+         position 0 380
          size 1 30
          vexactpos 1
          vexactsize 1
@@ -824,7 +886,7 @@ FrameWidgetClass rootFrame {
           TextWidgetClass mapLbMarkersUseApproximateTitle {
            position 0 0
            size 0.94 1
-           text "Show lawbreaker's approximate location"
+           text "Use lawbreaker's approximate location"
            "text valign" center
           }
           CheckBoxWidgetClass mapLbMarkersUseApproximateValue {
@@ -836,7 +898,7 @@ FrameWidgetClass rootFrame {
         }
         PanelWidgetClass mapLbMarkersApproximateOffsetPanel {
          color 0 0 0 0.651
-         position 0 315
+         position 0 415
          size 1 30
          vexactpos 1
          vexactsize 1
@@ -857,7 +919,7 @@ FrameWidgetClass rootFrame {
         }
         PanelWidgetClass mapLbCanSeeTheirOwnMarkerPanel {
          color 0 0 0 0.651
-         position 0 350
+         position 0 450
          size 1 30
          vexactpos 1
          vexactsize 1
@@ -982,6 +1044,24 @@ FrameWidgetClass rootFrame {
          valign center_ref
          style Editor
          text "TERRITORY FLAG ZONES"
+        }
+       }
+      }
+      ImageWidgetClass btnHeliCrashZonesBackground {
+       color 0.2588 0.3647 0.6863 1
+       position 0.59 0.01
+       size 0.28 0.1
+       valign bottom_ref
+       {
+        ButtonWidgetClass btnHeliCrashZonesSetup {
+         inheritalpha 0
+         color 0.0706 0.1922 0.5608 1
+         position 0 0
+         size 1 1
+         halign center_ref
+         valign center_ref
+         style Editor
+         text "HELI CRASH ZONES"
         }
        }
       }
