@@ -5,8 +5,8 @@ class PVEZ_PlayerStatus : Managed {
 	protected bool exitDelayed;
 	protected float exitCounter;
 
+	bool IsInPVP;
 	protected bool IsInZone;
-	protected bool IsInPVP;
 	protected bool IsLawbreaker;
 	bool GetIsInPVP() { return IsInPVP; }
 	bool GetIsLawbreaker() { return IsLawbreaker; }
@@ -23,7 +23,7 @@ class PVEZ_PlayerStatus : Managed {
 			}
 			// Set status by checking zone and mode
 			else {
-				int zone = g_Game.pvez_Zones.GetPlayerZoneIndex(player.GetPosition());
+				int zone = g_Game.pvez_Zones.GetZoneIndex(player.GetPosition());
 				Update(zone, true);
 			}
 		}
