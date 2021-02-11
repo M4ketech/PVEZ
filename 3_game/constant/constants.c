@@ -37,3 +37,4 @@ const int PVEZ_MODE_PVP = 3;
 const int PVEZ_ZONE_TYPE_STATIC = 0;
 const int PVEZ_ZONE_TYPE_AIRDROP = 1;
 const int PVEZ_ZONE_TYPE_TERRITORYFLAG = 2;
+const int PVEZ_ZONE_TYPE_HELICRASH = 3;
