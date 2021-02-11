@@ -48,7 +48,7 @@ modded class ZombieBase extends DayZInfected {
 
 	bool GetIsInPVP() {
 		if (GetGame().IsServer() || !GetGame().IsMultiplayer()) {
-			int zoneIndex = g_Game.pvez_Zones.GetPlayerZoneIndex(GetPosition());
+			int zoneIndex = g_Game.pvez_Zones.GetZoneIndex(GetPosition());
 			switch (g_Game.pvez_Config.GENERAL.Mode) {
 				case PVEZ_MODE_PVP:
 					IsInPVP = true; //PVP always on
