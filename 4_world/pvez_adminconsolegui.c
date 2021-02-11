@@ -31,6 +31,8 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 	protected Widget showNameInNotifsPanel;
 	protected EditBoxWidget exitDelayValue;
 	protected Widget exitDelayPanel;
+	protected CheckBoxWidget force1stPersonValue;
+	protected Widget force1stPersonPanel;
 	protected EditBoxWidget customMsgEnterValue;
 	protected Widget customMsgEnterPanel;
 	protected EditBoxWidget customMsgExitValue;
@@ -94,6 +96,10 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 	protected ImageWidget mapZoneBorderColorImage;
 	protected CheckBoxWidget mapShowLbMarkersValue;
 	protected Widget mapShowLbMarkersPanel;
+	protected CheckBoxWidget mapShowLbNameValue;
+	protected Widget mapShowLbNamePanel;
+	protected EditBoxWidget mapLbCustomTextValue;
+	protected Widget mapLbCustomTextPanel;
 	protected EditBoxWidget mapLbMarkersUpdateFreqValue;
 	protected Widget mapLbMarkersUpdateFreqPanel;
 	protected CheckBoxWidget mapLbMarkersUseApproximateValue;
@@ -130,6 +136,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 	// dynamic zones setup panel
 	protected ButtonWidget btnAirdropZonesSetup;
 	protected ButtonWidget btnFlagZonesSetup;
+	protected ButtonWidget btnHeliCrashZonesSetup;
 
 	protected Widget DynamicZoneSettingsPanel;
 	protected TextWidget dynamicZoneTitle;
@@ -197,6 +204,8 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 		showNameInNotifsPanel = Widget.Cast(layoutRoot.FindAnyWidget("showNameInNotifsPanel"));
 		exitDelayValue = EditBoxWidget.Cast(layoutRoot.FindAnyWidget("exitDelayValue"));
 		exitDelayPanel = Widget.Cast(layoutRoot.FindAnyWidget("exitDelayPanel"));
+		force1stPersonValue = CheckBoxWidget.Cast(layoutRoot.FindAnyWidget("force1stPersonValue"));
+		force1stPersonPanel = Widget.Cast(layoutRoot.FindAnyWidget("force1stPersonPanel"));
 		customMsgEnterValue = EditBoxWidget.Cast(layoutRoot.FindAnyWidget("customMsgEnterValue"));
 		customMsgEnterPanel = Widget.Cast(layoutRoot.FindAnyWidget("customMsgEnterPanel"));
 		customMsgExitValue = EditBoxWidget.Cast(layoutRoot.FindAnyWidget("customMsgExitValue"));
@@ -249,6 +258,10 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 		mapZoneBorderColorImage = ImageWidget.Cast(layoutRoot.FindAnyWidget("mapZoneBorderColorImage"));
 		mapShowLbMarkersValue = CheckBoxWidget.Cast(layoutRoot.FindAnyWidget("mapShowLbMarkersValue"));
 		mapShowLbMarkersPanel = Widget.Cast(layoutRoot.FindAnyWidget("mapShowLbMarkersPanel"));
+		mapShowLbNameValue = CheckBoxWidget.Cast(layoutRoot.FindAnyWidget("mapShowLbNameValue"));
+		mapShowLbNamePanel = Widget.Cast(layoutRoot.FindAnyWidget("mapShowLbNamePanel"));
+		mapLbCustomTextValue = EditBoxWidget.Cast(layoutRoot.FindAnyWidget("mapLbCustomTextValue"));
+		mapLbCustomTextPanel = Widget.Cast(layoutRoot.FindAnyWidget("mapLbCustomTextPanel"));
 		mapLbMarkersUpdateFreqValue = EditBoxWidget.Cast(layoutRoot.FindAnyWidget("mapLbMarkersUpdateFreqValue"));
 		mapLbMarkersUpdateFreqPanel = Widget.Cast(layoutRoot.FindAnyWidget("mapLbMarkersUpdateFreqPanel"));
 		mapLbMarkersUseApproximateValue = CheckBoxWidget.Cast(layoutRoot.FindAnyWidget("mapLbMarkersUseApproximateValue"));
@@ -288,6 +301,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 		// dynamic zones setup panel
 		btnAirdropZonesSetup = ButtonWidget.Cast(layoutRoot.FindAnyWidget("btnAirdropZonesSetup"));
 		btnFlagZonesSetup = ButtonWidget.Cast(layoutRoot.FindAnyWidget("btnFlagZonesSetup"));
+		btnHeliCrashZonesSetup = ButtonWidget.Cast(layoutRoot.FindAnyWidget("btnHeliCrashZonesSetup"));
 		
 		DynamicZoneSettingsPanel = Widget.Cast(layoutRoot.FindAnyWidget("DynamicZoneSettingsPanel"));
 		DynamicZoneSettingsPanel.Show(false);
@@ -354,6 +368,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 		showUIValue.SetChecked(g_Game.pvez_Config.GENERAL.Show_Notifications && g_Game.pvez_Config.GENERAL.Use_UI_Notifications);
 		showNameInNotifsValue.SetChecked(g_Game.pvez_Config.GENERAL.Add_Zone_Name_To_Message);
 		exitDelayValue.SetText(g_Game.pvez_Config.GENERAL.Exit_Zone_Countdown.ToString());
+		force1stPersonValue.SetChecked(g_Game.pvez_Config.GENERAL.Force1stPersonInPVP);
 		customMsgEnterValue.SetText(g_Game.pvez_Config.GENERAL.Custom_Enter_Zone_Message);
 		customMsgExitValue.SetText(g_Game.pvez_Config.GENERAL.Custom_Exit_Zone_Message);
 		customMsgExitCountdownValue.SetText(g_Game.pvez_Config.GENERAL.Custom_Exit_Zone_Countdown_Message);
@@ -386,6 +401,8 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 		mapZoneBorderColorValueB.SetCurrent(g_Game.pvez_Config.MAP.Zones_Border_Color.B);
 		mapZoneBorderColorImage.SetColor(ARGB(255, g_Game.pvez_Config.MAP.Zones_Border_Color.R, g_Game.pvez_Config.MAP.Zones_Border_Color.G, g_Game.pvez_Config.MAP.Zones_Border_Color.B));
 		mapShowLbMarkersValue.SetChecked(g_Game.pvez_Config.MAP.Lawbreakers_Markers.Show_Markers_On_Map);
+		mapShowLbNameValue.SetChecked(g_Game.pvez_Config.MAP.Lawbreakers_Markers.Show_Name);
+		mapLbCustomTextValue.SetText(g_Game.pvez_Config.MAP.Lawbreakers_Markers.Custom_Lawbreaker_Label);
 		mapLbMarkersUpdateFreqValue.SetText(g_Game.pvez_Config.MAP.Lawbreakers_Markers.Update_Frequency.ToString());
 		mapLbMarkersUseApproximateValue.SetChecked(g_Game.pvez_Config.MAP.Lawbreakers_Markers.Approximate_Location);
 		mapLbMarkersApproximateOffsetValue.SetText(g_Game.pvez_Config.MAP.Lawbreakers_Markers.Approximate_Location_Max_Offset.ToString());
@@ -483,6 +500,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 			g_Game.pvez_Config.GENERAL.Use_UI_Notifications = showUIValue.IsChecked();
 			g_Game.pvez_Config.GENERAL.Add_Zone_Name_To_Message = showNameInNotifsValue.IsChecked();
 			g_Game.pvez_Config.GENERAL.Exit_Zone_Countdown = exitDelayValue.GetText().ToInt();
+			g_Game.pvez_Config.GENERAL.Force1stPersonInPVP = force1stPersonValue.IsChecked();
 			g_Game.pvez_Config.GENERAL.Custom_Enter_Zone_Message = customMsgEnterValue.GetText();
 			g_Game.pvez_Config.GENERAL.Custom_Exit_Zone_Message = customMsgExitValue.GetText();
 			g_Game.pvez_Config.GENERAL.Custom_Exit_Zone_Countdown_Message = customMsgExitCountdownValue.GetText();
@@ -514,6 +532,8 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 			g_Game.pvez_Config.MAP.Zones_Border_Color.G = mapZoneBorderColorValueG.GetCurrent();
 			g_Game.pvez_Config.MAP.Zones_Border_Color.B = mapZoneBorderColorValueB.GetCurrent();
 			g_Game.pvez_Config.MAP.Lawbreakers_Markers.Show_Markers_On_Map = mapShowLbMarkersValue.IsChecked();
+			g_Game.pvez_Config.MAP.Lawbreakers_Markers.Show_Name = mapShowLbNameValue.IsChecked();
+			g_Game.pvez_Config.MAP.Lawbreakers_Markers.Custom_Lawbreaker_Label = mapLbCustomTextValue.GetText();
 			g_Game.pvez_Config.MAP.Lawbreakers_Markers.Update_Frequency = mapLbMarkersUpdateFreqValue.GetText().ToInt();
 			g_Game.pvez_Config.MAP.Lawbreakers_Markers.Approximate_Location = mapLbMarkersUseApproximateValue.IsChecked();
 			g_Game.pvez_Config.MAP.Lawbreakers_Markers.Approximate_Location_Max_Offset = mapLbMarkersApproximateOffsetValue.GetText().ToInt();
@@ -584,6 +604,9 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 		if (w == btnFlagZonesSetup) {
 			UpdateDynamicZonesSettingsPanel(PVEZ_ZONE_TYPE_TERRITORYFLAG);
 		}
+		if (w == btnHeliCrashZonesSetup) {
+			UpdateDynamicZonesSettingsPanel(PVEZ_ZONE_TYPE_HELICRASH);
+		}
 		if (w == btnDynamicZoneApply) {
 			if (dynamicZonesTypeSelected == PVEZ_ZONE_TYPE_AIRDROP) {
 				g_Game.pvez_Config.AIRDROP_ZONES.Name = dynamicZoneNameValue.GetText();
@@ -604,6 +627,16 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 				g_Game.pvez_Config.TERRITORYFLAG_ZONES.Activity_Schedule.StartHour = dynamicZoneHourStartValue.GetText().ToInt();
 				g_Game.pvez_Config.TERRITORYFLAG_ZONES.Activity_Schedule.EndHour = dynamicZoneHourEndValue.GetText().ToInt();
 				g_Game.pvez_Config.TERRITORYFLAG_ZONES.OnlyWhenFlagIsRaised = dynamicZoneFlagRaisedValue.IsChecked();
+				g_Game.pvez_Config.GENERAL.Week_Starts_On_Sunday = dynamicZoneDaysModeValue.IsChecked();
+			}
+			else if (dynamicZonesTypeSelected == PVEZ_ZONE_TYPE_HELICRASH) {
+				g_Game.pvez_Config.HELICRASH_ZONES.Name = dynamicZoneNameValue.GetText();
+				g_Game.pvez_Config.HELICRASH_ZONES.Radius = dynamicZoneRadiusValue.GetText().ToInt();
+				g_Game.pvez_Config.HELICRASH_ZONES.ShowNameOnMap = dynamicZoneShowNameValue.IsChecked();
+				g_Game.pvez_Config.HELICRASH_ZONES.ShowBorderOnMap = dynamicZoneShowBorderValue.IsChecked();
+				g_Game.pvez_Config.HELICRASH_ZONES.Activity_Schedule.Days = dynamicZoneDaysValue.GetText();
+				g_Game.pvez_Config.HELICRASH_ZONES.Activity_Schedule.StartHour = dynamicZoneHourStartValue.GetText().ToInt();
+				g_Game.pvez_Config.HELICRASH_ZONES.Activity_Schedule.EndHour = dynamicZoneHourEndValue.GetText().ToInt();
 				g_Game.pvez_Config.GENERAL.Week_Starts_On_Sunday = dynamicZoneDaysModeValue.IsChecked();
 			}
 			DynamicZoneSettingsPanel.Show(false);
@@ -745,13 +778,15 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 		serverTimeValue.SetText("[Day]" + day.ToString() + ", [Time]" + hour.ToString() + ":" + min.ToString());
 	}
 
-	void UpdateLawbreakersList(array<Man> players) {
+	void UpdateLawbreakersList(ref array<Man> players) {
 		if (!players && !GetGame().IsMultiplayer()) {
 			playersOnServer = new array<Man>;
 			playersOnServer.Insert(GetGame().GetPlayer());
 		}
-		else
+		else {
+			playersOnServer = new array<Man>;
 			playersOnServer.Copy(players);
+		}
 		
 		lbRosterList.ClearItems();
 		lbPlayersList.ClearItems();
@@ -931,6 +966,18 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 			dynamicZoneFlagRaisedValue.SetChecked(g_Game.pvez_Config.TERRITORYFLAG_ZONES.OnlyWhenFlagIsRaised);
 			dynamicZoneDaysModeValue.SetChecked(g_Game.pvez_Config.GENERAL.Week_Starts_On_Sunday);
 		}
+		else if (type == PVEZ_ZONE_TYPE_HELICRASH) {
+			dynamicZoneTitle.SetText("Heli crash zones settings:");
+			dynamicZoneNameValue.SetText(g_Game.pvez_Config.HELICRASH_ZONES.Name);
+			dynamicZoneRadiusValue.SetText(g_Game.pvez_Config.HELICRASH_ZONES.Radius.ToString());
+			dynamicZoneShowNameValue.SetChecked(g_Game.pvez_Config.HELICRASH_ZONES.ShowNameOnMap);
+			dynamicZoneShowBorderValue.SetChecked(g_Game.pvez_Config.HELICRASH_ZONES.ShowBorderOnMap);
+			dynamicZoneDaysValue.SetText(g_Game.pvez_Config.HELICRASH_ZONES.Activity_Schedule.Days);
+			dynamicZoneHourStartValue.SetText(g_Game.pvez_Config.HELICRASH_ZONES.Activity_Schedule.StartHour.ToString());
+			dynamicZoneHourEndValue.SetText(g_Game.pvez_Config.HELICRASH_ZONES.Activity_Schedule.EndHour.ToString());
+			dynamicZoneFlagRaisedPanel.Show(false);
+			dynamicZoneDaysModeValue.SetChecked(g_Game.pvez_Config.GENERAL.Week_Starts_On_Sunday);
+		}
 	}
 
 	override bool OnMouseEnter(Widget w, int x, int y) {
@@ -961,6 +1008,10 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 				return true;
 			case exitDelayPanel:
 				descriptionTitle.SetText("#pvez_aui_desc_exitdelay");
+				descriptionFrame.Show(true);
+				return true;
+			case force1stPersonPanel:
+				descriptionTitle.SetText("#pvez_aui_desc_force1stperson");
 				descriptionFrame.Show(true);
 				return true;
 			case customMsgEnterPanel:
@@ -1040,6 +1091,14 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 				descriptionTitle.SetText("#pvez_aui_desc_lbshowmarkers");
 				descriptionFrame.Show(true);
 				return true;
+			case mapShowLbNamePanel:
+				descriptionTitle.SetText("#pvez_aui_desc_lbshowname");
+				descriptionFrame.Show(true);
+				return true;
+			case mapLbCustomTextPanel:
+				descriptionTitle.SetText("#pvez_aui_desc_lbcustomtext");
+				descriptionFrame.Show(true);
+				return true;
 			case mapLbMarkersUpdateFreqPanel:
 				descriptionTitle.SetText("#pvez_aui_desc_lbmarkerupdatefreq");
 				descriptionFrame.Show(true);
@@ -1054,6 +1113,20 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 				return true;
 			case mapLbCanSeeTheirOwnMarkerPanel:
 				descriptionTitle.SetText("#pvez_aui_desc_lbcanseethemselves");
+				descriptionFrame.Show(true);
+				return true;
+		}
+		switch (w) {
+			case btnAirdropZonesSetup:
+				descriptionTitle.SetText("#pvez_aui_desc_airdropzonesbtn");
+				descriptionFrame.Show(true);
+				return true;
+			case btnFlagZonesSetup:
+				descriptionTitle.SetText("#pvez_aui_desc_flagzonesbtn");
+				descriptionFrame.Show(true);
+				return true;
+			case btnHeliCrashZonesSetup:
+				descriptionTitle.SetText("#pvez_aui_desc_helicrashzonesbtn");
 				descriptionFrame.Show(true);
 				return true;
 		}
