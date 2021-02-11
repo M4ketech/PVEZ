@@ -44,7 +44,7 @@ class PVEZ_Notifications : Managed {
 
 	static void IconUpdate(DayZPlayer player, bool isInPVP, bool isLawbreaker, int zone) {
 		if (GetGame().IsMultiplayer())
-			GetGame().RPCSingleParam(player, PVEZ_RPC.UPDATE_ICON_ON_CLIENT, new Param3<bool, bool, int>(isInPVP, isLawbreaker, zone), true, player.GetIdentity());
+			GetGame().RPCSingleParam(player, PVEZ_RPC.UPDATE_STATUS_ON_CLIENT, new Param3<bool, bool, int>(isInPVP, isLawbreaker, zone), true, player.GetIdentity());
 		else
 			GetGame().GetMission().GetHud().UpdatePVEZIcon(isInPVP, isLawbreaker, zone);
 	}
