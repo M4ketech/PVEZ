@@ -12,6 +12,7 @@ class PVEZ_GeneralSettings : Managed {
 	bool Use_UI_Notifications = true;
 	bool Add_Zone_Name_To_Message = true;
 	float Exit_Zone_Countdown = 10;
+	bool Force1stPersonInPVP = false;
 	bool Week_Starts_On_Sunday = false;
 	string Custom_Enter_Zone_Message = "";
 	string Custom_Exit_Zone_Message = "";
@@ -134,5 +135,18 @@ class PVEZ_TerritoryFlagZonesSettings : Managed {
 		Activity_Schedule.Days = "";
 		Activity_Schedule.StartHour = 0;
 		Activity_Schedule.EndHour = 0;
+	}
+}
+
+// Settings for helicrash zones
+class PVEZ_HeliCrashZonesSettings : Managed {
+	float Radius = 150;
+	string Name = "Helicopter crash site";
+	bool ShowBorderOnMap = false;
+	bool ShowNameOnMap = false;
+	autoptr ref PVEZ_Zone_Schedule Activity_Schedule;
+
+	void PVEZ_HeliCrashZonesSettings() {
+		Activity_Schedule = new PVEZ_Zone_Schedule;
 	}
 }
