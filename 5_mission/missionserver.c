@@ -96,7 +96,7 @@ modded class MissionServer extends MissionBase {
 			player = PlayerBase.Cast(m_Players.Get(i));
 
 			if (player && player.pvez_PlayerStatus) {
-				int zone = g_Game.pvez_Zones.GetPlayerZoneIndex(player.GetPosition());
+				int zone = g_Game.pvez_Zones.GetZoneIndex(player.GetPosition());
 				player.pvez_PlayerStatus.Update(zone, false);
 			}
 		}
