@@ -178,6 +178,9 @@ class PVEZ_Zones : Managed {
 		if (GetGame().IsClient() && GetGame().IsMultiplayer())
 			return;
 		
+		if (!zone)
+			return;
+		
 		if (zone.Type == PVEZ_ZONE_TYPE_STATIC)
 			staticZones.RemoveItem(zone);
 		else

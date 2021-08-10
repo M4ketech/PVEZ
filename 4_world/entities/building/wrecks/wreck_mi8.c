@@ -1,4 +1,9 @@
 /*
+	This modded Mi8 wreck class declaration causes conflicts with the CFDZPlugin mod, so it is disabled.
+	There is a task opened at https://feedback.bistudio.com/T156813 regarding this issue in February 2021. No solution from Bohemia so far.
+*/
+
+/*
 class Wreck_Mi8 extends House {
 
 	protected autoptr PVEZ_Zone pvez_Zone;

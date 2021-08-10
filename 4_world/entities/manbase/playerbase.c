@@ -175,11 +175,14 @@ modded class PlayerBase extends ManBase {
 					// Here the params sent should contain 2 booleans: IsInPVP & IsLawbreaker, and the zone data (could be NULL if left a zone).
 					Param3<bool, bool, int> data5 = new Param3<bool, bool, int>(false, false, -1);
 					if (!ctx.Read(data5)) break;
-					pvez_PlayerStatus.IsInPVP = data5.param1;
-					if (pvez_PlayerStatus.IsInPVP && g_Game.pvez_Config.GENERAL.Force1stPersonInPVP) {
-						DayZPlayerImplement dzp = DayZPlayerImplement.Cast(this);
-						if (dzp)
-							dzp.m_Camera3rdPerson = false;
+					// Update client-side IsInPVP and process forced 1st person view when required
+					if (pvez_PlayerStatus) {
+						pvez_PlayerStatus.IsInPVP = data5.param1;
+						if (pvez_PlayerStatus.IsInPVP && g_Game.pvez_Config.GENERAL.Force1stPersonInPVP) {
+							DayZPlayerImplement dzp = DayZPlayerImplement.Cast(this);
+							if (dzp)
+								dzp.m_Camera3rdPerson = false;
+						}
 					}
 					if (m_Hud)
 						m_Hud.UpdatePVEZIcon(data5.param1, data5.param2, data5.param3);
