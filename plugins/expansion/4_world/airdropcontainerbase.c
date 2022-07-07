@@ -4,7 +4,7 @@
 #ifdef EXPANSIONMOD
 modded class ExpansionAirdropContainerBase extends Container_Base {
 
-	protected autoptr PVEZ_Zone pvez_Zone;
+	protected PVEZ_Zone pvez_Zone;
 	protected vector lastPosition;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////

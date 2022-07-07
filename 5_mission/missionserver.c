@@ -91,7 +91,7 @@ modded class MissionServer extends MissionBase {
 		if (m_Players.Count() == 0)
 			return;
 		
-		autoptr PlayerBase player;
+		PlayerBase player;
 		for (int i = 0; i < m_Players.Count(); i++) {
 			player = PlayerBase.Cast(m_Players.Get(i));
 

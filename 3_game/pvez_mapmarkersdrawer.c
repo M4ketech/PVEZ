@@ -1,7 +1,7 @@
 class PVEZ_MapMarkersDrawer : Managed {
 
-	private static autoptr array<ref PVEZ_LawbreakerMarker> lbmarkers;
-	private static autoptr array<ref PVEZ_Zone> zones;
+	private static autoptr array<PVEZ_LawbreakerMarker> lbmarkers;
+	private static autoptr array<PVEZ_Zone> zones;
 	private static autoptr array<vector> zoneCirclePoints = new array<vector>;
 	static float mapScale;
 	static float screenWidth;
@@ -145,7 +145,7 @@ class PVEZ_MapMarkersDrawer : Managed {
 	}
 
 	static bool IntersectsWithOtherCircles(vector point, PVEZ_Zone zone) {
-		autoptr PVEZ_Zone zoneToCheck;
+		PVEZ_Zone zoneToCheck;
 		for (int i = 0; i < zones.Count(); i++) {
 			zoneToCheck = zones[i];
 			// Ignore the zones with disabled borders and if it's the same zone, also if the zones have the same center and radius

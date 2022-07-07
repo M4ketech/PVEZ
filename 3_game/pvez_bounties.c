@@ -13,7 +13,7 @@ class PVEZ_BountyItemData : Managed {
 class PVEZ_Bounties : Managed {
 
 	bool Enabled;
-	autoptr array<ref PVEZ_BountyItemData> Items;
+	autoptr array<PVEZ_BountyItemData> Items;
 
 	void PVEZ_Bounties() {
 		if (GetGame().IsServer() || !GetGame().IsMultiplayer()) {

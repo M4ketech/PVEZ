@@ -3,13 +3,13 @@
 class PVEZ_Config : Managed {
 	
 	//--------------------PVEZ_Config.JSON sections:--------------------//
-	autoptr ref PVEZ_GeneralSettings GENERAL;
-	autoptr ref PVEZ_DamageSettings DAMAGE;
-	autoptr ref PVEZ_LawbreakersSettings LAWBREAKERS_SYSTEM;
-	autoptr ref PVEZ_MapSettings MAP;
-	autoptr ref PVEZ_AirdropZonesSettings AIRDROP_ZONES;
-	autoptr ref PVEZ_TerritoryFlagZonesSettings TERRITORYFLAG_ZONES;
-	autoptr ref PVEZ_HeliCrashZonesSettings HELICRASH_ZONES;
+	PVEZ_GeneralSettings GENERAL;
+	PVEZ_DamageSettings DAMAGE;
+	PVEZ_LawbreakersSettings LAWBREAKERS_SYSTEM;
+	PVEZ_MapSettings MAP;
+	PVEZ_AirdropZonesSettings AIRDROP_ZONES;
+	PVEZ_TerritoryFlagZonesSettings TERRITORYFLAG_ZONES;
+	PVEZ_HeliCrashZonesSettings HELICRASH_ZONES;
 	int version = 113;
 	//__________________________________________________________________//
 
@@ -45,13 +45,13 @@ class PVEZ_Config : Managed {
 			}
 		}
 
-		GENERAL = new ref PVEZ_GeneralSettings;
-		DAMAGE = new ref PVEZ_DamageSettings;
-		LAWBREAKERS_SYSTEM = new ref PVEZ_LawbreakersSettings;
-		MAP = new ref PVEZ_MapSettings;
-		AIRDROP_ZONES = new ref PVEZ_AirdropZonesSettings;
-		TERRITORYFLAG_ZONES = new ref PVEZ_TerritoryFlagZonesSettings;
-		HELICRASH_ZONES = new ref PVEZ_HeliCrashZonesSettings;
+		GENERAL = new PVEZ_GeneralSettings;
+		DAMAGE = new PVEZ_DamageSettings;
+		LAWBREAKERS_SYSTEM = new PVEZ_LawbreakersSettings;
+		MAP = new PVEZ_MapSettings;
+		AIRDROP_ZONES = new PVEZ_AirdropZonesSettings;
+		TERRITORYFLAG_ZONES = new PVEZ_TerritoryFlagZonesSettings;
+		HELICRASH_ZONES = new PVEZ_HeliCrashZonesSettings;
 	}
 
 	void LoadFromJson() {
@@ -67,14 +67,14 @@ class PVEZ_Config : Managed {
 			AIRDROP_ZONES.Radius = 150;
 			AIRDROP_ZONES.ShowNameOnMap = true;
 			AIRDROP_ZONES.ShowBorderOnMap = true;
-			AIRDROP_ZONES.Activity_Schedule = new ref PVEZ_Zone_Schedule;
+			AIRDROP_ZONES.Activity_Schedule = new PVEZ_Zone_Schedule;
 
 			TERRITORYFLAG_ZONES.Name = "Base territory";
 			TERRITORYFLAG_ZONES.Radius = 150;
 			TERRITORYFLAG_ZONES.ShowNameOnMap = false;
 			TERRITORYFLAG_ZONES.ShowBorderOnMap = false;
 			TERRITORYFLAG_ZONES.OnlyWhenFlagIsRaised = true;
-			TERRITORYFLAG_ZONES.Activity_Schedule = new ref PVEZ_Zone_Schedule;
+			TERRITORYFLAG_ZONES.Activity_Schedule = new PVEZ_Zone_Schedule;
 			// Disable territory flag zones by default:
 			TERRITORYFLAG_ZONES.Activity_Schedule.Days = "";
 			TERRITORYFLAG_ZONES.Activity_Schedule.StartHour = 0;
@@ -88,7 +88,7 @@ class PVEZ_Config : Managed {
 			HELICRASH_ZONES.Radius = 150;
 			HELICRASH_ZONES.ShowNameOnMap = false;
 			HELICRASH_ZONES.ShowBorderOnMap = false;
-			HELICRASH_ZONES.Activity_Schedule = new ref PVEZ_Zone_Schedule;
+			HELICRASH_ZONES.Activity_Schedule = new PVEZ_Zone_Schedule;
 		}
 
 		// Update the Json to add new properties to the config file.

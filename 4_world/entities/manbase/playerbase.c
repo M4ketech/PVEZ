@@ -4,16 +4,16 @@ modded class PlayerBase extends ManBase {
 	bool IsPVEZAdmin() { return isPVEZAdmin; }
 
 	// GUI widgets for client instance.
-	protected autoptr PVEZ_NotificationGUI pvez_NotificationGUI;
-	protected autoptr PVEZ_AdminConsoleGUI pvez_AdminConsoleGUI;
+	protected PVEZ_NotificationGUI pvez_NotificationGUI;
+	protected PVEZ_AdminConsoleGUI pvez_AdminConsoleGUI;
 
-	autoptr PVEZ_PlayerStatus pvez_PlayerStatus;
-	autoptr PVEZ_BountiesSpawner pvez_BountiesSpawner;
+	PVEZ_PlayerStatus pvez_PlayerStatus;
+	PVEZ_BountiesSpawner pvez_BountiesSpawner;
 
 	// Used to decide whether the damage should be reflected back depending on config settings.
 	protected int weaponType;
 
-	autoptr PVEZ_DamageRedistributor pvez_DamageRedistributor;
+	PVEZ_DamageRedistributor pvez_DamageRedistributor;
 	
 	/*
 	<bleedingSourceCountBeforeTheHit> stores the amount of bleeding sources before the <EEHitBy()> execution.
@@ -127,7 +127,7 @@ modded class PlayerBase extends ManBase {
 		if (GetGame().IsClient()) {
 			switch (rpc_type) {
 				case PVEZ_RPC.UPDATE_CONFIG:
-					Param1<ref PVEZ_Config> data1 = new Param1<ref PVEZ_Config>(NULL);
+					Param1<PVEZ_Config> data1 = new Param1<PVEZ_Config>(NULL);
 					if (!ctx.Read(data1)) {
 						MessageStatus("PVEZ: Failed to get config from server.");
 						break;
@@ -135,13 +135,13 @@ modded class PlayerBase extends ManBase {
 					g_Game.pvez_Config = data1.param1;
 					break;
 				case PVEZ_RPC.UPDATE_ZONES:
-					Param1<array<ref PVEZ_Zone>> data2 = new Param1<array<ref PVEZ_Zone>>(NULL);
+					Param1<array<PVEZ_Zone>> data2 = new Param1<array<PVEZ_Zone>>(NULL);
 					if (!ctx.Read(data2)) break;
 					g_Game.pvez_Zones.activeZones = data2.param1;
 					break;
 				case PVEZ_RPC.ADMIN_ZONES_DATA_REQUEST:
 					if (isPVEZAdmin && GetPVEZAdminMenu().GetLayoutRoot().IsVisible()) {
-						Param1<array<ref PVEZ_Zone>> dataAZ = new Param1<array<ref PVEZ_Zone>>(NULL);
+						Param1<array<PVEZ_Zone>> dataAZ = new Param1<array<PVEZ_Zone>>(NULL);
 						if (!ctx.Read(dataAZ)) {
 							MessageStatus("PVEZ: Failed to get new zones settings from server.");
 							break;
@@ -152,7 +152,7 @@ modded class PlayerBase extends ManBase {
 					break;
 				case PVEZ_RPC.ADMIN_LAWBREAKERS_DATA_REQUEST:
 					if (isPVEZAdmin && GetPVEZAdminMenu().GetLayoutRoot().IsVisible()) {
-						Param2<array<ref PVEZ_Lawbreaker>, ref array<Man>> data3 = new Param2<array<ref PVEZ_Lawbreaker>, ref array<Man>>(NULL, NULL);
+						Param2<array<PVEZ_Lawbreaker>, array<Man>> data3 = new Param2<array<PVEZ_Lawbreaker>, array<Man>>(NULL, NULL);
 						if (!ctx.Read(data3)) {
 							MessageStatus("PVEZ: Failed to get lawbreakers data from server.");
 							break;
@@ -163,7 +163,7 @@ modded class PlayerBase extends ManBase {
 					break;
 				case PVEZ_RPC.ADMIN_BOUNTIES_DATA_REQUEST:
 					if (isPVEZAdmin && GetPVEZAdminMenu().GetLayoutRoot().IsVisible()) {
-						Param1<ref PVEZ_Bounties> data4 = new Param1<ref PVEZ_Bounties>(NULL);
+						Param1<PVEZ_Bounties> data4 = new Param1<PVEZ_Bounties>(NULL);
 						if (!ctx.Read(data4)) {
 							MessageStatus("PVEZ: Failed to get bounties data from server.");
 							break;
@@ -221,7 +221,7 @@ modded class PlayerBase extends ManBase {
 		else return false;
 	}
 
-	ref PVEZ_AdminConsoleGUI GetPVEZAdminMenu() {
+	PVEZ_AdminConsoleGUI GetPVEZAdminMenu() {
 		if (!pvez_AdminConsoleGUI) {
 			pvez_AdminConsoleGUI = new PVEZ_AdminConsoleGUI;
 			pvez_AdminConsoleGUI.Init();

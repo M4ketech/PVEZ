@@ -3,7 +3,7 @@ class PVEZ_Date : Managed {
 		int year, month, day, hour, minute;
 		GetYearMonthDay(year, month, day);
 		GetHourMinuteSecond(hour, minute, NULL);
-		autoptr PVEZ_Date date = new PVEZ_Date(year, month, day, hour, minute);
+		PVEZ_Date date = new PVEZ_Date(year, month, day, hour, minute);
 		return date;
 	}
 

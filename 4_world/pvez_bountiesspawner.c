@@ -6,7 +6,7 @@ class PVEZ_BountiesSpawner : Managed {
 		player = p;
 	}
 
-	void SpawnRewards(array<ref PVEZ_BountyItemData> rewards, string victimName) {
+	void SpawnRewards(array<PVEZ_BountyItemData> rewards, string victimName) {
 		// Notifiction message "For killing the lawbreaker <name> you're rewwarded with"
 		string msg = "#pvez_bnty_msg1" + " " + victimName + " " + "#pvez_bnty_msg2";
 

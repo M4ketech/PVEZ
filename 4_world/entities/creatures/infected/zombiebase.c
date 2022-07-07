@@ -8,7 +8,7 @@ modded class ZombieBase extends DayZInfected {
 	private EntityAI DmgInitiator; //root entity (player, infected, animal) of the previous damage source
 	private int weaponType;	
 	private bool death;
-	private autoptr PVEZ_DamageRedistributor pvez_DamageRedistributor;
+	private PVEZ_DamageRedistributor pvez_DamageRedistributor;
 
 	override void Init() {
 		super.Init();

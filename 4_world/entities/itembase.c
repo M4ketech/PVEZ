@@ -7,7 +7,7 @@ modded class ItemBase extends InventoryItem {
 	private bool isDamageAllowed = true;
 
 	// Used by <PVEZ_DamageRedistributor.RegisterHit(source, DmgInitiator, weaponType))>
-	private autoptr PVEZ_DamageRedistributor pvez_DamageRedistributor;
+	private PVEZ_DamageRedistributor pvez_DamageRedistributor;
 	private int weaponType;
 
 	void ItemBase() { }

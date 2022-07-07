@@ -44,18 +44,18 @@ class PVEZ_KillManager : Managed {
 	}
 
 	static void RegisterMurder(EntityAI killerEntity, EntityAI victimEntity, EntityAI weapon) {
-		autoptr PlayerBase killer = PlayerBase.Cast(killerEntity);
+		PlayerBase killer = PlayerBase.Cast(killerEntity);
 		if (killer) {
-			autoptr PlayerBase victim = PlayerBase.Cast(victimEntity);
+			PlayerBase victim = PlayerBase.Cast(victimEntity);
 			if (victim)
 				killer.pvez_PlayerStatus.SetLawbreaker(true);
 		}
 #ifdef PVEZ_DEBUGMODE
-		autoptr ZombieBase killerZ = ZombieBase.Cast(killerEntity);
+		ZombieBase killerZ = ZombieBase.Cast(killerEntity);
 		if (killerZ)
 			killerZ.SetLawbreaker(true);
 		else {
-			autoptr ZombieBase victimZ = ZombieBase.Cast(victimEntity);
+			ZombieBase victimZ = ZombieBase.Cast(victimEntity);
 			if (victimZ && killer)
 				killer.pvez_PlayerStatus.SetLawbreaker(true);
 		}

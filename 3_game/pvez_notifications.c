@@ -25,7 +25,7 @@ class PVEZ_Notifications : Managed {
 		string serverMessage = FormatMessage(PVEZ_NotificationType.NOTIF_LB_SERVERWIDE, killerName, victimName, weaponDisplayName);
 
 		if (GetGame().GetWorld()) {
-			autoptr ref array<Man> players = new array<Man>;
+			array<Man> players = new array<Man>;
 			GetGame().GetWorld().GetPlayerList(players);
 			if (players.Count() > 0) {
 				foreach (Man p : players) {
@@ -81,7 +81,7 @@ class PVEZ_Notifications : Managed {
 		
 		//On entering the zone
 		if (zoneIndex != "") {
-			autoptr PVEZ_Zone zone = g_Game.pvez_Zones.GetByIndex(zoneIndex.ToInt());
+			PVEZ_Zone zone = g_Game.pvez_Zones.GetByIndex(zoneIndex.ToInt());
 			msg = FormatMessage(PVEZ_NotificationType.NOTIF_ZONE_ENTER, zone.Name);
 		}
 		//On leaving the zone

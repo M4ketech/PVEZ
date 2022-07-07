@@ -129,7 +129,7 @@ class PVEZ_DamageRedistributor : Managed {
 		// <Grenade_Base.c> is modded to have <(PlayerBase)Thrower> property.
 		// The property is set in modded <ActionUnpin> class on grenade unpin action execution.
 		else if (source.IsInherited(Grenade_Base)) {
-			autoptr Grenade_Base grenade = Grenade_Base.Cast(source);
+			Grenade_Base grenade = Grenade_Base.Cast(source);
 			wpnType = PVEZ_DAMAGE_SOURCE_TYPE_EXPLOSIVE;
 			return grenade.Thrower;
 		}
@@ -140,13 +140,13 @@ class PVEZ_DamageRedistributor : Managed {
 		}
 		// and then check if it's some other weapon.
 		else if (source.IsWeapon() || source.IsMeleeWeapon()) {
-			autoptr EntityAI weapon = EntityAI.Cast(source);
+			EntityAI weapon = EntityAI.Cast(source);
 			wpnType = PVEZ_DAMAGE_SOURCE_TYPE_WEAPON;
 			return weapon.GetHierarchyRootPlayer();
 		}
 		else if (source.IsInherited(CarScript)) {
-			autoptr CarScript car = CarScript.Cast(source);
-			autoptr Human driver = Human.Cast(car.CrewMember(0));
+			CarScript car = CarScript.Cast(source);
+			Human driver = Human.Cast(car.CrewMember(0));
 			wpnType = PVEZ_DAMAGE_SOURCE_TYPE_VEHICLE;
 			return driver;
 		}
@@ -169,7 +169,7 @@ class PVEZ_DamageRedistributor : Managed {
 		if (entity.IsAlive()) {
 			if (gotBleeding) {
 				// Get bleeding sources and remove one of them
-				autoptr PlayerBase player = PlayerBase.Cast(entity);
+				PlayerBase player = PlayerBase.Cast(entity);
 				if (player)
 					player.GetBleedingManagerServer().RemoveMostSignificantBleedingSource();
 			}

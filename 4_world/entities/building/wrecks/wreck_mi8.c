@@ -6,7 +6,7 @@
 /*
 class Wreck_Mi8 extends House {
 
-	protected autoptr PVEZ_Zone pvez_Zone;
+	protected PVEZ_Zone pvez_Zone;
 
 	void Wreck_Mi8() {
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CreatePVEZZone, 500, false, this);

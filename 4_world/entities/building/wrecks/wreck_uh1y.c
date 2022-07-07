@@ -1,6 +1,6 @@
 modded class Wreck_UH1Y extends House {
 
-	protected autoptr PVEZ_Zone pvez_Zone;
+	protected PVEZ_Zone pvez_Zone;
 
 	void Wreck_UH1Y() {
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(CreatePVEZZone, 500, false, this);
