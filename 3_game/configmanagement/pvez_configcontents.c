@@ -27,7 +27,7 @@ class PVEZ_DamageSettings : Managed {
 	bool Restore_Target_Health = true;
 	bool Protect_Clothing_And_Cargo = true;
 	bool Allow_Damage_Between_PVP_and_PVE = false;
-	PVEZ_ReflectDamageRules Damage_Types_Sent_Back_To_The_Attacker;
+	autoptr PVEZ_ReflectDamageRules Damage_Types_Sent_Back_To_The_Attacker;
 
 	void PVEZ_DamageSettings() {
 		Damage_Types_Sent_Back_To_The_Attacker = new PVEZ_ReflectDamageRules;
@@ -46,7 +46,7 @@ class PVEZ_ReflectDamageRules : Managed {
 //_____________________________________________________________________________//
 //-------------------------------LAWBREAKERS-----------------------------------//
 class PVEZ_LawbreakersSettings : Managed {
-	PVEZ_LawbreakersRules Declare_a_Lawbreaker_When_Killed_a_Player_in_PVE_Area;
+	autoptr PVEZ_LawbreakersRules Declare_a_Lawbreaker_When_Killed_a_Player_in_PVE_Area;
 
 	bool Server_Wide_Message_About_Lawbreaker = true;
 	string Custom_Crime_Notification_Message_Format = "";
@@ -86,9 +86,9 @@ class PVEZ_ZoneColor : Managed {
 class PVEZ_MapSettings : Managed {
 	bool Show_Player_Marker = true;
 	string Custom_Player_Marker_Text = "";
-	PVEZ_ZoneColor Zones_Border_Color;
+	autoptr PVEZ_ZoneColor Zones_Border_Color;
 
-	PVEZ_LawbreakersMapMarkers Lawbreakers_Markers;
+	autoptr PVEZ_LawbreakersMapMarkers Lawbreakers_Markers;
 
 	void PVEZ_MapSettings() {
 		Zones_Border_Color = new PVEZ_ZoneColor;
@@ -114,7 +114,7 @@ class PVEZ_AirdropZonesSettings : Managed {
 	string Name = "Airdrop";
 	bool ShowBorderOnMap = true;
 	bool ShowNameOnMap = true;
-	PVEZ_Zone_Schedule Activity_Schedule;
+	autoptr PVEZ_Zone_Schedule Activity_Schedule;
 
 	void PVEZ_AirdropZonesSettings() {
 		Activity_Schedule = new PVEZ_Zone_Schedule;
@@ -128,7 +128,7 @@ class PVEZ_TerritoryFlagZonesSettings : Managed {
 	bool ShowBorderOnMap = false;
 	bool ShowNameOnMap = false;
 	bool OnlyWhenFlagIsRaised = true;
-	PVEZ_Zone_Schedule Activity_Schedule;
+	autoptr PVEZ_Zone_Schedule Activity_Schedule;
 
 	void PVEZ_TerritoryFlagZonesSettings() {
 		Activity_Schedule = new PVEZ_Zone_Schedule;
@@ -144,7 +144,7 @@ class PVEZ_HeliCrashZonesSettings : Managed {
 	string Name = "Helicopter crash site";
 	bool ShowBorderOnMap = false;
 	bool ShowNameOnMap = false;
-	PVEZ_Zone_Schedule Activity_Schedule;
+	autoptr PVEZ_Zone_Schedule Activity_Schedule;
 
 	void PVEZ_HeliCrashZonesSettings() {
 		Activity_Schedule = new PVEZ_Zone_Schedule;

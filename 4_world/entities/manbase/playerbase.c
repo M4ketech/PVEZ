@@ -1,26 +1,26 @@
-modded class PlayerBase extends ManBase {
+modded class PlayerBase {
 
 	protected bool isPVEZAdmin;
 	bool IsPVEZAdmin() { return isPVEZAdmin; }
 
 	// GUI widgets for client instance.
-	protected PVEZ_NotificationGUI pvez_NotificationGUI;
-	protected PVEZ_AdminConsoleGUI pvez_AdminConsoleGUI;
+	protected autoptr PVEZ_NotificationGUI pvez_NotificationGUI;
+	protected autoptr PVEZ_AdminConsoleGUI pvez_AdminConsoleGUI;
 
-	PVEZ_PlayerStatus pvez_PlayerStatus;
-	PVEZ_BountiesSpawner pvez_BountiesSpawner;
+	autoptr PVEZ_PlayerStatus pvez_PlayerStatus;
+	autoptr PVEZ_BountiesSpawner pvez_BountiesSpawner;
 
 	// Used to decide whether the damage should be reflected back depending on config settings.
-	protected int weaponType;
+	protected int pvez_weaponType;
 
-	PVEZ_DamageRedistributor pvez_DamageRedistributor;
+	autoptr PVEZ_DamageRedistributor pvez_DamageRedistributor;
 	
 	/*
-	<bleedingSourceCountBeforeTheHit> stores the amount of bleeding sources before the <EEHitBy()> execution.
+	<pvez_bleedingSourceCountBeforeTheHit> stores the amount of bleeding sources before the <EEHitBy()> execution.
 	After the <super.EEHitBy()> we'll check if new bleeding source has been added, if that so then we should remove one (if needed, on player attack in PVE area).
 	It's done this way to prevent the abuse when (if we just attempt to remove bleeding on every hit) friendly punch could remove bleeding from the player.
 	So we'll only remove the bleeding source if it was applied right before our <HealDamageRecieved()> execution in PVE area. */
-	protected int bleedingSourceCountBeforeTheHit;
+	protected int pvez_bleedingSourceCountBeforeTheHit;
 
 	override void OnPlayerLoaded() {
 		super.OnPlayerLoaded();
@@ -52,7 +52,7 @@ modded class PlayerBase extends ManBase {
 
 	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef) {
 		// In the base method the bleeding will be applied to the player. And we store the current bleeding count before the new one is applied.
-		bleedingSourceCountBeforeTheHit = m_BleedingSourceCount;
+		pvez_bleedingSourceCountBeforeTheHit = m_BleedingSourceCount;
 
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 
@@ -68,14 +68,14 @@ modded class PlayerBase extends ManBase {
 
 		// Have the player got a new bleeding from the recent hit in base class method?
 		bool gotNewBleeding = false;
-		if (m_BleedingSourceCount > bleedingSourceCountBeforeTheHit)
+		if (m_BleedingSourceCount > pvez_bleedingSourceCountBeforeTheHit)
 			gotNewBleeding = true;
 
-		pvez_DamageRedistributor.RegisterHit(this, source, weaponType, gotNewBleeding);
+		pvez_DamageRedistributor.RegisterHit(this, source, pvez_weaponType, gotNewBleeding);
 		if (!pvez_DamageRedistributor.LastHitWasAllowed() && damageResult) {
 			if (g_Game.pvez_Config.DAMAGE.Restore_Target_Health)
 				pvez_DamageRedistributor.HealDamageReceived(damageResult, dmgZone, gotNewBleeding);
-			pvez_DamageRedistributor.ProcessDamageReflection(weaponType, damageResult.GetDamage("", ""));
+			pvez_DamageRedistributor.ProcessDamageReflection(pvez_weaponType, damageResult.GetDamage("", ""));
 		}
 	}
 
@@ -101,7 +101,7 @@ modded class PlayerBase extends ManBase {
 			if (!pvez_DamageRedistributor)
 				return;
 
-			pvez_DamageRedistributor.RegisterDeath(this, EntityAI.Cast(killer), weaponType);
+			pvez_DamageRedistributor.RegisterDeath(this, EntityAI.Cast(killer), pvez_weaponType);
 			if (PVEZ_ShouldBePardonedOnDeath())
 				pvez_PlayerStatus.SetLawbreaker(false);
 		}
@@ -135,13 +135,13 @@ modded class PlayerBase extends ManBase {
 					g_Game.pvez_Config = data1.param1;
 					break;
 				case PVEZ_RPC.UPDATE_ZONES:
-					Param1<array<PVEZ_Zone>> data2 = new Param1<array<PVEZ_Zone>>(NULL);
+					Param1<array<ref PVEZ_Zone>> data2 = new Param1<array<ref PVEZ_Zone>>(NULL);
 					if (!ctx.Read(data2)) break;
 					g_Game.pvez_Zones.activeZones = data2.param1;
 					break;
 				case PVEZ_RPC.ADMIN_ZONES_DATA_REQUEST:
 					if (isPVEZAdmin && GetPVEZAdminMenu().GetLayoutRoot().IsVisible()) {
-						Param1<array<PVEZ_Zone>> dataAZ = new Param1<array<PVEZ_Zone>>(NULL);
+						Param1<array<ref PVEZ_Zone>> dataAZ = new Param1<array<ref PVEZ_Zone>>(NULL);
 						if (!ctx.Read(dataAZ)) {
 							MessageStatus("PVEZ: Failed to get new zones settings from server.");
 							break;
@@ -152,7 +152,7 @@ modded class PlayerBase extends ManBase {
 					break;
 				case PVEZ_RPC.ADMIN_LAWBREAKERS_DATA_REQUEST:
 					if (isPVEZAdmin && GetPVEZAdminMenu().GetLayoutRoot().IsVisible()) {
-						Param2<array<PVEZ_Lawbreaker>, array<Man>> data3 = new Param2<array<PVEZ_Lawbreaker>, array<Man>>(NULL, NULL);
+						Param2<array<ref PVEZ_Lawbreaker>, ref array<Man>> data3 = new Param2<array<ref PVEZ_Lawbreaker>, ref array<Man>>(NULL, NULL);
 						if (!ctx.Read(data3)) {
 							MessageStatus("PVEZ: Failed to get lawbreakers data from server.");
 							break;
@@ -179,7 +179,7 @@ modded class PlayerBase extends ManBase {
 					if (pvez_PlayerStatus) {
 						pvez_PlayerStatus.IsInPVP = data5.param1;
 						if (pvez_PlayerStatus.IsInPVP && g_Game.pvez_Config.GENERAL.Force1stPersonInPVP) {
-							DayZPlayerImplement dzp = DayZPlayerImplement.Cast(this);
+							DayZPlayerImplement dzp = this;
 							if (dzp)
 								dzp.m_Camera3rdPerson = false;
 						}

@@ -1,14 +1,12 @@
 #ifdef PVEZ_DEBUGMODE
 
-modded class ZombieBase extends DayZInfected {
-	private EntityAI weapon;
-	
-	private bool IsInPVP = false;
-	private bool IsLawbreaker = false;
-	private EntityAI DmgInitiator; //root entity (player, infected, animal) of the previous damage source
-	private int weaponType;	
-	private bool death;
-	private PVEZ_DamageRedistributor pvez_DamageRedistributor;
+modded class ZombieBase {
+	private bool pvez_IsInPVP = false;
+	private bool pvez_IsLawbreaker = false;
+	private EntityAI pvez_DmgInitiator; //root entity (player, infected, animal) of the previous damage source
+	private int pvez_weaponType;	
+	private bool pvez_death;
+	private autoptr PVEZ_DamageRedistributor pvez_DamageRedistributor;
 
 	override void Init() {
 		super.Init();
@@ -22,12 +20,12 @@ modded class ZombieBase extends DayZInfected {
 			if (!IsAlive() || g_Game.pvez_Config.GENERAL.Mode == PVEZ_MODE_PVP)
 				return;
 
-			pvez_DamageRedistributor.RegisterHit(this, source, weaponType, false);
+			pvez_DamageRedistributor.RegisterHit(this, source, pvez_weaponType, false);
 			if (!pvez_DamageRedistributor.LastHitWasAllowed() && damageResult) {
 				if (g_Game.pvez_Config.DAMAGE.Restore_Target_Health) {
 					pvez_DamageRedistributor.HealDamageReceived(damageResult, dmgZone, false);
 				}
-				pvez_DamageRedistributor.ProcessDamageReflection(weaponType, damageResult.GetDamage("", ""));
+				pvez_DamageRedistributor.ProcessDamageReflection(pvez_weaponType, damageResult.GetDamage("", ""));
 			}
 		}
 	}
@@ -36,13 +34,13 @@ modded class ZombieBase extends DayZInfected {
 		bool result = super.EvaluateDeathAnimation(pSource, pComponent, pAmmoType, pAnimType, pAnimHitDir);
 
 		if (GetGame().IsServer() || !GetGame().IsMultiplayer()) {
-			if (!IsAlive() && !death) {
+			if (!IsAlive() && !pvez_death) {
 				EntityAI killerEntity = pSource;
-				pvez_DamageRedistributor.RegisterDeath(this, killerEntity, weaponType);
+				pvez_DamageRedistributor.RegisterDeath(this, killerEntity, pvez_weaponType);
 				SetLawbreaker(false);
 			}
 		}
-		death = true;
+		pvez_death = true;
 		return true;
 	}
 
@@ -51,36 +49,36 @@ modded class ZombieBase extends DayZInfected {
 			int zoneIndex = g_Game.pvez_Zones.GetZoneIndex(GetPosition());
 			switch (g_Game.pvez_Config.GENERAL.Mode) {
 				case PVEZ_MODE_PVP:
-					IsInPVP = true; //PVP always on
+					pvez_IsInPVP = true; //PVP always on
 					break;
 				case PVEZ_MODE_PVE:
-					IsInPVP = false; //PVP always off
+					pvez_IsInPVP = false; //PVP always off
 					//valueZone = (zone >= 0);
-					//IsInPVP = valueZone; //PVP is on in zones (PVP still should work within Airdrop zones)
+					//pvez_IsInPVP = valueZone; //PVP is on in zones (PVP still should work within Airdrop zones)
 					break;
 				case PVEZ_MODE_PVP_ZONES:
-					IsInPVP = (zoneIndex >= 0);
+					pvez_IsInPVP = (zoneIndex >= 0);
 					break;
 				case PVEZ_MODE_PVE_ZONES:
-					IsInPVP = (zoneIndex < 0);
+					pvez_IsInPVP = (zoneIndex < 0);
 					break;
 			}
 		}
-		return IsInPVP;
+		return pvez_IsInPVP;
 	}
 
 	void SetLawbreaker(bool value) {
 		if (GetGame().IsServer() || !GetGame().IsMultiplayer()) {
 			g_Game.pvez_LawbreakersRoster.Update(this, value, PVEZ_Date.Now());
 			g_Game.pvez_LawbreakersMarkers.Update(this, value);
-			IsLawbreaker = value;
+			pvez_IsLawbreaker = value;
 		}
 	}
 
 	bool PVEZ_IsPvpAttackAllowed() {
 		EntityAI source = pvez_DamageRedistributor.GetDirectDmgInitiator();
 		// If this player is a lawbreaker:
-		if (IsLawbreaker)
+		if (pvez_IsLawbreaker)
 			return true;
 		// if both fighters are in PVP zone:
 		else if (GetIsInPVP() && PlayerBase.Cast(source).pvez_PlayerStatus.GetIsInPVP())

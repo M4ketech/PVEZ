@@ -1,8 +1,5 @@
-// Expansion defines are not working. So, no built-in plugin so far.
-
-/*
-#ifdef EXPANSIONMOD
-modded class ExpansionMapMenu extends UIScriptedMenu {
+#ifdef EXPANSIONMODNAVIGATION
+modded class ExpansionMapMenu {
 
 	override Widget Init() {
 		super.Init();
@@ -15,8 +12,7 @@ modded class ExpansionMapMenu extends UIScriptedMenu {
 	override void UpdateMarkers() {
 		super.UpdateMarkers();
 
-		PVEZ_MapMarkersDrawer.LoadPVEZMarkers(m_MapWidget, true);
+		//PVEZ_MapMarkersDrawer.LoadPVEZMarkers(m_MapWidget);
 	}
 }
 #endif
-*/

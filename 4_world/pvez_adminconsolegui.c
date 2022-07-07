@@ -1,8 +1,8 @@
 class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 
-	protected PVEZ_Zone selectedZone;
+	protected autoptr PVEZ_Zone selectedZone;
 	protected int dynamicZonesTypeSelected;
-	protected PVEZ_Lawbreaker selectedLawbreaker;
+	protected autoptr PVEZ_Lawbreaker selectedLawbreaker;
 	protected autoptr array<Man> playersOnServer;
 
 	protected bool isTypingText;
@@ -694,7 +694,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 			return true;
 		}
 		if (w == bountyApplyButton) {
-			array<PVEZ_BountyItemData> newBountiesList = new array<PVEZ_BountyItemData>;
+			array<ref PVEZ_BountyItemData> newBountiesList = new array<ref PVEZ_BountyItemData>;
 			for (int i = 0; i < bountySelectedItemsList.GetNumItems(); i++) {
 				Param3<string, string, int> selectedItemParam = new Param3<string, string, int>("", "", -1);
 				bountySelectedItemsList.GetItemData(i, 0, selectedItemParam);
@@ -704,7 +704,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 				PVEZ_BountyItemData itemData = new PVEZ_BountyItemData(className, displayName, amount);
 				newBountiesList.Insert(itemData);
 			}
-			Param2<bool, array<PVEZ_BountyItemData>> newBountiesSettings = new Param2<bool, array<PVEZ_BountyItemData>>(bountyCheckboxValue.IsChecked(), newBountiesList);
+			Param2<bool, array<ref PVEZ_BountyItemData>> newBountiesSettings = new Param2<bool, array<ref PVEZ_BountyItemData>>(bountyCheckboxValue.IsChecked(), newBountiesList);
 			if (GetGame().IsMultiplayer())
 				GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.UPDATE_BOUNTIES, newBountiesSettings, true);
 			else {
@@ -729,7 +729,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 				break;
 			case PVEZ_RPC.UPDATE_ZONES:
 				if (GetGame().IsMultiplayer())
-					GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.UPDATE_ZONES, new Param1<array<PVEZ_Zone>>(g_Game.pvez_Zones.staticZones), true);
+					GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.UPDATE_ZONES, new Param1<array<ref PVEZ_Zone>>(g_Game.pvez_Zones.staticZones), true);
 				else {
 					g_Game.pvez_Zones.SaveToJson();
 					g_Game.pvez_Zones.Init();
@@ -737,7 +737,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 				break;
 			case PVEZ_RPC.ADMIN_UPDATE_LAWBREAKERS:
 				if (GetGame().IsMultiplayer())
-					GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.ADMIN_UPDATE_LAWBREAKERS, new Param1<array<PVEZ_Lawbreaker>>(g_Game.pvez_LawbreakersRoster.lbDataBase), true);
+					GetGame().RPCSingleParam(GetGame().GetPlayer(), PVEZ_RPC.ADMIN_UPDATE_LAWBREAKERS, new Param1<array<ref PVEZ_Lawbreaker>>(g_Game.pvez_LawbreakersRoster.lbDataBase), true);
 				else {
 					g_Game.pvez_LawbreakersRoster.SaveToJson();
 					g_Game.pvez_LawbreakersRoster = new PVEZ_LawbreakersRoster(g_Game.pvez_Config);

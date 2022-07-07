@@ -1,6 +1,6 @@
-modded class IngameHud extends Hud {
+modded class IngameHud {
 
-	PVEZ_NotificationGUI pvez_NotificationGUI;
+	autoptr PVEZ_NotificationGUI pvez_NotificationGUI;
 
 	override void Init(Widget hud_panel_widget) {
 		super.Init(hud_panel_widget);

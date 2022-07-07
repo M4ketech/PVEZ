@@ -1,7 +1,7 @@
 class PVEZ_MapMarkersDrawer : Managed {
 
-	private static autoptr array<PVEZ_LawbreakerMarker> lbmarkers;
-	private static autoptr array<PVEZ_Zone> zones;
+	private static autoptr array<ref PVEZ_LawbreakerMarker> lbmarkers;
+	private static autoptr array<ref PVEZ_Zone> zones;
 	private static autoptr array<vector> zoneCirclePoints = new array<vector>;
 	static float mapScale;
 	static float screenWidth;

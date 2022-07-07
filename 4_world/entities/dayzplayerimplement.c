@@ -1,4 +1,4 @@
-modded class DayZPlayerImplement extends DayZPlayer {
+modded class DayZPlayerImplement {
 
     override void HandleView() {
         super.HandleView();

@@ -12,7 +12,7 @@ class PVEZ_Zone : Managed {
 	int Radius;
 	bool ShowBorderOnMap;
 	bool ShowNameOnMap;
-	PVEZ_Zone_Schedule Activity_Schedule;
+	autoptr PVEZ_Zone_Schedule Activity_Schedule;
 	
 	void PVEZ_Zone(int type, float x, float z, string name, int radius, bool showBorder = true, bool showName = false) {
 		Type = type;
@@ -59,13 +59,13 @@ class PVEZ_Zone : Managed {
 }
 
 class PVEZ_Zones : Managed {
-	autoptr array<PVEZ_Zone> activeZones;
-	autoptr array<PVEZ_Zone> staticZones;
-	autoptr array<PVEZ_Zone> dynamicZones;
+	autoptr array<ref PVEZ_Zone> activeZones;
+	autoptr array<ref PVEZ_Zone> staticZones;
+	autoptr array<ref PVEZ_Zone> dynamicZones;
 
 	void PVEZ_Zones() {
-		activeZones = new array<PVEZ_Zone>;
-		dynamicZones = new array<PVEZ_Zone>;
+		activeZones = new array<ref PVEZ_Zone>;
+		dynamicZones = new array<ref PVEZ_Zone>;
 		if (GetGame().IsServer() || !GetGame().IsMultiplayer())
 			LoadFromJson();
 	}
@@ -74,7 +74,7 @@ class PVEZ_Zones : Managed {
 		if (GetGame().IsServer() || !GetGame().IsMultiplayer()) {
 			// Check if staticZones != NULL to prevent crashes when a dynamic zone is removed on the server shutdown.
 			if (g_Game.pvez_Config && staticZones) {
-				activeZones = new array<PVEZ_Zone>;
+				activeZones = new array<ref PVEZ_Zone>;
 				if (g_Game.pvez_Config.GENERAL.Mode != PVEZ_MODE_PVE) {
 					UpdateStaticZones();
 					UpdateDynamicZones();
@@ -86,9 +86,9 @@ class PVEZ_Zones : Managed {
 
 	void UpdateStaticZones() {
 		// Add the zones that should be active at the moment based on their schedule
-		for (int i = 0; i < staticZones.Count(); i++) {
-			if (staticZones[i].GetIsActive()) {
-				activeZones.Insert(staticZones[i]);
+		foreach (auto zone: staticZones) {
+			if (zone && zone.GetIsActive()) {
+				activeZones.Insert(zone);
 			}
 		}
 	}
@@ -123,7 +123,7 @@ class PVEZ_Zones : Managed {
 	}
 
 	void PushUpdateToClients() {
-		Param1<array<PVEZ_Zone>> zonesData = new Param1<array<PVEZ_Zone>>(activeZones);
+		Param1<array<ref PVEZ_Zone>> zonesData = new Param1<array<ref PVEZ_Zone>>(activeZones);
 		g_Game.PVEZ_RPCForAllClients(PVEZ_RPC.UPDATE_ZONES, zonesData);
 	}
 
@@ -191,7 +191,7 @@ class PVEZ_Zones : Managed {
 	void LoadFromJson() {
 		if (FileExist(PVEZ_ZONES_JSON)) {
 			// Read Json file and fullfill this instance with the data stored in the Json
-			JsonFileLoader<array<PVEZ_Zone>>.JsonLoadFile(PVEZ_ZONES_JSON, staticZones);
+			JsonFileLoader<array<ref PVEZ_Zone>>.JsonLoadFile(PVEZ_ZONES_JSON, staticZones);
 		}
 
 		// If Json file has syntax errors then read process fails and <Zones> stays NULL.
@@ -204,11 +204,11 @@ class PVEZ_Zones : Managed {
 	}
 
 	void SaveToJson() {
-		JsonFileLoader<array<PVEZ_Zone>>.JsonSaveFile(PVEZ_ZONES_JSON, staticZones);
+		JsonFileLoader<array<ref PVEZ_Zone>>.JsonSaveFile(PVEZ_ZONES_JSON, staticZones);
 	}
 
 	void LoadDefaultZones() {
-		staticZones = new array<PVEZ_Zone>;
+		staticZones = new array<ref PVEZ_Zone>;
 
 		string worldName = GetGame().GetWorldName();
 		worldName.ToLower();

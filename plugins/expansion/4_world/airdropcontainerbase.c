@@ -1,11 +1,8 @@
-// Expansion defines are not working. So, no built-in plugin so far.
+#ifdef EXPANSIONMODMISSIONS
+modded class ExpansionAirdropContainerBase {
 
-/*
-#ifdef EXPANSIONMOD
-modded class ExpansionAirdropContainerBase extends Container_Base {
-
-	protected PVEZ_Zone pvez_Zone;
-	protected vector lastPosition;
+	protected autoptr PVEZ_Zone pvez_Zone;
+	protected vector pvez_lastPosition;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	///--------------------------------Expansion overrides:------------------------------------///
@@ -27,12 +24,12 @@ modded class ExpansionAirdropContainerBase extends Container_Base {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///-------------------------------------PVEZ methods:--------------------------------------------//
 	void CreatePVEZZone() {
-		lastPosition = GetPosition();
-		lastPosition[1] = 0; // we need to store X and Z only.
+		pvez_lastPosition = GetPosition();
+		pvez_lastPosition[1] = 0; // we need to store X and Z only.
 		pvez_Zone = g_Game.pvez_Zones.AddZone(
 			PVEZ_ZONE_TYPE_AIRDROP, // 1
-			lastPosition[0],
-			lastPosition[2],
+			pvez_lastPosition[0],
+			pvez_lastPosition[2],
 			g_Game.pvez_Config.AIRDROP_ZONES.Radius,
 			g_Game.pvez_Config.AIRDROP_ZONES.Name,
 			g_Game.pvez_Config.AIRDROP_ZONES.ShowBorderOnMap,
@@ -48,12 +45,11 @@ modded class ExpansionAirdropContainerBase extends Container_Base {
 
 		vector currentPosition = GetPosition();
 		currentPosition[1] = 0; // we need X and Z only.
-		if (vector.Distance(lastPosition, currentPosition) > 10) {
-			lastPosition = currentPosition;
+		if (vector.Distance(pvez_lastPosition, currentPosition) > 10) {
+			pvez_lastPosition = currentPosition;
 			pvez_Zone.X = currentPosition[0];
 			pvez_Zone.Z = currentPosition[2];
 		}
 	}
 }
 #endif
-*/

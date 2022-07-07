@@ -5,7 +5,7 @@ modded class MissionBase {
 	bool PVEZNeedUpdate;
 }
 
-modded class MissionServer extends MissionBase {
+modded class MissionServer {
 
 	/// This doesn't work on servers with long run times (4-5+ hours)
 	/*
@@ -31,8 +31,11 @@ modded class MissionServer extends MissionBase {
 #ifdef PVEZ_DEBUGMODE
 	Print("PVEZ :: Running in DEBUG mode.");
 #endif
-#ifdef EXPANSIONMOD
-	Print("PVEZ :: Expansion defined.");
+#ifdef EXPANSIONMODMISSIONS
+	Print("PVEZ :: Expansion Missions defined.");
+#endif
+#ifdef EXPANSIONMODNAVIGATION
+	Print("PVEZ :: Expansion Navigation defined.");
 #endif
 	}
 

@@ -2,7 +2,7 @@ class PVEZ_Lawbreaker : Managed {
 	string Id;
 	autoptr array<string> Recent_Character_Names;
 	int Murder_Count;
-	PVEZ_Date Latest_Murder_Time;
+	autoptr PVEZ_Date Latest_Murder_Time;
 	bool Is_Currently_Outlaw;
 
 	void PVEZ_Lawbreaker(string id, string name, int crimesCount, bool outlaw = true, PVEZ_Date lastMurderTime = NULL) {
@@ -17,14 +17,14 @@ class PVEZ_Lawbreaker : Managed {
 
 class PVEZ_LawbreakersRoster : Managed {
 
-	autoptr array<PVEZ_Lawbreaker> lbDataBase;
+	autoptr array<ref PVEZ_Lawbreaker> lbDataBase;
 	autoptr map<string, EntityAI> lbEntities;
 
 	// This flag is monitored by <MissionServer> to update lawbreaker statuses on players when this roster is getting re-initialized.
 	bool updated;
 
 	void PVEZ_LawbreakersRoster(PVEZ_Config c) {
-		lbDataBase = new array<PVEZ_Lawbreaker>;
+		lbDataBase = new array<ref PVEZ_Lawbreaker>;
 		lbEntities = new map<string, EntityAI>;
 		if (GetGame().IsServer() || !GetGame().IsMultiplayer()) {
 			LoadFromJson();
@@ -35,13 +35,13 @@ class PVEZ_LawbreakersRoster : Managed {
 	}
 
 	void SaveToJson() {
-		JsonFileLoader<array<PVEZ_Lawbreaker>>.JsonSaveFile(PVEZ_LAWBREAKERS_ROSTER_JSON, lbDataBase);
+		JsonFileLoader<array<ref PVEZ_Lawbreaker>>.JsonSaveFile(PVEZ_LAWBREAKERS_ROSTER_JSON, lbDataBase);
 	}
 	
 	void LoadFromJson() {
 		// Read Json file and fullfill the <roster> array with the data stored in the Json
 		if (FileExist(PVEZ_LAWBREAKERS_ROSTER_JSON)) {
-			JsonFileLoader<array<PVEZ_Lawbreaker>>.JsonLoadFile(PVEZ_LAWBREAKERS_ROSTER_JSON, lbDataBase);
+			JsonFileLoader<array<ref PVEZ_Lawbreaker>>.JsonLoadFile(PVEZ_LAWBREAKERS_ROSTER_JSON, lbDataBase);
 		}
 	}
 

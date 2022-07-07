@@ -3,13 +3,13 @@
 class PVEZ_Config : Managed {
 	
 	//--------------------PVEZ_Config.JSON sections:--------------------//
-	PVEZ_GeneralSettings GENERAL;
-	PVEZ_DamageSettings DAMAGE;
-	PVEZ_LawbreakersSettings LAWBREAKERS_SYSTEM;
-	PVEZ_MapSettings MAP;
-	PVEZ_AirdropZonesSettings AIRDROP_ZONES;
-	PVEZ_TerritoryFlagZonesSettings TERRITORYFLAG_ZONES;
-	PVEZ_HeliCrashZonesSettings HELICRASH_ZONES;
+	autoptr PVEZ_GeneralSettings GENERAL;
+	autoptr PVEZ_DamageSettings DAMAGE;
+	autoptr PVEZ_LawbreakersSettings LAWBREAKERS_SYSTEM;
+	autoptr PVEZ_MapSettings MAP;
+	autoptr PVEZ_AirdropZonesSettings AIRDROP_ZONES;
+	autoptr PVEZ_TerritoryFlagZonesSettings TERRITORYFLAG_ZONES;
+	autoptr PVEZ_HeliCrashZonesSettings HELICRASH_ZONES;
 	int version = 113;
 	//__________________________________________________________________//
 
