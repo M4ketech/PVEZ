@@ -150,7 +150,7 @@ modded class PlayerBase {
 					break;
 				case PVEZ_RPC.ADMIN_LAWBREAKERS_DATA_REQUEST:
 					if (isPVEZAdmin && GetPVEZAdminMenu().GetLayoutRoot().IsVisible()) {
-						Param2<array<ref PVEZ_Lawbreaker>, ref array<Man>> data3 = new Param2<array<ref PVEZ_Lawbreaker>, ref array<Man>>(NULL, NULL);
+						Param2<array<ref PVEZ_Lawbreaker>, array<Man>> data3 = new Param2<array<ref PVEZ_Lawbreaker>, array<Man>>(NULL, NULL);
 						if (!ctx.Read(data3)) {
 							MessageStatus("PVEZ: Failed to get lawbreakers data from server.");
 							break;
