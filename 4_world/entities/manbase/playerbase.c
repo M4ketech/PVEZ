@@ -25,10 +25,12 @@ modded class PlayerBase {
 				g_Game.PVEZ_SendConfigToClient(this);
 				g_Game.PVEZ_SendActiveZonesToClient(this);
 				g_Game.PVEZ_GetAdminStatus(this);
+				pvez_PlayerStatus = new PVEZ_PlayerStatus(this);
 				pvez_BountiesSpawner = new PVEZ_BountiesSpawner(this);
 				pvez_DamageRedistributor = new PVEZ_DamageRedistributor(this);
 			}
-			pvez_PlayerStatus = new PVEZ_PlayerStatus(this);
+			else if (GetGame().IsClient())
+				pvez_PlayerStatus = new PVEZ_PlayerStatus(this);
 		}
 		else {
 			// Hud will be initialized in-game, in main menu this should be skipped to prevent client side error on PVEZ icon update.
