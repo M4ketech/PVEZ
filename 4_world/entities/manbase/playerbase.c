@@ -14,13 +14,6 @@ modded class PlayerBase {
 	protected int pvez_weaponType;
 
 	autoptr PVEZ_DamageRedistributor pvez_DamageRedistributor;
-	
-	/*
-	<pvez_bleedingSourceCountBeforeTheHit> stores the amount of bleeding sources before the <EEHitBy()> execution.
-	After the <super.EEHitBy()> we'll check if new bleeding source has been added, if that so then we should remove one (if needed, on player attack in PVE area).
-	It's done this way to prevent the abuse when (if we just attempt to remove bleeding on every hit) friendly punch could remove bleeding from the player.
-	So we'll only remove the bleeding source if it was applied right before our <HealDamageRecieved()> execution in PVE area. */
-	protected int pvez_bleedingSourceCountBeforeTheHit;
 
 	override void OnPlayerLoaded() {
 		super.OnPlayerLoaded();
@@ -48,33 +41,30 @@ modded class PlayerBase {
 		}
 	}
 
-	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef) {
-		// In the base method the bleeding will be applied to the player. And we store the current bleeding count before the new one is applied.
-		pvez_bleedingSourceCountBeforeTheHit = m_BleedingSourceCount;
-
-		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef) {
+		if (!super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
+			return false;
 
 		if (!IsAlive() || g_Game.pvez_Config.GENERAL.Mode == PVEZ_MODE_PVP)
-			return;
+			return true;
 		
 		if (GetGame().IsMultiplayer() && !GetGame().IsServer())
-			return;
+			return true;
 
 		// Workaround for AI bots, they don't have PVEZ_DamageRedistributor
 		if (!pvez_DamageRedistributor)
-			return;
+			return true;
 
-		// Have the player got a new bleeding from the recent hit in base class method?
-		bool gotNewBleeding = false;
-		if (m_BleedingSourceCount > pvez_bleedingSourceCountBeforeTheHit)
-			gotNewBleeding = true;
+		bool isDamageAllowed = true;
 
-		pvez_DamageRedistributor.RegisterHit(this, source, pvez_weaponType, gotNewBleeding);
+		pvez_DamageRedistributor.RegisterHit(this, source, pvez_weaponType, false);
 		if (!pvez_DamageRedistributor.LastHitWasAllowed() && damageResult) {
 			if (g_Game.pvez_Config.DAMAGE.Restore_Target_Health)
-				pvez_DamageRedistributor.HealDamageReceived(damageResult, dmgZone, gotNewBleeding);
+				isDamageAllowed = false;
 			pvez_DamageRedistributor.ProcessDamageReflection(pvez_weaponType, damageResult.GetDamage("", ""));
 		}
+
+		return isDamageAllowed;
 	}
 
 	override void OnBleedingSourceRemoved() {

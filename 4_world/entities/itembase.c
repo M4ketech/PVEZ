@@ -32,30 +32,24 @@ modded class ItemBase {
 		}
 	}
 
-	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef) {
+	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef) {
+		if (!super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
+			return false;
 		
 		pvez_isDamageAllowed = true;
 
 		if (pvez_owner && pvez_owner.PVEZ_ShouldProtectClothing()) {
 			if (IsClothing() || IsContainer()) {
 				// Just like in <PlayerBase>, check the source root.
-				// We do it before the base method call to set <isDamageAllowed> first, because the base method executes <DamageItemsInCargo()>.
 				pvez_DamageRedistributor.RegisterHit(pvez_owner, source, pvez_weaponType, false);
 				if (!pvez_DamageRedistributor.LastHitWasAllowed()) {
 					pvez_isDamageAllowed = false;
 					pvez_DamageRedistributor.ProcessDamageReflection(pvez_weaponType, damageResult.GetDamage("", ""));
 				}
 			}
-
-			super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
-
-			// Restore item health after the hit.
-			if (!pvez_isDamageAllowed)
-				this.AddHealth("", "", damageResult.GetDamage("", ""));
 		}
-		else
-			// If <Protect_Clothing_And_Cargo> in PVEZ_Config is false (or the item has no player owner), then just call the base method.
-			super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+
+		return pvez_isDamageAllowed;
 	}
 
 	override bool DamageItemInCargo(float damage) {

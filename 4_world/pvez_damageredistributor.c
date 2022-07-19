@@ -116,7 +116,7 @@ class PVEZ_DamageRedistributor : Managed {
 
 	/*
 	Look into the damage source roots and return the actual initiator entity.
-	@param source - the source of the damage from <EEHitBy()> (might be a weapon, fists, an animal claws, a car...)
+	@param source - the source of the damage from <EEOnDamageCalculated()> (might be a weapon, fists, an animal claws, a car...)
 	@param wpnType - returns one of the constants depending on the damage source weapon type. */
 	private EntityAI GetDamageInitiator(EntityAI source, out int wpnType) {
 		// First of all, check if it's an infected/animal,

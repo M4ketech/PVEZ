@@ -13,21 +13,26 @@ modded class ZombieBase {
 		pvez_DamageRedistributor = new PVEZ_DamageRedistributor(this);
 	}
 
-	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef) {
-		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef) {
+		if (!super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
+			return false;
+
+		bool isDamageAllowed = true;
 
 		if (GetGame().IsServer() || !GetGame().IsMultiplayer()) {
 			if (!IsAlive() || g_Game.pvez_Config.GENERAL.Mode == PVEZ_MODE_PVP)
-				return;
+				return true;
 
 			pvez_DamageRedistributor.RegisterHit(this, source, pvez_weaponType, false);
 			if (!pvez_DamageRedistributor.LastHitWasAllowed() && damageResult) {
 				if (g_Game.pvez_Config.DAMAGE.Restore_Target_Health) {
-					pvez_DamageRedistributor.HealDamageReceived(damageResult, dmgZone, false);
+					isDamageAllowed = false;
 				}
 				pvez_DamageRedistributor.ProcessDamageReflection(pvez_weaponType, damageResult.GetDamage("", ""));
 			}
 		}
+
+		return isDamageAllowed;
 	}
 
 	override bool EvaluateDeathAnimation(EntityAI pSource, string pComponent, string pAmmoType, out int pAnimType, out float pAnimHitDir) {
