@@ -82,12 +82,13 @@ modded class PlayerBase {
 		super.EEKilled(killer);
 
 		if (GetGame().IsServer() || !GetGame().IsMultiplayer()) {
+			// AI bots don't have identity and thus no PVEZ_PlayerStatus or PVEZ_DamageRedistributor
 			if (!pvez_PlayerStatus) {
-				Print(PVEZ_ERROR_PREFIX + "No PlayerStatus on death!");
+				if (GetIdentity())
+					Print(PVEZ_ERROR_PREFIX + "No PlayerStatus on death!");
 				return;
 			}
 
-			// Workaround for AI bots, they don't have PVEZ_DamageRedistributor
 			if (!pvez_DamageRedistributor)
 				return;
 
