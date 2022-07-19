@@ -83,12 +83,14 @@ class PVEZ_DamageRedistributor : Managed {
 		lastHitWasAllowed = true;
 		
 		if (IsHitByAnotherPlayer()) {
+			PlayerBase player;
 #ifdef PVEZ_DEBUGMODE
 			if (ZombieBase.Cast(victim))
 				lastHitWasAllowed = ZombieBase.Cast(victim).PVEZ_IsPvpAttackAllowed();
 			else
 #endif
-			lastHitWasAllowed = PlayerBase.Cast(victim).pvez_PlayerStatus.PVEZ_IsPvpAttackAllowed(DirectDmgInitiator);
+			if (Class.CastTo(player, victim) && player.pvez_PlayerStatus)
+				lastHitWasAllowed = player.pvez_PlayerStatus.PVEZ_IsPvpAttackAllowed(DirectDmgInitiator);
 		}
 	}
 
