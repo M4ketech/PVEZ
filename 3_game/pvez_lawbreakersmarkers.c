@@ -42,7 +42,7 @@ class PVEZ_LawbreakersMarkers : Managed {
 		}
 		if (!markerFound) {
 			string name = PVEZ_StaticFunctions.GetEntityName(lbEntity);
-			autoptr PVEZ_LawbreakerMarker newMarker = new PVEZ_LawbreakerMarker(
+			PVEZ_LawbreakerMarker newMarker = new PVEZ_LawbreakerMarker(
 				lbEntity.GetPosition(), id, name, g_Game.pvez_Config.MAP.Lawbreakers_Markers.Show_Name);
 			markers.Insert(newMarker);
 		}

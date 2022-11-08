@@ -145,7 +145,7 @@ class PVEZ_MapMarkersDrawer : Managed {
 	}
 
 	static bool IntersectsWithOtherCircles(vector point, PVEZ_Zone zone) {
-		autoptr PVEZ_Zone zoneToCheck;
+		PVEZ_Zone zoneToCheck;
 		for (int i = 0; i < zones.Count(); i++) {
 			zoneToCheck = zones[i];
 			// Ignore the zones with disabled borders and if it's the same zone, also if the zones have the same center and radius

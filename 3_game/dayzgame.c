@@ -1,4 +1,4 @@
-modded class DayZGame extends CGame {
+modded class DayZGame {
 
 	autoptr PVEZ_Config pvez_Config;
 	autoptr PVEZ_Zones pvez_Zones;
@@ -21,7 +21,7 @@ modded class DayZGame extends CGame {
 	void PVEZ_SendConfigToClient(DayZPlayer dzp = NULL) {
 		if (IsServer()) {
 			// Send PVEZ config to the client via RPC
-			Param1<ref PVEZ_Config> configData = new Param1<ref PVEZ_Config>(pvez_Config);
+			Param1<PVEZ_Config> configData = new Param1<PVEZ_Config>(pvez_Config);
 			if (dzp)
 				RPCSingleParam(dzp, PVEZ_RPC.UPDATE_CONFIG, configData, true, dzp.GetIdentity()); // to the given player
 			else
@@ -64,7 +64,7 @@ modded class DayZGame extends CGame {
 
 	void PVEZ_RPCForAllClients(int type, Param data) {
 		if (GetGame().GetWorld()) {
-			autoptr ref array<Man> players = new array<Man>;
+			array<Man> players = new array<Man>;
 			GetGame().GetWorld().GetPlayerList(players);
 			if (players.Count() > 0) {
 				foreach (Man p : players) {
@@ -90,7 +90,7 @@ modded class DayZGame extends CGame {
 		else {
 			switch (rpc_type) {
 				case PVEZ_RPC.UPDATE_CONFIG:
-					Param1<ref PVEZ_Config> data4 = new Param1<ref PVEZ_Config>(NULL);
+					Param1<PVEZ_Config> data4 = new Param1<PVEZ_Config>(NULL);
 					if (!ctx.Read(data4)) {
 						RPCSingleParam(DayZPlayer.Cast(target), ERPCs.RPC_USER_ACTION_MESSAGE, new Param1<string>("PVEZ: ERROR. Failed to apply new settings."), true, DayZPlayer.Cast(target).GetIdentity());
 						PVEZ_SendConfigToClient(DayZPlayer.Cast(target));
@@ -130,13 +130,13 @@ modded class DayZGame extends CGame {
 					RPCSingleParam(DayZPlayer.Cast(target), PVEZ_RPC.ADMIN_ZONES_DATA_REQUEST, data7, true, DayZPlayer.Cast(target).GetIdentity());
 					break;
 				case PVEZ_RPC.ADMIN_LAWBREAKERS_DATA_REQUEST:
-					autoptr ref array<Man> players = new ref array<Man>;
+					array<Man> players = new array<Man>;
 					GetPlayers(players);
-					Param2<array<ref PVEZ_Lawbreaker>, ref array<Man>> data8 = new Param2<array<ref PVEZ_Lawbreaker>, ref array<Man>>(pvez_LawbreakersRoster.lbDataBase, players);
+					Param2<array<ref PVEZ_Lawbreaker>, array<Man>> data8 = new Param2<array<ref PVEZ_Lawbreaker>, array<Man>>(pvez_LawbreakersRoster.lbDataBase, players);
 					RPCSingleParam(DayZPlayer.Cast(target), PVEZ_RPC.ADMIN_LAWBREAKERS_DATA_REQUEST, data8, true, DayZPlayer.Cast(target).GetIdentity());
 					break;
 				case PVEZ_RPC.ADMIN_BOUNTIES_DATA_REQUEST:
-					Param1<ref PVEZ_Bounties> data9 = new Param1<ref PVEZ_Bounties>(pvez_Bounties);
+					Param1<PVEZ_Bounties> data9 = new Param1<PVEZ_Bounties>(pvez_Bounties);
 					RPCSingleParam(DayZPlayer.Cast(target), PVEZ_RPC.ADMIN_BOUNTIES_DATA_REQUEST, data9, true, DayZPlayer.Cast(target).GetIdentity());
 					break;
 				case PVEZ_RPC.ADMIN_UPDATE_LAWBREAKERS:
@@ -146,7 +146,7 @@ modded class DayZGame extends CGame {
 					pvez_LawbreakersRoster.SaveToJson();
 					pvez_LawbreakersRoster = new PVEZ_LawbreakersRoster(pvez_Config);
 					// Send updated database back to admin client (the sender of this RPC call):
-					autoptr array<Man> players2 = new array<Man>;
+					array<Man> players2 = new array<Man>;
 					GetPlayers(players2);
 					Param2<array<ref PVEZ_Lawbreaker>, array<Man>> data11 = new Param2<array<ref PVEZ_Lawbreaker>, array<Man>>(pvez_LawbreakersRoster.lbDataBase, players2);
 					RPCSingleParam(DayZPlayer.Cast(target), PVEZ_RPC.ADMIN_LAWBREAKERS_DATA_REQUEST, data11, true, DayZPlayer.Cast(target).GetIdentity());

@@ -1,4 +1,4 @@
-modded class IngameHud extends Hud {
+modded class IngameHud {
 
 	autoptr PVEZ_NotificationGUI pvez_NotificationGUI;
 

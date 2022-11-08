@@ -1,14 +1,14 @@
-modded class ItemBase extends InventoryItem {
+modded class ItemBase {
 
 	// Can't make this private, DayZ yells at me if I try.
 	PlayerBase pvez_owner;
 	
 	// When the damage source is a player <isDamageAllowed> value will depend on the owner PVP status.
-	private bool isDamageAllowed = true;
+	private bool pvez_isDamageAllowed = true;
 
 	// Used by <PVEZ_DamageRedistributor.RegisterHit(source, DmgInitiator, weaponType))>
 	private autoptr PVEZ_DamageRedistributor pvez_DamageRedistributor;
-	private int weaponType;
+	private int pvez_weaponType;
 
 	void ItemBase() { }
 
@@ -28,34 +28,28 @@ modded class ItemBase extends InventoryItem {
 		else {
 			pvez_owner = NULL;
 			pvez_DamageRedistributor = NULL;
-			isDamageAllowed = true;
+			pvez_isDamageAllowed = true;
 		}
 	}
 
-	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef) {
+	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef) {
+		if (!super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
+			return false;
 		
-		isDamageAllowed = true;
+		pvez_isDamageAllowed = true;
 
 		if (pvez_owner && pvez_owner.PVEZ_ShouldProtectClothing()) {
 			if (IsClothing() || IsContainer()) {
 				// Just like in <PlayerBase>, check the source root.
-				// We do it before the base method call to set <isDamageAllowed> first, because the base method executes <DamageItemsInCargo()>.
-				pvez_DamageRedistributor.RegisterHit(pvez_owner, source, weaponType, false);
+				pvez_DamageRedistributor.RegisterHit(pvez_owner, source, pvez_weaponType, false);
 				if (!pvez_DamageRedistributor.LastHitWasAllowed()) {
-					isDamageAllowed = false;
-					pvez_DamageRedistributor.ProcessDamageReflection(weaponType, damageResult.GetDamage("", ""));
+					pvez_isDamageAllowed = false;
+					pvez_DamageRedistributor.ProcessDamageReflection(pvez_weaponType, damageResult.GetDamage("", ""));
 				}
 			}
-
-			super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
-
-			// Restore item health after the hit.
-			if (!isDamageAllowed)
-				this.AddHealth("", "", damageResult.GetDamage("", ""));
 		}
-		else
-			// If <Protect_Clothing_And_Cargo> in PVEZ_Config is false (or the item has no player owner), then just call the base method.
-			super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+
+		return pvez_isDamageAllowed;
 	}
 
 	override bool DamageItemInCargo(float damage) {
@@ -63,7 +57,7 @@ modded class ItemBase extends InventoryItem {
 		// This could cause incompatibility with mods which use this base method too.
 		// If PVEZ is loaded on server before those other mods, they could not work.
 		// If PVEZ is loaded after them, items will receive damage.
-		if (isDamageAllowed)
+		if (pvez_isDamageAllowed)
 			return super.DamageItemInCargo(damage);
 		else
 			return false;

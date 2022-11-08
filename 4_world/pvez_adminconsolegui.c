@@ -1,9 +1,9 @@
 class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 
-	protected autoptr ref PVEZ_Zone selectedZone;
+	protected autoptr PVEZ_Zone selectedZone;
 	protected int dynamicZonesTypeSelected;
-	protected autoptr ref PVEZ_Lawbreaker selectedLawbreaker;
-	protected autoptr ref array<Man> playersOnServer;
+	protected autoptr PVEZ_Lawbreaker selectedLawbreaker;
+	protected autoptr array<Man> playersOnServer;
 
 	protected bool isTypingText;
 
@@ -545,7 +545,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 			int selectedZoneRow = zonesList.GetSelectedRow();
 			if (selectedZoneRow == -1) return true;
 
-			Param1<ref PVEZ_Zone> selectedZoneParam = new Param1<ref PVEZ_Zone>(NULL);
+			Param1<PVEZ_Zone> selectedZoneParam = new Param1<PVEZ_Zone>(NULL);
 			zonesList.GetItemData(selectedZoneRow, 0, selectedZoneParam);
 			selectedZone = selectedZoneParam.param1;
 
@@ -556,7 +556,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 			return true;
 		}
 		if (w == btnCreateNewZone) {
-			selectedZone = new ref PVEZ_Zone(PVEZ_ZONE_TYPE_STATIC, 0, 0, "New zone", 100, false, false);
+			selectedZone = new PVEZ_Zone(PVEZ_ZONE_TYPE_STATIC, 0, 0, "New zone", 100, false, false);
 			OnZoneSelected(selectedZone);
 			return true;
 		}
@@ -653,7 +653,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 
 			selectedLawbreaker = g_Game.pvez_LawbreakersRoster.GetById(id);
 			if (!selectedLawbreaker)
-				selectedLawbreaker = new ref PVEZ_Lawbreaker(id, name, 0, false, PVEZ_Date.Now());
+				selectedLawbreaker = new PVEZ_Lawbreaker(id, name, 0, false, PVEZ_Date.Now());
 			OnLawbreakerSelected(selectedLawbreaker);
 			return true;
 		}
@@ -694,14 +694,14 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 			return true;
 		}
 		if (w == bountyApplyButton) {
-			autoptr array<ref PVEZ_BountyItemData> newBountiesList = new array<ref PVEZ_BountyItemData>;
+			array<ref PVEZ_BountyItemData> newBountiesList = new array<ref PVEZ_BountyItemData>;
 			for (int i = 0; i < bountySelectedItemsList.GetNumItems(); i++) {
 				Param3<string, string, int> selectedItemParam = new Param3<string, string, int>("", "", -1);
 				bountySelectedItemsList.GetItemData(i, 0, selectedItemParam);
 				string className = selectedItemParam.param1;
 				string displayName = selectedItemParam.param2;
 				int amount = selectedItemParam.param3;
-				ref PVEZ_BountyItemData itemData = new PVEZ_BountyItemData(className, displayName, amount);
+				PVEZ_BountyItemData itemData = new PVEZ_BountyItemData(className, displayName, amount);
 				newBountiesList.Insert(itemData);
 			}
 			Param2<bool, array<ref PVEZ_BountyItemData>> newBountiesSettings = new Param2<bool, array<ref PVEZ_BountyItemData>>(bountyCheckboxValue.IsChecked(), newBountiesList);
@@ -749,8 +749,8 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 	void UpdateZonesList() {
 		zonesList.ClearItems();
 		for (int i = 0; i < g_Game.pvez_Zones.staticZones.Count(); i++) {
-			ref PVEZ_Zone zone = g_Game.pvez_Zones.staticZones.Get(i);
-			Param1<ref PVEZ_Zone> data = new Param1<ref PVEZ_Zone>(zone);
+			PVEZ_Zone zone = g_Game.pvez_Zones.staticZones.Get(i);
+			Param1<PVEZ_Zone> data = new Param1<PVEZ_Zone>(zone);
 			zonesList.AddItem((i + 1).ToString() + ". " + g_Game.pvez_Zones.staticZones[i].Name, data, 0, i);
 		}
 		if (g_Game.pvez_Zones.staticZones.Find(selectedZone) < 0)
@@ -778,7 +778,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 		serverTimeValue.SetText("[Day]" + day.ToString() + ", [Time]" + hour.ToString() + ":" + min.ToString());
 	}
 
-	void UpdateLawbreakersList(ref array<Man> players) {
+	void UpdateLawbreakersList(array<Man> players) {
 		if (!players && !GetGame().IsMultiplayer()) {
 			playersOnServer = new array<Man>;
 			playersOnServer.Insert(GetGame().GetPlayer());
@@ -850,7 +850,7 @@ class PVEZ_AdminConsoleGUI extends UIScriptedMenu {
 		}
 	}
 
-	void UpdateBountiesPage(ref PVEZ_Bounties data) {
+	void UpdateBountiesPage(PVEZ_Bounties data) {
 		bountyCheckboxValue.SetChecked(data.Enabled);
 		bountySelectedItemsList.ClearItems();
 		for (int i = 0; i < data.Items.Count(); i++) {

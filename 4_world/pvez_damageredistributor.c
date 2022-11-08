@@ -83,12 +83,14 @@ class PVEZ_DamageRedistributor : Managed {
 		lastHitWasAllowed = true;
 		
 		if (IsHitByAnotherPlayer()) {
+			PlayerBase player;
 #ifdef PVEZ_DEBUGMODE
 			if (ZombieBase.Cast(victim))
 				lastHitWasAllowed = ZombieBase.Cast(victim).PVEZ_IsPvpAttackAllowed();
 			else
 #endif
-			lastHitWasAllowed = PlayerBase.Cast(victim).pvez_PlayerStatus.PVEZ_IsPvpAttackAllowed(DirectDmgInitiator);
+			if (Class.CastTo(player, victim) && player.pvez_PlayerStatus)
+				lastHitWasAllowed = player.pvez_PlayerStatus.PVEZ_IsPvpAttackAllowed(DirectDmgInitiator);
 		}
 	}
 
@@ -116,7 +118,7 @@ class PVEZ_DamageRedistributor : Managed {
 
 	/*
 	Look into the damage source roots and return the actual initiator entity.
-	@param source - the source of the damage from <EEHitBy()> (might be a weapon, fists, an animal claws, a car...)
+	@param source - the source of the damage from <EEOnDamageCalculated()> (might be a weapon, fists, an animal claws, a car...)
 	@param wpnType - returns one of the constants depending on the damage source weapon type. */
 	private EntityAI GetDamageInitiator(EntityAI source, out int wpnType) {
 		// First of all, check if it's an infected/animal,
@@ -129,7 +131,7 @@ class PVEZ_DamageRedistributor : Managed {
 		// <Grenade_Base.c> is modded to have <(PlayerBase)Thrower> property.
 		// The property is set in modded <ActionUnpin> class on grenade unpin action execution.
 		else if (source.IsInherited(Grenade_Base)) {
-			autoptr Grenade_Base grenade = Grenade_Base.Cast(source);
+			Grenade_Base grenade = Grenade_Base.Cast(source);
 			wpnType = PVEZ_DAMAGE_SOURCE_TYPE_EXPLOSIVE;
 			return grenade.Thrower;
 		}
@@ -140,13 +142,13 @@ class PVEZ_DamageRedistributor : Managed {
 		}
 		// and then check if it's some other weapon.
 		else if (source.IsWeapon() || source.IsMeleeWeapon()) {
-			autoptr EntityAI weapon = EntityAI.Cast(source);
+			EntityAI weapon = EntityAI.Cast(source);
 			wpnType = PVEZ_DAMAGE_SOURCE_TYPE_WEAPON;
 			return weapon.GetHierarchyRootPlayer();
 		}
 		else if (source.IsInherited(CarScript)) {
-			autoptr CarScript car = CarScript.Cast(source);
-			autoptr Human driver = Human.Cast(car.CrewMember(0));
+			CarScript car = CarScript.Cast(source);
+			Human driver = Human.Cast(car.CrewMember(0));
 			wpnType = PVEZ_DAMAGE_SOURCE_TYPE_VEHICLE;
 			return driver;
 		}
@@ -169,7 +171,7 @@ class PVEZ_DamageRedistributor : Managed {
 		if (entity.IsAlive()) {
 			if (gotBleeding) {
 				// Get bleeding sources and remove one of them
-				autoptr PlayerBase player = PlayerBase.Cast(entity);
+				PlayerBase player = PlayerBase.Cast(entity);
 				if (player)
 					player.GetBleedingManagerServer().RemoveMostSignificantBleedingSource();
 			}

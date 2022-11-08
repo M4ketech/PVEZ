@@ -1,4 +1,4 @@
-modded class Wreck_UH1Y extends House {
+modded class Wreck_UH1Y {
 
 	protected autoptr PVEZ_Zone pvez_Zone;
 

@@ -1,5 +1,5 @@
-modded class TerritoryFlag extends BaseBuildingBase {
-	protected PVEZ_Zone pvez_Zone;
+modded class TerritoryFlag {
+	protected autoptr PVEZ_Zone pvez_Zone;
 	protected bool m_RefresherActivePrevState;
 
 	void TerritoryFlag() {

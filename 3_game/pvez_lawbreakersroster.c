@@ -2,7 +2,7 @@ class PVEZ_Lawbreaker : Managed {
 	string Id;
 	autoptr array<string> Recent_Character_Names;
 	int Murder_Count;
-	autoptr ref PVEZ_Date Latest_Murder_Time;
+	autoptr PVEZ_Date Latest_Murder_Time;
 	bool Is_Currently_Outlaw;
 
 	void PVEZ_Lawbreaker(string id, string name, int crimesCount, bool outlaw = true, PVEZ_Date lastMurderTime = NULL) {
@@ -52,7 +52,7 @@ class PVEZ_LawbreakersRoster : Managed {
 		// Call it again after 60 secs to update LBs on server.
 		GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(this.RemoveOutdated, 60000, false, g_Game.pvez_Config);
 		
-		autoptr PVEZ_Date lastMurderTime;
+		PVEZ_Date lastMurderTime;
 		for (int i = 0; i < lbDataBase.Count(); i++) {
 			lastMurderTime = lbDataBase[i].Latest_Murder_Time;
 			
@@ -122,7 +122,7 @@ class PVEZ_LawbreakersRoster : Managed {
 		string murdererName = PVEZ_StaticFunctions.GetEntityName(lbEntity);
 
 		// Looking for the murderer in the roster
-		autoptr PVEZ_Lawbreaker lb;
+		PVEZ_Lawbreaker lb;
 		bool lawbreakerFound;
 		for (int i = 0; i < lbDataBase.Count(); i++) {
 			lb = lbDataBase[i];
@@ -159,7 +159,7 @@ class PVEZ_LawbreakersRoster : Managed {
 		}
 		if (!lawbreakerFound && isLawbreaker) {
 			// Adding new lawbreaker data to the roster
-			lbDataBase.Insert(new ref PVEZ_Lawbreaker(murdererId, murdererName, 1, true, time));
+			lbDataBase.Insert(new PVEZ_Lawbreaker(murdererId, murdererName, 1, true, time));
 			lbEntities.Insert(murdererId, lbEntity);
 		}
 	}

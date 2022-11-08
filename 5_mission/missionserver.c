@@ -5,7 +5,7 @@ modded class MissionBase {
 	bool PVEZNeedUpdate;
 }
 
-modded class MissionServer extends MissionBase {
+modded class MissionServer {
 
 	/// This doesn't work on servers with long run times (4-5+ hours)
 	/*
@@ -31,8 +31,11 @@ modded class MissionServer extends MissionBase {
 #ifdef PVEZ_DEBUGMODE
 	Print("PVEZ :: Running in DEBUG mode.");
 #endif
-#ifdef EXPANSIONMOD
-	Print("PVEZ :: Expansion defined.");
+#ifdef EXPANSIONMODMISSIONS
+	Print("PVEZ :: Expansion Missions defined.");
+#endif
+#ifdef EXPANSIONMODNAVIGATION
+	Print("PVEZ :: Expansion Navigation defined.");
 #endif
 	}
 
@@ -91,7 +94,7 @@ modded class MissionServer extends MissionBase {
 		if (m_Players.Count() == 0)
 			return;
 		
-		autoptr PlayerBase player;
+		PlayerBase player;
 		for (int i = 0; i < m_Players.Count(); i++) {
 			player = PlayerBase.Cast(m_Players.Get(i));
 

@@ -1,4 +1,4 @@
-modded class PlayerBase extends ManBase {
+modded class PlayerBase {
 
 	protected bool isPVEZAdmin;
 	bool IsPVEZAdmin() { return isPVEZAdmin; }
@@ -11,16 +11,9 @@ modded class PlayerBase extends ManBase {
 	autoptr PVEZ_BountiesSpawner pvez_BountiesSpawner;
 
 	// Used to decide whether the damage should be reflected back depending on config settings.
-	protected int weaponType;
+	protected int pvez_weaponType;
 
 	autoptr PVEZ_DamageRedistributor pvez_DamageRedistributor;
-	
-	/*
-	<bleedingSourceCountBeforeTheHit> stores the amount of bleeding sources before the <EEHitBy()> execution.
-	After the <super.EEHitBy()> we'll check if new bleeding source has been added, if that so then we should remove one (if needed, on player attack in PVE area).
-	It's done this way to prevent the abuse when (if we just attempt to remove bleeding on every hit) friendly punch could remove bleeding from the player.
-	So we'll only remove the bleeding source if it was applied right before our <HealDamageRecieved()> execution in PVE area. */
-	protected int bleedingSourceCountBeforeTheHit;
 
 	override void OnPlayerLoaded() {
 		super.OnPlayerLoaded();
@@ -50,33 +43,30 @@ modded class PlayerBase extends ManBase {
 		}
 	}
 
-	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef) {
-		// In the base method the bleeding will be applied to the player. And we store the current bleeding count before the new one is applied.
-		bleedingSourceCountBeforeTheHit = m_BleedingSourceCount;
-
-		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+	override bool EEOnDamageCalculated(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef) {
+		if (!super.EEOnDamageCalculated(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef))
+			return false;
 
 		if (!IsAlive() || g_Game.pvez_Config.GENERAL.Mode == PVEZ_MODE_PVP)
-			return;
+			return true;
 		
 		if (GetGame().IsMultiplayer() && !GetGame().IsServer())
-			return;
+			return true;
 
 		// Workaround for AI bots, they don't have PVEZ_DamageRedistributor
 		if (!pvez_DamageRedistributor)
-			return;
+			return true;
 
-		// Have the player got a new bleeding from the recent hit in base class method?
-		bool gotNewBleeding = false;
-		if (m_BleedingSourceCount > bleedingSourceCountBeforeTheHit)
-			gotNewBleeding = true;
+		bool isDamageAllowed = true;
 
-		pvez_DamageRedistributor.RegisterHit(this, source, weaponType, gotNewBleeding);
+		pvez_DamageRedistributor.RegisterHit(this, source, pvez_weaponType, false);
 		if (!pvez_DamageRedistributor.LastHitWasAllowed() && damageResult) {
 			if (g_Game.pvez_Config.DAMAGE.Restore_Target_Health)
-				pvez_DamageRedistributor.HealDamageReceived(damageResult, dmgZone, gotNewBleeding);
-			pvez_DamageRedistributor.ProcessDamageReflection(weaponType, damageResult.GetDamage("", ""));
+				isDamageAllowed = false;
+			pvez_DamageRedistributor.ProcessDamageReflection(pvez_weaponType, damageResult.GetDamage("", ""));
 		}
+
+		return isDamageAllowed;
 	}
 
 	override void OnBleedingSourceRemoved() {
@@ -92,16 +82,17 @@ modded class PlayerBase extends ManBase {
 		super.EEKilled(killer);
 
 		if (GetGame().IsServer() || !GetGame().IsMultiplayer()) {
+			// AI bots don't have identity and thus no PVEZ_PlayerStatus or PVEZ_DamageRedistributor
 			if (!pvez_PlayerStatus) {
-				Print(PVEZ_ERROR_PREFIX + "No PlayerStatus on death!");
+				if (GetIdentity())
+					Print(PVEZ_ERROR_PREFIX + "No PlayerStatus on death!");
 				return;
 			}
 
-			// Workaround for AI bots, they don't have PVEZ_DamageRedistributor
 			if (!pvez_DamageRedistributor)
 				return;
 
-			pvez_DamageRedistributor.RegisterDeath(this, EntityAI.Cast(killer), weaponType);
+			pvez_DamageRedistributor.RegisterDeath(this, EntityAI.Cast(killer), pvez_weaponType);
 			if (PVEZ_ShouldBePardonedOnDeath())
 				pvez_PlayerStatus.SetLawbreaker(false);
 		}
@@ -127,7 +118,7 @@ modded class PlayerBase extends ManBase {
 		if (GetGame().IsClient()) {
 			switch (rpc_type) {
 				case PVEZ_RPC.UPDATE_CONFIG:
-					Param1<ref PVEZ_Config> data1 = new Param1<ref PVEZ_Config>(NULL);
+					Param1<PVEZ_Config> data1 = new Param1<PVEZ_Config>(NULL);
 					if (!ctx.Read(data1)) {
 						MessageStatus("PVEZ: Failed to get config from server.");
 						break;
@@ -152,7 +143,7 @@ modded class PlayerBase extends ManBase {
 					break;
 				case PVEZ_RPC.ADMIN_LAWBREAKERS_DATA_REQUEST:
 					if (isPVEZAdmin && GetPVEZAdminMenu().GetLayoutRoot().IsVisible()) {
-						Param2<array<ref PVEZ_Lawbreaker>, ref array<Man>> data3 = new Param2<array<ref PVEZ_Lawbreaker>, ref array<Man>>(NULL, NULL);
+						Param2<array<ref PVEZ_Lawbreaker>, array<Man>> data3 = new Param2<array<ref PVEZ_Lawbreaker>, array<Man>>(NULL, NULL);
 						if (!ctx.Read(data3)) {
 							MessageStatus("PVEZ: Failed to get lawbreakers data from server.");
 							break;
@@ -163,7 +154,7 @@ modded class PlayerBase extends ManBase {
 					break;
 				case PVEZ_RPC.ADMIN_BOUNTIES_DATA_REQUEST:
 					if (isPVEZAdmin && GetPVEZAdminMenu().GetLayoutRoot().IsVisible()) {
-						Param1<ref PVEZ_Bounties> data4 = new Param1<ref PVEZ_Bounties>(NULL);
+						Param1<PVEZ_Bounties> data4 = new Param1<PVEZ_Bounties>(NULL);
 						if (!ctx.Read(data4)) {
 							MessageStatus("PVEZ: Failed to get bounties data from server.");
 							break;
@@ -179,7 +170,7 @@ modded class PlayerBase extends ManBase {
 					if (pvez_PlayerStatus) {
 						pvez_PlayerStatus.IsInPVP = data5.param1;
 						if (pvez_PlayerStatus.IsInPVP && g_Game.pvez_Config.GENERAL.Force1stPersonInPVP) {
-							DayZPlayerImplement dzp = DayZPlayerImplement.Cast(this);
+							DayZPlayerImplement dzp = this;
 							if (dzp)
 								dzp.m_Camera3rdPerson = false;
 						}
@@ -221,7 +212,7 @@ modded class PlayerBase extends ManBase {
 		else return false;
 	}
 
-	ref PVEZ_AdminConsoleGUI GetPVEZAdminMenu() {
+	PVEZ_AdminConsoleGUI GetPVEZAdminMenu() {
 		if (!pvez_AdminConsoleGUI) {
 			pvez_AdminConsoleGUI = new PVEZ_AdminConsoleGUI;
 			pvez_AdminConsoleGUI.Init();

@@ -3,7 +3,7 @@ class PVEZ_Date : Managed {
 		int year, month, day, hour, minute;
 		GetYearMonthDay(year, month, day);
 		GetHourMinuteSecond(hour, minute, NULL);
-		autoptr PVEZ_Date date = new PVEZ_Date(year, month, day, hour, minute);
+		PVEZ_Date date = new PVEZ_Date(year, month, day, hour, minute);
 		return date;
 	}
 
@@ -23,28 +23,34 @@ class PVEZ_StaticFunctions : Managed {
 		if (!entity)
 			return "";
 
-		if (entity.IsPlayer()) {
-			if (GetGame().IsMultiplayer())
-				return DayZPlayer.Cast(entity).GetIdentity().GetId();
+		DayZPlayer player;
+		if (Class.CastTo(player, entity)) {
+			if (GetGame().IsMultiplayer()) {
+				if (player.GetIdentity())
+					return player.GetIdentity().GetId();
+			}
 			else
 				return "Singleplayer";
 		}
-		else
-			return entity.GetID().ToString();
+
+		return entity.GetID().ToString();
 	}
 
 	static string GetEntityName(EntityAI entity) {
 		if (!entity)
 			return "";
 
-		if (entity.IsPlayer()) {
-			if (GetGame().IsMultiplayer())
-				return DayZPlayer.Cast(entity).GetIdentity().GetName();
+		DayZPlayer player;
+		if (Class.CastTo(player, entity)) {
+			if (GetGame().IsMultiplayer()) {
+				if (player.GetIdentity())
+					return player.GetIdentity().GetName();
+			}
 			else
-				return DayZPlayer.Cast(entity).GetName();
+				return player.GetName();
 		}
-		else
-			return entity.GetDisplayName();
+
+		return entity.GetDisplayName();
 	}
 
 	// Returns current date+time (real world) in format: "January 1, 21:10:02"

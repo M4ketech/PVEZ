@@ -1,5 +1,5 @@
 #ifdef BASICMAP
-modded class BasicMapMenu extends UIScriptedMenu {
+modded class BasicMapMenu {
 
 	override Widget Init() {
 		super.Init();

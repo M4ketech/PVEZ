@@ -1,4 +1,4 @@
-modded class MapMenu extends UIScriptedMenu
+modded class MapMenu
 {
 	override Widget Init() {
 		
